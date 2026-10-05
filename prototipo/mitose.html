@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordene as fases da mitose</title>
+<style>
+  /* ---------------------------------------------------------
+     CORES (claro + escuro automático)
+  --------------------------------------------------------- */
+  :root {
+    --bg: #f4f8f6;
+    --card: #ffffff;
+    --text: #13221c;
+    --muted: #55665f;
+    --line: #dbe5e0;
+    --accent: #0f766e;
+    --accent-ink: #115e59;
+    --accent-soft: #e3f4f1;
+    --chromo: #7c3aed;
+    --chromo-2: #db2777;
+    --cell: #94a3a0;
+    --spindle: #b6c4bf;
+    --ok: #15803d;
+    --ok-bg: #e8f7ee;
+    --bad: #b42318;
+    --bad-bg: #fdeeec;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c1513;
+      --card: #13201d;
+      --text: #e5efeb;
+      --muted: #97aaa3;
+      --line: #24352f;
+      --accent: #2dd4bf;
+      --accent-ink: #5eead4;
+      --accent-soft: #123430;
+      --chromo: #b794ff;
+      --chromo-2: #ff7fb3;
+      --cell: #6b7f78;
+      --spindle: #35504a;
+      --ok: #5ee08f;
+      --ok-bg: #11291d;
+      --bad: #ff9a90;
+      --bad-bg: #2f1517;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
+
+  /* ---------------------------------------------------------
+     CABEÇALHO
+  --------------------------------------------------------- */
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .badge {
+    font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent-ink); background: var(--accent-soft);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  h1 { font-size: 1.5rem; margin: 6px 0 6px; line-height: 1.25; }
+  .intro { color: var(--muted); margin: 0 0 20px; }
+
+  /* ---------------------------------------------------------
+     LISTA DE CARTÕES
+  --------------------------------------------------------- */
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+  .card {
+    display: grid;
+    grid-template-columns: auto 120px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    transition: border-color .2s ease, background .2s ease;
+  }
+
+  .card.moved { animation: pop .3s ease; }
+  @keyframes pop { 50% { transform: scale(1.015); } }
+
+  .pos {
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-weight: 800;
+  }
+
+  .card svg { width: 120px; height: 80px; display: block; }
+  .card p { margin: 0; font-size: .97rem; }
+  .card .name { display: block; font-weight: 800; margin-bottom: 2px; }
+
+  .moves { display: flex; flex-direction: column; gap: 6px; }
+  .moves button {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .moves button:hover:not(:disabled) { border-color: var(--accent); }
+  .moves button:disabled { opacity: .35; cursor: default; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .card.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .card.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .card .verdict { display: block; font-size: .85rem; font-weight: 700; margin-top: 4px; }
+  .card.correct .verdict { color: var(--ok); }
+  .card.wrong .verdict { color: var(--bad); }
+
+  /* ilustrações */
+  .cell { fill: none; stroke: var(--cell); stroke-width: 2; }
+  .nucleus { fill: none; stroke: var(--cell); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fiber { stroke: var(--spindle); stroke-width: 1.2; }
+  .chromo { fill: none; stroke: var(--chromo); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  .chromo.b { stroke: var(--chromo-2); }
+  .thin { stroke-width: 2.2; }
+
+  /* ---------------------------------------------------------
+     AÇÕES E RESULTADO
+  --------------------------------------------------------- */
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .btn {
+    font: inherit; font-weight: 700; font-size: .95rem;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-ink); }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .btn-primary { color: #0c1513; } }
+
+  .result {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid;
+  }
+  .result.ok { border-color: var(--ok); background: var(--ok-bg); }
+  .result.bad { border-color: var(--bad); background: var(--bad-bg); }
+  .result strong { display: block; font-size: 1.05rem; }
+  .result.ok strong { color: var(--ok); }
+  .result.bad strong { color: var(--bad); }
+  .result p { margin: 4px 0 0; }
+
+  .explain { margin-top: 24px; }
+  .explain h2 { font-size: 1.15rem; margin: 0 0 10px; }
+  .explain ol { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+  .explain li strong { color: var(--accent-ink); }
+
+  .meta { margin-top: 26px; font-size: .8rem; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .card { grid-template-columns: auto 1fr auto; }
+    .card svg { grid-column: 1 / -1; grid-row: 1; width: 100%; max-width: 180px; height: auto; justify-self: center; }
+    .actions .btn { flex: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="top"><span class="badge">Biologia · 2º ano</span></div>
+  <h1>Ordene as fases da mitose</h1>
+  <p class="intro">Cada cartão descreve o que acontece com os cromossomos em uma fase. Use as setas para colocar os cartões na ordem em que acontecem e clique em <strong>Conferir ordem</strong>.</p>
+
+  <ol class="cards" id="cards" aria-label="Cartões das fases, na ordem atual"></ol>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btn-check" type="button">Conferir ordem</button>
+    <button class="btn btn-ghost" id="btn-shuffle" type="button">Embaralhar e tentar de novo</button>
+  </div>
+
+  <div id="result" role="status" aria-live="polite"></div>
+
+  <section class="explain" id="explain" hidden aria-labelledby="explain-title">
+    <h2 id="explain-title">Entenda cada fase</h2>
+    <ol id="explain-list"></ol>
+  </section>
+
+  <p class="meta" id="meta"></p>
+</main>
+
+<script>
+/* =============================================================
+   CONTEÚDO DA ATIVIDADE
+   Para editar textos ou explicações, mexa apenas nesta lista.
+   A ordem da lista é a ordem correta das fases.
+============================================================= */
+const FASES = [
+  {
+    nome: "Prófase",
+    descricao: "Os cromossomos, já duplicados, se condensam e ficam visíveis. O envoltório do núcleo começa a se desfazer.",
+    explicacao: "É o início da divisão. Cada cromossomo já está duplicado (duas cromátides-irmãs unidas pelo centrômero) e se enrola até ficar curto e espesso. As fibras do fuso começam a se formar.",
+    ilustracao: "profase"
+  },
+  {
+    nome: "Metáfase",
+    descricao: "Os cromossomos se alinham no meio da célula, presos às fibras do fuso.",
+    explicacao: "Os cromossomos ficam enfileirados na região central da célula (placa equatorial), cada um ligado pelas fibras do fuso aos dois polos. É a fase em que eles aparecem mais nítidos ao microscópio.",
+    ilustracao: "metafase"
+  },
+  {
+    nome: "Anáfase",
+    descricao: "As cromátides-irmãs se separam e são puxadas para polos opostos da célula.",
+    explicacao: "As fibras do fuso encurtam e puxam as cromátides-irmãs, agora cromossomos independentes, para lados opostos. Assim, cada polo recebe um conjunto completo de cromossomos.",
+    ilustracao: "anafase"
+  },
+  {
+    nome: "Telófase",
+    descricao: "Formam-se dois novos núcleos, e os cromossomos voltam a se descondensar.",
+    explicacao: "Em cada polo, um novo envoltório nuclear se forma ao redor dos cromossomos, que se desenrolam. Geralmente junto com ela ocorre a citocinese, que divide o citoplasma e origina duas células-filhas com os mesmos cromossomos da célula original.",
+    ilustracao: "telofase"
+  }
+];
+
+/* =============================================================
+   ILUSTRAÇÕES (desenhos esquemáticos em SVG)
+============================================================= */
+const X = (x, y, cls) => `<path class="chromo ${cls || ""}" d="M${x - 5} ${y - 6} L${x + 5} ${y + 6} M${x + 5} ${y - 6} L${x - 5} ${y + 6}"/>`;
+
+const ILUSTRACOES = {
+  profase: `
+    <ellipse class="cell" cx="60" cy="40" rx="54" ry="34"/>
+    <circle class="nucleus" cx="60" cy="40" r="22"/>
+    ${X(50, 33)}${X(68, 31, "b")}${X(58, 50, "b")}${X(70, 47)}`,
+  metafase: `
+    <ellipse class="cell" cx="60" cy="40" rx="54" ry="34"/>
+    <g class="fiber">
+      <line x1="10" y1="40" x2="60" y2="22"/><line x1="10" y1="40" x2="60" y2="40"/><line x1="10" y1="40" x2="60" y2="58"/>
+      <line x1="110" y1="40" x2="60" y2="22"/><line x1="110" y1="40" x2="60" y2="40"/><line x1="110" y1="40" x2="60" y2="58"/>
+    </g>
+    ${X(60, 22)}${X(60, 40, "b")}${X(60, 58)}`,
+  anafase: `
+    <ellipse class="cell" cx="60" cy="40" rx="54" ry="34"/>
+    <g class="fiber">
+      <line x1="10" y1="40" x2="36" y2="26"/><line x1="10" y1="40" x2="36" y2="40"/><line x1="10" y1="40" x2="36" y2="54"/>
+      <line x1="110" y1="40" x2="84" y2="26"/><line x1="110" y1="40" x2="84" y2="40"/><line x1="110" y1="40" x2="84" y2="54"/>
+    </g>
+    <path class="chromo" d="M42 20 L34 26 L42 32"/><path class="chromo b" d="M42 34 L34 40 L42 46"/><path class="chromo" d="M42 48 L34 54 L42 60"/>
+    <path class="chromo" d="M78 20 L86 26 L78 32"/><path class="chromo b" d="M78 34 L86 40 L78 46"/><path class="chromo" d="M78 48 L86 54 L78 60"/>`,
+  telofase: `
+    <path class="cell" d="M60 14 C44 2, 6 6, 6 40 C6 74, 44 78, 60 66 C76 78, 114 74, 114 40 C114 6, 76 2, 60 14 Z"/>
+    <circle class="nucleus" cx="32" cy="40" r="16"/>
+    <circle class="nucleus" cx="88" cy="40" r="16"/>
+    <path class="chromo thin" d="M26 34 q4 4 0 8 q-4 4 0 8"/><path class="chromo b thin" d="M36 32 q4 4 0 8 q-4 4 0 8"/>
+    <path class="chromo thin" d="M82 34 q4 4 0 8 q-4 4 0 8"/><path class="chromo b thin" d="M92 32 q4 4 0 8 q-4 4 0 8"/>`
+};
+
+/* =============================================================
+   ESTADO
+   ordem: índices de FASES na ordem em que aparecem na tela
+============================================================= */
+const state = { ordem: [], conferido: false, tentativas: 0 };
+
+const $ = (id) => document.getElementById(id);
+
+function embaralhar(lista) {
+  const a = lista.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* embaralha garantindo que não comece já na ordem correta */
+function novaRodada() {
+  let ordem;
+  do { ordem = embaralhar(FASES.map((_, i) => i)); } while (ordem.every((v, i) => v === i));
+  state.ordem = ordem;
+  state.conferido = false;
+  $("result").innerHTML = "";
+  $("explain").hidden = true;
+  $("btn-check").hidden = false;
+  desenhar();
+}
+
+/* =============================================================
+   DESENHO DOS CARTÕES
+============================================================= */
+function desenhar(movido) {
+  const lista = $("cards");
+  lista.innerHTML = "";
+
+  state.ordem.forEach((faseIdx, pos) => {
+    const fase = FASES[faseIdx];
+    const li = document.createElement("li");
+    li.className = "card";
+    li.dataset.fase = faseIdx;
+    if (pos === movido) li.classList.add("moved");
+
+    const num = document.createElement("span");
+    num.className = "pos";
+    num.textContent = pos + 1;
+
+    const figura = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    figura.setAttribute("viewBox", "0 0 120 80");
+    figura.setAttribute("aria-hidden", "true");
+    figura.innerHTML = ILUSTRACOES[fase.ilustracao];
+
+    const texto = document.createElement("p");
+    if (state.conferido) {
+      const nome = document.createElement("span");
+      nome.className = "name";
+      nome.textContent = fase.nome;
+      texto.appendChild(nome);
+    }
+    texto.append(fase.descricao);
+
+    if (state.conferido) {
+      const certo = faseIdx === pos;
+      li.classList.add(certo ? "correct" : "wrong");
+      const veredito = document.createElement("span");
+      veredito.className = "verdict";
+      veredito.textContent = certo ? "✓ Posição correta" : "✗ O lugar desta fase é a posição " + (faseIdx + 1);
+      texto.appendChild(veredito);
+    }
+
+    const moves = document.createElement("div");
+    moves.className = "moves";
+    const cima = botaoMover("↑", "Mover para cima: " + fase.descricao, pos === 0, () => mover(pos, -1));
+    const baixo = botaoMover("↓", "Mover para baixo: " + fase.descricao, pos === state.ordem.length - 1, () => mover(pos, 1));
+    moves.append(cima, baixo);
+
+    li.append(num, figura, texto, moves);
+    lista.appendChild(li);
+  });
+}
+
+function botaoMover(simbolo, rotulo, desativado, acao) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = simbolo;
+  b.setAttribute("aria-label", rotulo);
+  b.disabled = desativado || state.conferido;
+  b.addEventListener("click", acao);
+  return b;
+}
+
+function mover(pos, direcao) {
+  const alvo = pos + direcao;
+  [state.ordem[pos], state.ordem[alvo]] = [state.ordem[alvo], state.ordem[pos]];
+  desenhar(alvo);
+  // mantém o foco no cartão que foi movido (importante para quem usa teclado)
+  const botoes = $("cards").children[alvo].querySelectorAll(".moves button");
+  const preferido = botoes[direcao < 0 ? 0 : 1];
+  (preferido.disabled ? botoes[direcao < 0 ? 1 : 0] : preferido).focus();
+}
+
+/* =============================================================
+   CONFERIR
+============================================================= */
+function conferir() {
+  state.conferido = true;
+  state.tentativas++;
+  desenhar();
+
+  const acertos = state.ordem.filter((v, i) => v === i).length;
+  const tudoCerto = acertos === FASES.length;
+
+  const box = document.createElement("div");
+  box.className = "result " + (tudoCerto ? "ok" : "bad");
+  const titulo = document.createElement("strong");
+  titulo.textContent = tudoCerto
+    ? "✓ Ordem correta! Prófase → Metáfase → Anáfase → Telófase"
+    : "Você acertou " + acertos + " de " + FASES.length + " posições";
+  const dica = document.createElement("p");
+  dica.textContent = tudoCerto
+    ? "Leia abaixo o que acontece em cada fase e, se quiser, embaralhe para treinar de novo."
+    : "Os cartões em vermelho mostram a posição correta. Leia as explicações abaixo e tente de novo.";
+  box.append(titulo, dica);
+  $("result").innerHTML = "";
+  $("result").appendChild(box);
+
+  // explicação de cada fase, na ordem correta
+  const lista = $("explain-list");
+  lista.innerHTML = "";
+  FASES.forEach((fase) => {
+    const li = document.createElement("li");
+    const nome = document.createElement("strong");
+    nome.textContent = fase.nome + ": ";
+    li.append(nome, fase.explicacao);
+    lista.appendChild(li);
+  });
+  $("explain").hidden = false;
+  $("btn-check").hidden = true;
+  $("meta").textContent = "Tentativas: " + state.tentativas;
+  $("btn-shuffle").focus();
+}
+
+$("btn-check").addEventListener("click", conferir);
+$("btn-shuffle").addEventListener("click", novaRodada);
+
+novaRodada();
+</script>
+
+</body>
+</html>

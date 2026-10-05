@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula · Do problema ao protótipo</title>
+<meta name="description" content="Minicurso EaD de Thiago Jacinto: como transformar uma necessidade pedagógica em um recurso digital com apoio de IA, definindo requisitos, construindo, testando e pedindo melhorias.">
+<meta name="author" content="Thiago Jacinto">
+<meta name="theme-color" content="#4f46e5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+  /* aplica o tema salvo antes de desenhar a página (evita "piscar") */
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- Ícones (usados com <svg class="i"><use href="#i-..."/></svg>) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8l7 1.5L19 8M12 9.5V15M9 22l3-7 3 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="m4 4 5 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-cc" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+</svg>
+
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<div class="read-progress" id="read-progress" aria-hidden="true"></div>
+
+<!-- =========================================================
+     NAVEGAÇÃO
+========================================================= -->
+<header class="topbar" id="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html" aria-label="Página inicial do minicurso">
+      <span class="brand-mark">T7</span>
+      <span class="brand-text">Do problema ao protótipo</span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#video">Vídeo</a>
+      <a href="#ciclo">Material</a>
+      <a href="#demonstracao">Protótipo</a>
+      <a href="#testes">Testes</a>
+      <a href="#melhorias">Melhorias</a>
+      <a href="#pratica">Prática</a>
+      <a class="nav-cta" href="avaliacao/">Avaliação →</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro">
+      <svg class="i"><use href="#i-moon"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="conteudo">
+<!-- =========================================================
+     CABEÇALHO DA AULA
+========================================================= -->
+<section class="course-head" id="inicio">
+  <div class="container">
+    <nav class="crumbs" aria-label="Você está em"><a href="index.html">Minicurso</a><span aria-hidden="true">/</span><span aria-current="page">Aula</span></nav>
+    <h1>Do problema ao protótipo: <em>a aula</em></h1>
+    <p class="lead">Assista ao vídeo e aprofunde cada etapa no material abaixo. No final, faça a avaliação para conferir o que aprendeu.</p>
+    <div class="course-meta">
+      <div class="hero-author"><span class="avatar" aria-hidden="true">TJ</span><div><span class="muted">Com</span><strong>Thiago Jacinto</strong></div></div>
+      <ol class="mini-steps" aria-label="Etapas desta página">
+        <li><a href="#video"><b>1</b> Vídeo</a></li>
+        <li><a href="#ciclo"><b>2</b> Material</a></li>
+        <li><a href="#demonstracao"><b>3</b> Protótipo</a></li>
+        <li><a href="avaliacao/"><b>4</b> Avaliação</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     VÍDEO-AULA
+========================================================= -->
+<section class="section alt" id="video" aria-labelledby="video-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Vídeo-aula</div>
+      <h2 id="video-titulo">Assista à aula completa</h2>
+      <p class="lead">Explicação de cada etapa do ciclo e demonstração prática: do pedido à IA até o protótipo testado e melhorado. Use os capítulos para ir direto a um trecho.</p>
+    </div>
+
+    <div class="video-layout">
+      <div class="video-main reveal">
+        <!-- COLE AQUI O ID OU O LINK DO VÍDEO NO YOUTUBE, em data-youtube -->
+        <div class="video-frame" id="video-frame" data-youtube="">
+          <div class="video-placeholder">
+            <svg class="i"><use href="#i-play"/></svg>
+            <strong>Vídeo-aula</strong>
+            <span>O vídeo aparece aqui assim que o link do YouTube for configurado.</span>
+          </div>
+        </div>
+        <div class="video-notes">
+          <span><svg class="i"><use href="#i-cc"/></svg><span>Legendas em português revisadas. Ative pelo botão <strong>CC</strong> do player.</span></span>
+          <a id="video-yt-link" href="https://www.youtube.com/" target="_blank" rel="noopener">Abrir no YouTube <svg class="i"><use href="#i-external"/></svg></a>
+        </div>
+      </div>
+
+      <aside class="chapters reveal" aria-labelledby="capitulos-titulo">
+        <h3 id="capitulos-titulo">Capítulos</h3>
+        <ol id="chapters">
+          <li><button type="button" data-t="0"><span class="t">00:00</span>Abertura e apresentação</button></li>
+          <li><button type="button" data-t="90"><span class="t">01:30</span>Objetivos e trilha do minicurso</button></li>
+          <li><button type="button" data-t="180"><span class="t">03:00</span>O ciclo em 5 etapas</button></li>
+          <li><button type="button" data-t="300"><span class="t">05:00</span>Etapa 1 · Necessidade pedagógica</button></li>
+          <li><button type="button" data-t="510"><span class="t">08:30</span>Etapa 2 · Requisitos verificáveis</button></li>
+          <li><button type="button" data-t="720"><span class="t">12:00</span>Etapa 3 · Construção com IA, ao vivo</button></li>
+          <li><button type="button" data-t="990"><span class="t">16:30</span>Demonstração do protótipo v1</button></li>
+          <li><button type="button" data-t="1110"><span class="t">18:30</span>Etapa 4 · Testes e console</button></li>
+          <li><button type="button" data-t="1320"><span class="t">22:00</span>Etapa 5 · Melhorias e a v2</button></li>
+          <li><button type="button" data-t="1500"><span class="t">25:00</span>Cuidados éticos e LGPD</button></li>
+          <li><button type="button" data-t="1590"><span class="t">26:30</span>Encerramento e avaliação</button></li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     CICLO
+========================================================= -->
+<section class="section" id="ciclo" aria-labelledby="ciclo-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Material de apoio</div>
+      <h2 id="ciclo-titulo">Um ciclo, não uma linha reta</h2>
+      <p class="lead">A IA acelera muito a construção. Mas definir o problema, conferir o resultado e decidir o que melhorar continuam sendo trabalho do educador. Testes geram ajustes, e cada ajuste pede um novo teste.</p>
+    </div>
+
+    <ol class="cycle">
+      <li class="step-1 reveal"><a href="#necessidade"><span class="num">01</span><h3>Necessidade</h3><p>Qual problema de aprendizagem queremos resolver?</p></a></li>
+      <li class="step-2 reveal"><a href="#requisitos"><span class="num">02</span><h3>Requisitos</h3><p>O que o recurso precisa fazer, de forma verificável?</p></a></li>
+      <li class="step-3 reveal"><a href="#construcao"><span class="num">03</span><h3>Construção</h3><p>Pedido estruturado para a IA gerar o protótipo.</p></a></li>
+      <li class="step-4 reveal"><a href="#testes"><span class="num">04</span><h3>Testes</h3><p>Conferir requisitos, conteúdo e uso real.</p></a></li>
+      <li class="step-5 reveal"><a href="#melhorias"><span class="num">05</span><h3>Melhorias</h3><p>Pedir ajustes precisos e gerar uma nova versão.</p></a></li>
+    </ol>
+    <div class="cycle-loop" aria-hidden="true">
+      <svg viewBox="0 0 420 40" fill="none" preserveAspectRatio="none"><path d="M410 4 C410 30, 400 34, 380 34 L40 34 C20 34, 10 30, 10 20" stroke="currentColor" stroke-width="2" stroke-dasharray="5 6"/><path d="M4 14 L10 22 L16 14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      <span>testar → melhorar → testar de novo</span>
+    </div>
+
+    <div class="callout case step-3" style="margin-top: 40px">
+      <div class="icon-box"><svg class="i"><use href="#i-book"/></svg></div>
+      <div>
+        <span class="case-label">Caso que vamos acompanhar</span>
+        <p>Uma turma EAD de <strong>Introdução à Programação</strong>. Em cada etapa, você verá como o professor saiu de uma dificuldade observada até um treino interativo de leitura de código, que você pode usar logo abaixo, na seção <a href="#demonstracao">Protótipo</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ETAPA 1 — NECESSIDADE
+========================================================= -->
+<section class="section alt step-1" id="necessidade" aria-labelledby="necessidade-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker"><span class="num">01</span> Necessidade pedagógica</div>
+      <h2 id="necessidade-titulo">Comece pelo problema, não pela tecnologia</h2>
+      <p class="lead">Um bom recurso nasce de uma pergunta simples: <strong>o que meus estudantes ainda não conseguem fazer, e que eu gostaria que conseguissem?</strong> Se a resposta for vaga, o recurso também será.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-users"/></svg></div>
+        <h3>Quem aprende?</h3>
+        <p>Nível, conhecimentos prévios, contexto e dispositivo. Estudam pelo celular? Têm internet estável?</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-target"/></svg></div>
+        <h3>Qual a dificuldade?</h3>
+        <p>Seja específico: em vez de "não entendem laços", diga "erram o último valor do contador em um <code>for</code>".</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-chart"/></svg></div>
+        <h3>Como saberei se ajudou?</h3>
+        <p>Defina uma evidência: taxa de acertos, menos dúvidas no fórum, melhor desempenho em uma questão da prova.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Vaga ou clara: veja a diferença</h3>
+      <p class="muted">A mesma intenção, descrita de duas formas. Só a segunda orienta decisões de design.</p>
+      <div class="compare">
+        <div class="compare-item bad reveal">
+          <span class="tag tag-bad">Necessidade vaga</span>
+          <p class="quote">"Quero um joguinho de programação para a turma."</p>
+          <p class="why">Não diz quem vai usar, o que deve ser aprendido nem como avaliar o resultado. A IA vai inventar tudo isso, e provavelmente errar.</p>
+        </div>
+        <div class="compare-item good reveal">
+          <span class="tag tag-ok">Necessidade clara</span>
+          <p class="quote">"Estudantes do 1º período escrevem código copiando exemplos, mas erram ao prever o que um trecho faz e não reconhecem erros comuns (off-by-one, <code>=</code> vs <code>===</code>, variável sem valor inicial)."</p>
+          <p class="why">Define o público, a dificuldade concreta e os conteúdos. Já sugere o formato: ler código e prever o resultado.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="callout case">
+        <div class="icon-box"><svg class="i"><use href="#i-book"/></svg></div>
+        <div>
+          <span class="case-label">No nosso caso · necessidade descrita</span>
+          <blockquote class="need">Precisamos de um treino curto e autocorrigível de leitura de código, que o estudante faça no celular entre as aulas, recebendo explicação imediata de cada erro.</blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ETAPA 2 — REQUISITOS
+========================================================= -->
+<section class="section step-2" id="requisitos" aria-labelledby="requisitos-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker"><span class="num">02</span> Definição de requisitos</div>
+      <h2 id="requisitos-titulo">Se não dá para testar, ainda não é um requisito</h2>
+      <p class="lead">Requisito é algo que o recurso precisa <strong>fazer</strong> ou <strong>ter</strong>, escrito de um jeito que permita conferir depois. Eles serão o seu roteiro de testes na etapa 4.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card req-type step-1 reveal">
+        <span class="tag">Pedagógicos</span>
+        <h3>O que se aprende</h3>
+        <p>Conteúdos, tipo de atividade, feedback, nível de dificuldade.</p>
+        <ul><li>Trechos curtos, de até 10 linhas</li><li>Explicar o porquê de cada resposta</li></ul>
+      </div>
+      <div class="card req-type step-2 reveal">
+        <span class="tag">Funcionais</span>
+        <h3>O que o recurso faz</h3>
+        <p>Ações, telas e comportamentos que o estudante vai ver.</p>
+        <ul><li>Mostrar progresso e acertos</li><li>Permitir recomeçar</li></ul>
+      </div>
+      <div class="card req-type step-3 reveal">
+        <span class="tag">Técnicos e de uso</span>
+        <h3>Onde e como roda</h3>
+        <p>Dispositivos, acessibilidade, instalação e manutenção.</p>
+        <ul><li>Arquivo único, sem instalação</li><li>Funciona no celular e com teclado</li></ul>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Tabela de requisitos do caso</h3>
+      <p class="muted">Cada linha diz o que é esperado e <strong>como verificar</strong>. Comece pelo essencial; o resto vira melhoria em versões futuras.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead><tr><th>ID</th><th>Requisito</th><th>Como verificar</th></tr></thead>
+          <tbody>
+            <tr class="row-p"><td class="id">P1</td><td>Apresentar trechos curtos (até 10 linhas) de JavaScript básico</td><td>Contar as linhas de cada questão</td></tr>
+            <tr class="row-p"><td class="id">P2</td><td>Ter dois tipos de atividade: <em>prever a saída</em> e <em>achar a linha com erro</em></td><td>Encontrar ao menos uma questão de cada tipo</td></tr>
+            <tr class="row-p"><td class="id">P3</td><td>Dar feedback imediato, explicando por que a resposta está certa ou errada</td><td>Responder certo e errado de propósito e ler a explicação</td></tr>
+            <tr class="row-f"><td class="id">F1</td><td>Mostrar o progresso e a quantidade de acertos</td><td>A barra e o contador mudam a cada resposta</td></tr>
+            <tr class="row-f"><td class="id">F2</td><td>Ao final, exibir a pontuação e uma mensagem de acordo com o desempenho</td><td>Concluir o treino com notas diferentes</td></tr>
+            <tr class="row-f"><td class="id">F3</td><td>Permitir recomeçar o treino do zero</td><td>Clicar em "Reiniciar" e conferir se zera tudo</td></tr>
+            <tr class="row-t"><td class="id">T1</td><td>Ser um único arquivo HTML, sem internet nem instalação</td><td>Abrir o arquivo com duplo clique, com o Wi-Fi desligado</td></tr>
+            <tr class="row-t"><td class="id">T2</td><td>Funcionar bem em telas de celular</td><td>Testar com 375 px de largura ou em um aparelho real</td></tr>
+            <tr class="row-t"><td class="id">T3</td><td>Poder ser usado apenas com o teclado</td><td>Fazer o treino inteiro só com <kbd>Tab</kbd>, <kbd>Enter</kbd> e <kbd>Espaço</kbd></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="callout tip">
+        <div class="icon-box"><svg class="i"><use href="#i-info"/></svg></div>
+        <div>
+          <h4>Dica: separe conteúdo de funcionamento</h4>
+          <p>Peça que as questões fiquem numa lista fácil de editar, separada da lógica. Assim você corrige um gabarito ou cria novas questões sem precisar entender o resto do código, nem pedir de novo à IA.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ETAPA 3 — CONSTRUÇÃO
+========================================================= -->
+<section class="section alt step-3" id="construcao" aria-labelledby="construcao-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker"><span class="num">03</span> Construção com apoio de IA</div>
+      <h2 id="construcao-titulo">Um bom pedido é metade do protótipo</h2>
+      <p class="lead">Ferramentas de IA como ChatGPT, Claude ou Gemini geram código a partir de texto. Quanto mais contexto e requisitos você der, menos a IA precisa adivinhar.</p>
+    </div>
+
+    <h3>Anatomia de um pedido</h3>
+    <div class="anatomy">
+      <div class="anatomy-item p1 reveal"><strong>1 · Contexto</strong><span>Quem é você e em que curso o recurso será usado.</span></div>
+      <div class="anatomy-item p2 reveal"><strong>2 · Público</strong><span>Quem são os estudantes e o que já sabem.</span></div>
+      <div class="anatomy-item p3 reveal"><strong>3 · Objetivo</strong><span>A necessidade pedagógica, em uma frase.</span></div>
+      <div class="anatomy-item p4 reveal"><strong>4 · Requisitos</strong><span>A lista que você definiu na etapa 2.</span></div>
+      <div class="anatomy-item p5 reveal"><strong>5 · Restrições</strong><span>Tecnologia, dispositivos, acessibilidade.</span></div>
+      <div class="anatomy-item p6 reveal"><strong>6 · Entrega</strong><span>Formato do resultado e como deve vir organizado.</span></div>
+    </div>
+
+    <div class="prompt-box reveal">
+      <div class="prompt-head">
+        <span class="title"><svg class="i"><use href="#i-message"/></svg> Pedido usado para gerar a versão 1</span>
+        <button class="copy-btn" type="button" data-copy="#prompt-v1"><svg class="i"><use href="#i-copy"/></svg><span>Copiar</span></button>
+      </div>
+<pre class="prompt-body" id="prompt-v1"><span class="seg p1"><span class="seg-label">1</span>Sou professor(a) de Introdução à Programação em um curso EAD.</span> <span class="seg p2"><span class="seg-label">2</span>Meus estudantes estão no 1º período, conhecem o básico de JavaScript (variáveis, if, for e funções) e costumam estudar pelo celular.</span>
+
+<span class="seg p3"><span class="seg-label">3</span>Quero um treino de leitura de código: o estudante lê um trecho curto e precisa prever a saída ou encontrar a linha com erro, recebendo uma explicação logo em seguida.</span>
+
+<span class="seg p4"><span class="seg-label">4</span>Requisitos:
+- 10 questões, misturando "qual é a saída?" (4 alternativas) e "ache o erro" (clicar na linha errada);
+- trechos de no máximo 10 linhas;
+- feedback imediato com explicação em linguagem simples;
+- barra de progresso e contador de acertos;
+- tela final com a pontuação, uma mensagem conforme o desempenho e um botão para recomeçar.</span>
+
+<span class="seg p5"><span class="seg-label">5</span>Use apenas HTML, CSS e JavaScript puro, em um único arquivo, sem bibliotecas externas. Precisa funcionar bem no celular e ser utilizável só com o teclado.</span>
+
+<span class="seg p6"><span class="seg-label">6</span>Entregue o arquivo completo, com comentários em português explicando cada parte. Deixe as questões em uma lista separada, fácil de editar.</span></pre>
+    </div>
+
+    <div class="sub grid grid-2">
+      <div>
+        <h3>Boas práticas ao pedir</h3>
+        <ul class="check-list">
+          <li><strong>Peça um arquivo único.</strong> É mais fácil de abrir, testar, enviar ao AVA e guardar.</li>
+          <li><strong>Peça comentários em português.</strong> Você vai precisar entender o código para conferi-lo.</li>
+          <li><strong>Separe o conteúdo da lógica.</strong> Questões em uma lista editável.</li>
+          <li><strong>Peça para listar as suposições.</strong> "Que decisões você tomou que eu não especifiquei?"</li>
+          <li><strong>Guarde cada versão.</strong> <code>treino-v1.html</code>, <code>treino-v2.html</code>… e volte se algo quebrar.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Como colocar para rodar</h3>
+        <ol class="steps-list">
+          <li><strong>Copie todo o código</strong> que a IA gerou, do <code>&lt;!DOCTYPE html&gt;</code> até o <code>&lt;/html&gt;</code>.</li>
+          <li><strong>Cole em um editor de texto</strong> simples: Bloco de Notas, TextEdit (modo texto) ou VS Code.</li>
+          <li><strong>Salve como <code>treino.html</code></strong>. Confira se a extensão não virou <code>.txt</code>.</li>
+          <li><strong>Dê duplo clique no arquivo.</strong> Ele abre no navegador, sem instalar nada.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Por dentro do código gerado</h3>
+      <p class="muted">Você não precisa ser programador, mas precisa saber <em>onde</em> fica cada coisa. O protótipo está organizado em quatro partes:</p>
+      <div class="code-anatomy">
+        <ol class="part-list">
+          <li class="highlight reveal"><span class="pn">A</span><div><strong>Banco de questões</strong><span>A lista com enunciados, códigos, alternativas, gabaritos e explicações. É aqui que você edita o conteúdo.</span></div></li>
+          <li class="reveal"><span class="pn">B</span><div><strong>Estado</strong><span>Variáveis que guardam a questão atual e os acertos.</span></div></li>
+          <li class="reveal"><span class="pn">C</span><div><strong>Renderização</strong><span>Funções que desenham a questão, o código e as alternativas na tela.</span></div></li>
+          <li class="reveal"><span class="pn">D</span><div><strong>Lógica de resposta</strong><span>Confere a escolha, pinta de verde ou vermelho e mostra a explicação.</span></div></li>
+        </ol>
+        <div class="code-card reveal">
+          <div class="hv-code-bar"><span class="dots"><i></i><i></i><i></i><span>A · banco de questões</span></span><span>treino.html</span></div>
+<pre><span class="c">// Para trocar o conteúdo, edite apenas esta lista</span>
+<span class="k">const</span> questions = [
+  {
+    type: <span class="s">"output"</span>,          <span class="c">// ou "bug"</span>
+    difficulty: <span class="s">"Fácil"</span>,
+    topic: <span class="s">"Condicionais"</span>,
+    title: <span class="s">"Qual é a saída no console?"</span>,
+    code: <span class="s">`let idade = 16;
+if (idade >= 18) { ... }`</span>,
+    options: [<span class="s">"Maior de idade"</span>, <span class="s">"Menor de idade"</span>, ...],
+    correctIndex: <span class="n">1</span>,             <span class="c">// conta a partir de 0!</span>
+    explanation: <span class="s">"idade vale 16, e 16 >= 18 é falso..."</span>
+  },
+  <span class="c">// ...outras questões</span>
+];</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     DEMONSTRAÇÃO
+========================================================= -->
+<section class="section" id="demonstracao" aria-labelledby="demo-titulo">
+  <div class="container">
+    <div class="section-head center">
+      <div class="kicker">Demonstração</div>
+      <h2 id="demo-titulo">O protótipo, funcionando</h2>
+      <p class="lead">Experimente as versões. A <strong>v1</strong> é o que a IA entregou a partir do pedido acima. A <strong>v2</strong> é o resultado depois de um ciclo de testes e melhorias. E a aba <strong>Biologia</strong> mostra o mesmo método aplicado a outra disciplina.</p>
+    </div>
+
+    <div class="demo reveal">
+      <div class="demo-toolbar">
+        <div class="tabs" role="tablist" aria-label="Versão do protótipo">
+          <button class="tab" role="tab" type="button" id="tab-v1" aria-selected="false" aria-controls="demo-frame" data-src="prototipo/v1.html">v1 <small>primeiro pedido</small></button>
+          <button class="tab" role="tab" type="button" id="tab-v2" aria-selected="true" aria-controls="demo-frame" data-src="prototipo/v2.html">v2 <small>após testes</small></button>
+          <button class="tab" role="tab" type="button" id="tab-bio" aria-selected="false" aria-controls="demo-frame" data-src="prototipo/mitose.html">Biologia <small>exemplo 2</small></button>
+        </div>
+        <div class="demo-tools">
+          <div class="device-toggle" role="group" aria-label="Tamanho da tela">
+            <button class="icon-btn" type="button" data-device="desktop" aria-pressed="true" aria-label="Tela de computador" title="Computador"><svg class="i"><use href="#i-monitor"/></svg></button>
+            <button class="icon-btn" type="button" data-device="mobile" aria-pressed="false" aria-label="Tela de celular" title="Celular"><svg class="i"><use href="#i-phone"/></svg></button>
+          </div>
+          <button class="icon-btn" type="button" id="demo-reload" aria-label="Recarregar protótipo" title="Recarregar"><svg class="i"><use href="#i-refresh"/></svg></button>
+          <a class="btn btn-ghost btn-sm" id="demo-open" href="prototipo/v2.html" target="_blank" rel="noopener">Abrir em nova aba <svg class="i"><use href="#i-external"/></svg></a>
+        </div>
+      </div>
+      <div class="demo-stage" id="demo-stage">
+        <iframe class="demo-frame" id="demo-frame" src="prototipo/v2.html" title="Protótipo: Treino de Leitura de Código" loading="lazy"></iframe>
+      </div>
+      <div class="demo-caption">
+        <p id="demo-caption-text"><strong>Versão 2: depois dos testes</strong>Questões e alternativas embaralhadas, revisão dos erros no final, realce de sintaxe, atalhos de teclado, modo escuro e correções de acessibilidade.</p>
+        <a class="btn btn-ghost btn-sm" href="#melhorias">O que mudou? <svg class="i"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ETAPA 4 — TESTES
+========================================================= -->
+<section class="section alt step-4" id="testes" aria-labelledby="testes-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker"><span class="num">04</span> Testes</div>
+      <h2 id="testes-titulo">Código que parece certo não é código testado</h2>
+      <p class="lead">A IA escreve com confiança, inclusive quando erra. Ela pode trocar um gabarito, escrever uma explicação incorreta ou esquecer um requisito. Testar é o que transforma o código gerado em um recurso confiável.</p>
+    </div>
+
+    <div class="grid grid-4">
+      <div class="card lens step-1 reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-list"/></svg></div>
+        <h3>Requisitos</h3>
+        <p>Percorra a tabela da etapa 2, linha por linha. Cada requisito foi atendido?</p>
+      </div>
+      <div class="card lens step-5 reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-book"/></svg></div>
+        <h3>Conteúdo</h3>
+        <p>Confira <strong>todos</strong> os gabaritos e explicações. Este é o erro mais grave, e só você pode detectá-lo.</p>
+      </div>
+      <div class="card lens step-2 reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-phone"/></svg></div>
+        <h3>Uso real</h3>
+        <p>Celular, teclado, erros de propósito, cliques repetidos. Teste como um estudante distraído usaria.</p>
+      </div>
+      <div class="card lens step-3 reveal">
+        <div class="icon-box"><svg class="i"><use href="#i-terminal"/></svg></div>
+        <h3>Console</h3>
+        <p>Abra com <kbd>F12</kbd> → Console. Mensagens em vermelho indicam erros escondidos.</p>
+      </div>
+    </div>
+
+    <div class="sub console-demo">
+      <div>
+        <h3>Confira um gabarito em 30 segundos</h3>
+        <p class="muted">O próprio navegador executa JavaScript. Use isso para confirmar se a resposta que a IA marcou como certa está mesmo certa.</p>
+        <ol class="steps-list">
+          <li><strong>Abra as ferramentas do navegador</strong> com <kbd>F12</kbd> (ou <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>) e clique em <em>Console</em>.</li>
+          <li><strong>Cole o trecho da questão</strong> e pressione <kbd>Enter</kbd>. Se o navegador pedir, digite antes <code>allow pasting</code>.</li>
+          <li><strong>Compare com o gabarito.</strong> Se for diferente, a IA errou, e você acabou de evitar ensinar algo errado.</li>
+        </ol>
+      </div>
+      <div class="console reveal" aria-label="Exemplo de console do navegador" role="img">
+        <div class="console-tabs"><span>Elements</span><span class="on">Console</span><span>Sources</span></div>
+        <div class="console-body">
+          <div class="in">let a = 5 === "5";</div>
+          <div class="in">let b = 5 == "5";</div>
+          <div class="in">console.log(a, b);</div>
+          <div class="out">false true</div>
+          <div class="in">contarVogais("banana")</div>
+          <div class="out">NaN</div>
+          <div class="err">Uncaught ReferenceError: frutas is not defined</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist interativo -->
+    <div class="sub">
+      <div class="card checklist-card reveal" id="checklist">
+        <div class="checklist-head">
+          <div>
+            <h3>Checklist de testes</h3>
+            <span class="muted" style="font-size:.9rem">Use com o seu próprio protótipo. As marcações ficam salvas neste navegador.</span>
+          </div>
+          <div class="meter"><div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div><span id="meter-text">0 de 0</span></div>
+        </div>
+        <div class="checklist-groups">
+          <div class="check-group">
+            <h4>Requisitos</h4>
+            <label class="check"><input type="checkbox" data-id="r1"><span>Cada requisito da tabela foi verificado, um a um</span></label>
+            <label class="check"><input type="checkbox" data-id="r2"><span>Os dois tipos de atividade aparecem e funcionam</span></label>
+            <label class="check"><input type="checkbox" data-id="r3"><span>Progresso e contador de acertos avançam corretamente</span></label>
+            <label class="check"><input type="checkbox" data-id="r4"><span>A tela final mostra a pontuação e permite recomeçar</span></label>
+          </div>
+          <div class="check-group">
+            <h4>Conteúdo</h4>
+            <label class="check"><input type="checkbox" data-id="c1"><span>Todos os gabaritos foram conferidos no console</span></label>
+            <label class="check"><input type="checkbox" data-id="c2"><span>As explicações estão corretas e adequadas ao público</span></label>
+            <label class="check"><input type="checkbox" data-id="c3"><span>Não há erros de português nem termos confusos</span></label>
+          </div>
+          <div class="check-group">
+            <h4>Uso real</h4>
+            <label class="check"><input type="checkbox" data-id="u1"><span>Funciona no celular (aparelho real ou modo responsivo)</span></label>
+            <label class="check"><input type="checkbox" data-id="u2"><span>Dá para usar só com teclado (<kbd>Tab</kbd>, <kbd>Enter</kbd>, <kbd>Espaço</kbd>)</span></label>
+            <label class="check"><input type="checkbox" data-id="u3"><span>Errar de propósito também foi testado</span></label>
+            <label class="check"><input type="checkbox" data-id="u4"><span>Cliques repetidos ou rápidos não quebram a contagem</span></label>
+          </div>
+          <div class="check-group">
+            <h4>Técnico</h4>
+            <label class="check"><input type="checkbox" data-id="t1"><span>O console não mostra mensagens de erro em vermelho</span></label>
+            <label class="check"><input type="checkbox" data-id="t2"><span>Abre com duplo clique, sem internet e sem instalação</span></label>
+            <label class="check"><input type="checkbox" data-id="t3"><span>Testado em pelo menos dois navegadores</span></label>
+            <label class="check"><input type="checkbox" data-id="t4"><span>Uma pessoa do público-alvo testou e deu retorno</span></label>
+          </div>
+        </div>
+        <div class="checklist-foot">
+          <span>Dica: marque só o que você <em>viu</em> funcionar, não o que "deve" funcionar.</span>
+          <button class="btn btn-ghost btn-sm" type="button" id="checklist-reset">Limpar marcações</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registro de testes da v1 -->
+    <div class="sub">
+      <h3>Registro de testes da versão 1</h3>
+      <p class="muted">Anotar o que foi testado, o que se esperava e o que aconteceu transforma impressões em pedidos de melhoria concretos.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead><tr><th>Teste realizado</th><th>Esperado</th><th>Observado</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>Responder as 10 questões até o fim</td><td>Tela final com pontuação</td><td>Funcionou como esperado</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Executar cada trecho no console</td><td>Gabaritos corretos</td><td>Os 10 gabaritos conferem</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Abrir no celular (375 px)</td><td>Leitura confortável</td><td>Layout se adapta bem</td><td><span class="tag tag-ok">OK</span></td></tr>
+            <tr><td>Refazer o treino</td><td>Estudante não decora as respostas</td><td>Ordem sempre igual; dá para decorar a posição da resposta</td><td><span class="tag tag-warn">Melhoria</span></td></tr>
+            <tr><td>Rever os erros no final</td><td>Saber o que estudar de novo</td><td>Só aparece o número de acertos</td><td><span class="tag tag-warn">Melhoria</span></td></tr>
+            <tr><td>Ler o código com atenção</td><td>Distinguir palavras-chave, textos e números</td><td>Todo o código em uma única cor</td><td><span class="tag tag-warn">Melhoria</span></td></tr>
+            <tr><td>Navegar com leitor de tela</td><td>Uma única região principal na página</td><td>Duas tags <code>&lt;main&gt;</code> no código</td><td><span class="tag tag-bad">Problema</span></td></tr>
+            <tr><td>Responder "ache o erro" e seguir com <kbd>Tab</kbd></td><td>Linhas deixam de ser clicáveis</td><td>Leitor de tela ainda anuncia as linhas como botões</td><td><span class="tag tag-bad">Problema</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ETAPA 5 — MELHORIAS
+========================================================= -->
+<section class="section step-5" id="melhorias" aria-labelledby="melhorias-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker"><span class="num">05</span> Solicitar melhorias</div>
+      <h2 id="melhorias-titulo">Peça como quem relata um problema</h2>
+      <p class="lead">A qualidade da correção depende da qualidade da descrição. Diga o que você fez, o que esperava e o que aconteceu, e peça para a IA não mexer no que já funciona.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="principle reveal"><span class="pnum">1</span><div><h4>Observado × esperado</h4><p>"Quando eu faço X, acontece Y, mas deveria acontecer Z."</p></div></div>
+      <div class="principle reveal"><span class="pnum">2</span><div><h4>Poucas mudanças por vez</h4><p>Numere os pedidos. Muitas mudanças juntas dificultam descobrir o que quebrou.</p></div></div>
+      <div class="principle reveal"><span class="pnum">3</span><div><h4>Preserve o que funciona</h4><p>"Mantenha todo o resto igual" evita que a IA reescreva partes que já estavam certas.</p></div></div>
+      <div class="principle reveal"><span class="pnum">4</span><div><h4>Peça a explicação</h4><p>"Liste o que você alterou" ajuda a conferir e a aprender com o código.</p></div></div>
+      <div class="principle reveal"><span class="pnum">5</span><div><h4>Cole a mensagem de erro</h4><p>Se o console mostrar algo em vermelho, copie o texto exato no pedido.</p></div></div>
+      <div class="principle reveal"><span class="pnum">6</span><div><h4>Teste tudo de novo</h4><p>Uma correção pode quebrar outra parte. Repita o checklist em cada versão.</p></div></div>
+    </div>
+
+    <div class="sub">
+      <h3>O mesmo pedido, de duas formas</h3>
+      <div class="compare">
+        <div class="compare-item bad reveal">
+          <span class="tag tag-bad">Pedido vago</span>
+          <p class="quote">"Melhora o quiz aí, tá meio sem graça."</p>
+          <p class="why">A IA vai mudar coisas aleatórias: cores, textos, talvez até as questões. Você perde o controle sobre o que foi alterado.</p>
+        </div>
+        <div class="compare-item good reveal">
+          <span class="tag tag-ok">Pedido preciso</span>
+          <p class="quote">"Quando o estudante refaz o treino, as questões aparecem sempre na mesma ordem e ele decora a posição da resposta. Quero que a ordem das questões e das alternativas seja embaralhada a cada tentativa. Mantenha todo o resto igual e me diga quais partes do código você alterou."</p>
+          <p class="why">Descreve o problema observado, o comportamento esperado e o limite da mudança.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="prompt-box reveal">
+        <div class="prompt-head">
+          <span class="title"><svg class="i"><use href="#i-message"/></svg> Pedido de melhoria usado para gerar a versão 2</span>
+          <button class="copy-btn" type="button" data-copy="#prompt-v2"><svg class="i"><use href="#i-copy"/></svg><span>Copiar</span></button>
+        </div>
+<pre class="prompt-body" id="prompt-v2">Testei o treino que você gerou e ele funciona bem. Os gabaritos estão corretos e o layout se adapta ao celular. Encontrei os pontos abaixo e quero que você os corrija, mantendo todo o resto igual (inclusive o texto das questões):
+
+1. Ao refazer o treino, a ordem das questões e das alternativas é sempre a mesma, e o estudante decora a posição da resposta. Embaralhe as duas a cada tentativa.
+2. No final só aparece o número de acertos. Mostre uma revisão com cada questão (tópico + acertou/errou) e um botão para refazer apenas as que o estudante errou.
+3. O código aparece todo em uma única cor. Adicione um realce de sintaxe simples (palavras-chave, textos e números), sem bibliotecas externas.
+4. A página tem duas tags &lt;main&gt;. Deixe apenas uma região principal.
+5. Depois de responder uma questão "ache o erro", as linhas continuam marcadas como botão (role="button"). Remova isso após a resposta.
+6. Opcional: permitir responder com as teclas 1 a 4 e adaptar as cores ao modo escuro do sistema.
+
+Depois, liste em tópicos o que você alterou em cada item.</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>O que mudou da v1 para a v2</h3>
+      <p class="muted">Cada mudança corresponde a uma linha do registro de testes. É isso que torna a melhoria rastreável.</p>
+      <ul class="changelog">
+        <li class="step-2 reveal"><span class="cl-icon"><svg class="i"><use href="#i-shuffle"/></svg></span><div><strong>Embaralhamento de questões e alternativas <span class="tag tag-info">Pedagógico</span></strong><p>Cada tentativa é diferente, então o estudante precisa ler o código em vez de lembrar a posição da resposta.</p></div></li>
+        <li class="step-1 reveal"><span class="cl-icon"><svg class="i"><use href="#i-review"/></svg></span><div><strong>Revisão final e "refazer só as que errei" <span class="tag tag-info">Pedagógico</span></strong><p>O estudante vê os tópicos que precisa revisar e pratica exatamente o que errou.</p></div></li>
+        <li class="step-3 reveal"><span class="cl-icon"><svg class="i"><use href="#i-code"/></svg></span><div><strong>Realce de sintaxe <span class="tag tag-info">Leitura</span></strong><p>Cores diferentes para palavras-chave, textos e números, como nos editores de código profissionais.</p></div></li>
+        <li class="step-4 reveal"><span class="cl-icon"><svg class="i"><use href="#i-access"/></svg></span><div><strong>Correções de acessibilidade <span class="tag tag-info">Acessibilidade</span></strong><p>Uma única região principal, linhas que deixam de ser botões após a resposta e atalhos de teclado de 1 a 4.</p></div></li>
+        <li class="step-5 reveal"><span class="cl-icon"><svg class="i"><use href="#i-moon"/></svg></span><div><strong>Modo escuro automático e tela inicial <span class="tag tag-info">Visual</span></strong><p>Segue a preferência do sistema e explica os dois tipos de questão antes de começar.</p></div></li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <div class="callout warn">
+        <div class="icon-box"><svg class="i"><use href="#i-alert"/></svg></div>
+        <div>
+          <h4>Quando a IA "anda em círculos"</h4>
+          <p>Se uma correção quebra outra coisa duas ou três vezes seguidas, pare. Volte para a última versão que funcionava, abra uma conversa nova e reenvie o pedido original com o problema descrito de outro jeito. Insistir na mesma conversa costuma piorar o resultado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     CUIDADOS
+========================================================= -->
+<section class="section alt" id="cuidados" aria-labelledby="cuidados-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Responsabilidade</div>
+      <h2 id="cuidados-titulo">A IA ajuda; a autoria é sua</h2>
+      <p class="lead">Usar IA na produção de materiais didáticos traz responsabilidades que não podem ser delegadas.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card reveal step-1"><div class="icon-box"><svg class="i"><use href="#i-pen"/></svg></div><h3>Revisão do conteúdo</h3><p>Você responde pelo que for publicado. Todo gabarito, explicação e exemplo deve ser conferido antes de chegar ao estudante.</p></div>
+      <div class="card reveal step-5"><div class="icon-box"><svg class="i"><use href="#i-lock"/></svg></div><h3>Privacidade (LGPD)</h3><p>Nunca cole nomes, notas, matrículas ou qualquer dado pessoal de estudantes em ferramentas de IA. Use exemplos fictícios.</p></div>
+      <div class="card reveal step-3"><div class="icon-box"><svg class="i"><use href="#i-access"/></svg></div><h3>Acessibilidade</h3><p>É requisito, não acabamento. Teclado, contraste, leitores de tela e telas pequenas fazem parte do teste.</p></div>
+      <div class="card reveal step-2"><div class="icon-box"><svg class="i"><use href="#i-info"/></svg></div><h3>Transparência</h3><p>Informe que o recurso foi produzido com apoio de IA e revisado por você. Isso é um bom exemplo para os estudantes.</p></div>
+      <div class="card reveal step-4"><div class="icon-box"><svg class="i"><use href="#i-layers"/></svg></div><h3>Simplicidade</h3><p>Um arquivo, sem dependências e com conteúdo separado da lógica. Fica fácil de manter, compartilhar e adaptar.</p></div>
+      <div class="card reveal step-1"><div class="icon-box"><svg class="i"><use href="#i-file"/></svg></div><h3>Protótipo ≠ sistema</h3><p>Para guardar notas ou dados de estudantes, envolva a equipe técnica e use os recursos do AVA institucional.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     PRÁTICA
+========================================================= -->
+<section class="section" id="pratica" aria-labelledby="pratica-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Para ir além · Atividade prática</div>
+      <h2 id="pratica-titulo">Sua vez: monte o seu pedido</h2>
+      <p class="lead">Preencha os campos com uma necessidade da sua realidade. O pedido é montado ao lado, já com a estrutura em seis partes. Copie, cole na ferramenta de IA de sua preferência e comece o ciclo.</p>
+    </div>
+
+    <div class="builder">
+      <form class="card form" id="builder-form" autocomplete="off">
+        <div class="field">
+          <label for="f-contexto">Contexto <span class="help">disciplina, nível e modalidade</span></label>
+          <input type="text" id="f-contexto" placeholder="Ex.: Biologia, 2º ano do ensino médio, ensino híbrido">
+        </div>
+        <div class="field">
+          <label for="f-publico">Público <span class="help">o que já sabem, como estudam</span></label>
+          <input type="text" id="f-publico" placeholder="Ex.: já conhecem a estrutura da célula; usam muito o celular">
+        </div>
+        <div class="field">
+          <label for="f-necessidade">Necessidade pedagógica <span class="help">a dificuldade observada</span></label>
+          <textarea id="f-necessidade" rows="3" placeholder="Ex.: confundem as etapas da mitose e não conseguem ordená-las"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-tipo">Tipo de recurso</label>
+          <select id="f-tipo">
+            <option>um quiz com feedback imediato</option>
+            <option>cartões de memorização (flashcards) que viram ao clicar</option>
+            <option>uma atividade de associar colunas</option>
+            <option>uma atividade de ordenar etapas arrastando ou com botões</option>
+            <option>uma linha do tempo interativa</option>
+            <option>um simulador com controles deslizantes</option>
+            <option>um caça-erros: encontrar o problema em um texto ou imagem</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-requisitos">Requisitos <span class="help">um por linha</span></label>
+          <textarea id="f-requisitos" rows="5" placeholder="Ex.:&#10;8 questões sobre as fases da mitose&#10;explicação após cada resposta&#10;pontuação final com mensagem"></textarea>
+        </div>
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <legend class="label">Restrições</legend>
+          <div class="toggles" id="f-restricoes">
+            <label class="toggle"><input type="checkbox" value="Use apenas HTML, CSS e JavaScript puro, em um único arquivo, sem bibliotecas externas." checked><span class="tick"></span>Arquivo único</label>
+            <label class="toggle"><input type="checkbox" value="Precisa funcionar bem no celular." checked><span class="tick"></span>Celular</label>
+            <label class="toggle"><input type="checkbox" value="Deve ser utilizável só com o teclado e ter bom contraste." checked><span class="tick"></span>Acessível</label>
+            <label class="toggle"><input type="checkbox" value="Precisa funcionar sem internet."><span class="tick"></span>Sem internet</label>
+            <label class="toggle"><input type="checkbox" value="Use linguagem simples e direta nos textos para o estudante."><span class="tick"></span>Linguagem simples</label>
+          </div>
+        </fieldset>
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <legend class="label">Na entrega, peça também</legend>
+          <div class="toggles" id="f-entrega">
+            <label class="toggle"><input type="checkbox" value="comentários em português explicando cada parte" checked><span class="tick"></span>Comentários</label>
+            <label class="toggle"><input type="checkbox" value="o conteúdo em uma lista separada, fácil de editar" checked><span class="tick"></span>Conteúdo editável</label>
+            <label class="toggle"><input type="checkbox" value="uma lista das suposições que você fez e eu não especifiquei"><span class="tick"></span>Suposições</label>
+            <label class="toggle"><input type="checkbox" value="três sugestões de testes que eu devo fazer antes de usar com a turma"><span class="tick"></span>Sugestões de teste</label>
+          </div>
+        </fieldset>
+        <div>
+          <button class="btn btn-ghost btn-sm" type="button" id="builder-example">Preencher com exemplo</button>
+          <button class="btn btn-ghost btn-sm" type="reset">Limpar</button>
+        </div>
+      </form>
+
+      <div class="builder-output">
+        <div class="prompt-box">
+          <div class="prompt-head">
+            <span class="title"><svg class="i"><use href="#i-spark"/></svg> Seu pedido</span>
+            <button class="copy-btn" type="button" data-copy="#builder-out"><svg class="i"><use href="#i-copy"/></svg><span>Copiar</span></button>
+          </div>
+          <pre class="prompt-body" id="builder-out" aria-live="polite"></pre>
+          <div class="builder-meta"><span id="builder-count">0 palavras</span><span>Revise antes de enviar: o pedido é um ponto de partida.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="callout case step-3">
+        <div class="icon-box"><svg class="i"><use href="#i-spark"/></svg></div>
+        <div>
+          <span class="case-label">Exemplo pronto</span>
+          <p>Clique em <strong>Preencher com exemplo</strong> no gerador acima: o pedido sobre as fases da mitose gerou <a href="prototipo/mitose.html" target="_blank" rel="noopener">esta atividade de ordenar etapas</a>. Repare que ela segue os requisitos do pedido e que o conteúdo de Biologia precisou ser conferido, como em qualquer recurso gerado com IA.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="deliver reveal">
+        <h3>Proposta de entrega</h3>
+        <p>Percorra o ciclo completo com um recurso da sua área e registre cada etapa. O objetivo não é um código perfeito, e sim mostrar o processo de decisão, verificação e melhoria.</p>
+        <ol class="deliver-steps">
+          <li><strong>Necessidade</strong>Descrição em um parágrafo: público, dificuldade e evidência esperada.</li>
+          <li><strong>Requisitos</strong>Tabela com pelo menos 6 requisitos e como verificar cada um.</li>
+          <li><strong>Versão 1</strong>O pedido enviado e o arquivo HTML gerado.</li>
+          <li><strong>Testes</strong>Checklist aplicado e registro: esperado × observado.</li>
+          <li><strong>Versão 2</strong>O pedido de melhoria e o novo arquivo.</li>
+          <li><strong>Reflexão</strong>Até 10 linhas: o que a IA fez bem, onde errou e o que você decidiu.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     GLOSSÁRIO
+========================================================= -->
+<section class="section alt" id="glossario" aria-labelledby="glossario-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Glossário</div>
+      <h2 id="glossario-titulo">Termos que apareceram por aqui</h2>
+    </div>
+    <dl class="glossary">
+      <div><dt>Requisito</dt><dd>Algo que o recurso precisa fazer ou ter, escrito de forma que possa ser verificado.</dd></div>
+      <div><dt>Prompt (pedido)</dt><dd>O texto que você envia à IA descrevendo o que deseja. Contexto e precisão mudam muito o resultado.</dd></div>
+      <div><dt>Protótipo</dt><dd>Versão inicial e funcional de um recurso, feita para testar ideias antes de investir mais.</dd></div>
+      <div><dt>Teste de regressão</dt><dd>Repetir testes antigos após uma mudança, para garantir que nada que funcionava quebrou.</dd></div>
+      <div><dt>Console do navegador</dt><dd>Painel aberto com F12 que executa JavaScript e mostra mensagens de erro da página.</dd></div>
+      <div><dt>HTML, CSS e JavaScript</dt><dd>Estrutura, aparência e comportamento de uma página. Juntos, rodam em qualquer navegador.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- =========================================================
+     PRÓXIMO PASSO
+========================================================= -->
+<section class="section" id="proximo" aria-labelledby="proximo-titulo">
+  <div class="container">
+    <div class="quiz-cta reveal">
+      <div class="quiz-cta-text">
+        <span class="quiz-cta-icon" aria-hidden="true"><svg class="i"><use href="#i-quiz"/></svg></span>
+        <h3 id="proximo-titulo">Você chegou ao fim da aula</h3>
+        <ul class="quiz-facts">
+          <li>Agora, confira o que aprendeu: <strong>12 questões</strong> com feedback imediato</li>
+        </ul>
+      </div>
+      <div class="cta-buttons">
+        <a class="btn btn-light" href="avaliacao/">Fazer a avaliação <svg class="i"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-outline-light" href="index.html">Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <a class="brand" href="#inicio"><span class="brand-mark">T7</span> Do problema ao protótipo</a>
+    <p>Minicurso de <strong>Thiago Jacinto</strong> · Trilha Docência Digital na Era da IA: Ensino e Aprendizagem na EaD<br>Produzido com apoio de IA e revisado pelo autor · 2026</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

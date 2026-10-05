@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do problema ao protótipo · Minicurso</title>
+<meta name="description" content="Minicurso EaD de Thiago Jacinto: como transformar uma necessidade pedagógica em um recurso digital com apoio de IA, definindo requisitos, construindo, testando e pedindo melhorias.">
+<meta name="author" content="Thiago Jacinto">
+<meta name="theme-color" content="#4f46e5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+  /* aplica o tema salvo antes de desenhar a página (evita "piscar") */
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- Ícones (usados com <svg class="i"><use href="#i-..."/></svg>) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8l7 1.5L19 8M12 9.5V15M9 22l3-7 3 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="m4 4 5 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-cc" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+</svg>
+
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<div class="read-progress" id="read-progress" aria-hidden="true"></div>
+
+<!-- =========================================================
+     NAVEGAÇÃO
+========================================================= -->
+<header class="topbar" id="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="#inicio" aria-label="Início">
+      <span class="brand-mark">T7</span>
+      <span class="brand-text">Do problema ao protótipo</span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#sobre">Sobre</a>
+      <a href="#conteudo-programatico">Conteúdo</a>
+      <a href="#trilha">Trilha</a>
+      <a href="#avaliacao">Avaliação</a>
+      <a href="#planejamento">Planejamento</a>
+      <a href="#referencias">Referências</a>
+      <a class="nav-cta" href="curso.html">Ir para a aula →</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro">
+      <svg class="i"><use href="#i-moon"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="conteudo">
+<!-- =========================================================
+     HERO
+========================================================= -->
+<section class="hero" id="inicio">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow"><span class="pill">Minicurso EaD</span> Docência Digital na Era da IA</div>
+      <h1>Do problema ao protótipo: recursos educacionais com <em>apoio de IA</em></h1>
+      <p class="lead">Aprenda a transformar uma necessidade pedagógica real em um recurso digital que funciona: definindo requisitos, construindo com ajuda da inteligência artificial, testando e pedindo melhorias antes de levar para a turma.</p>
+      <div class="hero-author">
+        <span class="avatar" aria-hidden="true">TJ</span>
+        <div><span class="muted">Minicurso criado e apresentado por</span><strong>Thiago Jacinto</strong></div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="curso.html">Começar o minicurso <svg class="i"><use href="#i-play"/></svg></a>
+        <a class="btn btn-ghost" href="#trilha">Ver a trilha de estudo</a>
+      </div>
+      <div class="hero-chips">
+        <span class="chip" style="--dot: var(--s1)">Vídeo com legendas</span>
+        <span class="chip" style="--dot: var(--s3)">Protótipo em HTML + JavaScript</span>
+        <span class="chip" style="--dot: var(--s4)">Avaliação com feedback imediato</span>
+        <span class="chip" style="--dot: var(--s5)">Gerador de pedidos</span>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hv-card hv-prompt reveal">
+        <div class="hv-label"><i></i>Pedido do professor</div>
+        <p>"Meus estudantes erram ao prever o que um código faz. Crie um treino curto, com feedback imediato, que funcione no celular…"</p>
+      </div>
+      <div class="hv-card hv-code reveal">
+        <div class="hv-code-bar"><i></i><i></i><i></i><span>treino.html</span></div>
+<pre><span class="c">// banco de questões: edite aqui</span>
+<span class="k">const</span> questions = [{
+  type: <span class="s">"output"</span>,
+  title: <span class="s">"Qual é a saída?"</span>,
+  code: <span class="s">`console.log(5 == "5")`</span>,
+  correctIndex: <span class="n">0</span>
+}];</pre>
+      </div>
+      <div class="hv-card hv-check reveal">
+        <div class="hv-check-icon"><svg class="i"><use href="#i-check"/></svg></div>
+        <div><strong>Testado e revisado</strong><span>14 de 15 verificações concluídas · v2</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     SOBRE + OBJETIVOS
+========================================================= -->
+<section class="section alt" id="sobre" aria-labelledby="sobre-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Sobre o minicurso</div>
+      <h2 id="sobre-titulo">Para quem é e o que você precisa saber</h2>
+      <p class="lead">Um minicurso curto e prático da trilha <strong>Docência Digital na Era da IA: Ensino e Aprendizagem na EaD</strong>.</p>
+    </div>
+
+    <div class="grid grid-4 about">
+      <div class="card reveal author-card">
+        <span class="avatar avatar-lg" aria-hidden="true">TJ</span>
+        <h3>Thiago Jacinto</h3>
+        <p class="muted">Autor e apresentador</p>
+        <p>Criou o minicurso, gravou a vídeo-aula e desenvolveu o protótipo e a avaliação, com apoio de IA e revisão própria.</p>
+      </div>
+      <div class="card reveal step-1">
+        <div class="icon-box"><svg class="i"><use href="#i-users"/></svg></div>
+        <h3>Público-alvo</h3>
+        <p>Professores, tutores, designers instrucionais e licenciandos da EaD que querem usar IA para criar recursos digitais simples para suas turmas.</p>
+      </div>
+      <div class="card reveal step-2">
+        <div class="icon-box"><svg class="i"><use href="#i-book"/></svg></div>
+        <h3>Conhecimentos prévios</h3>
+        <ul class="check-list compact">
+          <li>Usar computador e navegador de internet</li>
+          <li>Já ter conversado com uma IA (ChatGPT, Gemini, Claude…)</li>
+          <li>Noção do que é um objetivo de aprendizagem</li>
+          <li><strong>Não</strong> é preciso saber programar</li>
+        </ul>
+      </div>
+      <div class="card reveal step-3">
+        <div class="icon-box"><svg class="i"><use href="#i-clock"/></svg></div>
+        <h3>Carga e materiais</h3>
+        <ul class="check-list compact">
+          <li>Cerca de 1h10 no total</li>
+          <li>Vídeo-aula de 20 a 30 minutos, com legendas</li>
+          <li>Avaliação com 12 questões</li>
+          <li>Um navegador e acesso a uma ferramenta de IA</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3 id="objetivos-titulo">Objetivos de aprendizagem</h3>
+      <p class="muted">Ao final do minicurso, você será capaz de:</p>
+      <div class="grid grid-4">
+        <div class="card objective step-1 reveal"><span class="obj-num">O1</span><p><strong>Descrever uma necessidade pedagógica</strong> com clareza: quem aprende, qual a dificuldade e como saber se o recurso ajudou.</p></div>
+        <div class="card objective step-2 reveal"><span class="obj-num">O2</span><p><strong>Converter a necessidade em requisitos</strong> verificáveis: pedagógicos, funcionais e técnicos.</p></div>
+        <div class="card objective step-3 reveal"><span class="obj-num">O3</span><p><strong>Escrever um pedido estruturado</strong> para que a IA gere um protótipo em HTML e JavaScript, sem expor dados pessoais.</p></div>
+        <div class="card objective step-4 reveal"><span class="obj-num">O4</span><p><strong>Testar o protótipo e pedir melhorias</strong> de forma precisa, uma versão de cada vez.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     O QUE VOCÊ VAI APRENDER
+========================================================= -->
+<section class="section" id="conteudo-programatico" aria-labelledby="aprender-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">O que você vai aprender</div>
+      <h2 id="aprender-titulo">Um ciclo em cinco etapas</h2>
+      <p class="lead">A aula acompanha um caso real, do problema de ensino até um protótipo testado e melhorado. Clique em uma etapa para ir direto a ela.</p>
+    </div>
+    <ol class="cycle">
+      <li class="step-1 reveal"><a href="curso.html#necessidade"><span class="num">01</span><h3>Necessidade</h3><p>Qual problema de aprendizagem queremos resolver?</p></a></li>
+      <li class="step-2 reveal"><a href="curso.html#requisitos"><span class="num">02</span><h3>Requisitos</h3><p>O que o recurso precisa fazer, de forma verificável?</p></a></li>
+      <li class="step-3 reveal"><a href="curso.html#construcao"><span class="num">03</span><h3>Construção</h3><p>Pedido estruturado para a IA gerar o protótipo.</p></a></li>
+      <li class="step-4 reveal"><a href="curso.html#testes"><span class="num">04</span><h3>Testes</h3><p>Conferir requisitos, conteúdo e uso real.</p></a></li>
+      <li class="step-5 reveal"><a href="curso.html#melhorias"><span class="num">05</span><h3>Melhorias</h3><p>Pedir ajustes precisos e gerar uma nova versão.</p></a></li>
+    </ol>
+    <div class="landing-preview reveal">
+      <div>
+        <span class="case-label">Demonstração prática</span>
+        <h3>Um protótipo real, em duas versões</h3>
+        <p>Você verá um treino interativo gerado com IA a partir de um pedido estruturado, os problemas encontrados nos testes e a versão melhorada.</p>
+        <a class="btn btn-ghost btn-sm" href="curso.html#demonstracao">Ver o protótipo <svg class="i"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="lp-versions" aria-hidden="true">
+        <span class="lp-v"><b>v1</b> primeiro pedido</span>
+        <svg class="i"><use href="#i-arrow"/></svg>
+        <span class="lp-v"><b>testes</b> 8 verificações</span>
+        <svg class="i"><use href="#i-arrow"/></svg>
+        <span class="lp-v on"><b>v2</b> melhorada</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     TRILHA DE ESTUDO
+========================================================= -->
+<section class="section alt" id="trilha" aria-labelledby="trilha-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Trilha de estudo</div>
+      <h2 id="trilha-titulo">Siga esta sequência</h2>
+      <p class="lead">Cada passo prepara o seguinte. A aula (vídeo, material e protótipo) fica em uma página própria, e a avaliação em outra.</p>
+    </div>
+    <ol class="trail">
+      <li class="step-1 reveal"><a href="#sobre"><span class="num">1</span><h3>Conheça</h3><p>Público, pré-requisitos e objetivos</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>3 min</span></a></li>
+      <li class="step-2 reveal"><a href="curso.html#video"><span class="num">2</span><h3>Assista</h3><p>A vídeo-aula completa</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>20–30 min</span></a></li>
+      <li class="step-3 reveal"><a href="curso.html#ciclo"><span class="num">3</span><h3>Aprofunde</h3><p>Material de apoio, etapa por etapa</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>20 min</span></a></li>
+      <li class="step-4 reveal"><a href="curso.html#demonstracao"><span class="num">4</span><h3>Experimente</h3><p>O protótipo nas versões v1 e v2</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>5 min</span></a></li>
+      <li class="step-5 reveal"><a href="avaliacao/"><span class="num">5</span><h3>Avalie-se</h3><p>12 questões com feedback imediato</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>10 min</span></a></li>
+      <li class="step-3 reveal"><a href="curso.html#pratica"><span class="num">+</span><h3>Pratique</h3><p>Monte o seu pedido (opcional)</p><span class="time"><svg class="i"><use href="#i-clock"/></svg>livre</span></a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- =========================================================
+     AVALIAÇÃO
+========================================================= -->
+<section class="section" id="avaliacao" aria-labelledby="avaliacao-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Avaliação</div>
+      <h2 id="avaliacao-titulo">Hora de testar o que você aprendeu</h2>
+      <p class="lead">Situações práticas, em quatro formatos de questão, com explicação imediata após cada resposta. No final, você vê o seu desempenho em cada objetivo e o que vale revisar.</p>
+    </div>
+
+    <div class="quiz-cta reveal">
+      <div class="quiz-cta-text">
+        <span class="quiz-cta-icon" aria-hidden="true"><svg class="i"><use href="#i-quiz"/></svg></span>
+        <h3>Avaliação interativa</h3>
+        <ul class="quiz-facts">
+          <li><strong>12</strong> questões</li>
+          <li><strong>~10</strong> minutos</li>
+          <li><strong>4</strong> formatos: escolha, múltipla seleção, classificação e ordenação</li>
+          <li>Feedback <strong>imediato</strong> e explicativo</li>
+        </ul>
+      </div>
+      <a class="btn btn-light" href="avaliacao/">Iniciar avaliação <svg class="i"><use href="#i-arrow"/></svg></a>
+    </div>
+
+    <div class="sub">
+      <h3>Alinhamento: objetivos, vídeo e questões</h3>
+      <p class="muted">Cada questão avalia um objetivo que foi trabalhado no vídeo e no material.</p>
+      <div class="table-wrap reveal">
+        <table>
+          <thead><tr><th>Objetivo</th><th>No vídeo</th><th>No material</th><th>Questões</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Visão geral do ciclo</strong></td><td>03:00 · O ciclo em 5 etapas</td><td><a href="curso.html#ciclo">Um ciclo, não uma linha reta</a></td><td>1</td></tr>
+            <tr class="row-p"><td><strong>O1</strong> · Descrever uma necessidade pedagógica</td><td>05:00 · Etapa 1</td><td><a href="curso.html#necessidade">Etapa 1</a></td><td>2 e 3</td></tr>
+            <tr class="row-f"><td><strong>O2</strong> · Converter a necessidade em requisitos</td><td>08:30 · Etapa 2</td><td><a href="curso.html#requisitos">Etapa 2</a></td><td>4, 5 e 6</td></tr>
+            <tr class="row-t"><td><strong>O3</strong> · Escrever um pedido estruturado</td><td>12:00 · Etapa 3 e 25:00 · Ética</td><td><a href="curso.html#construcao">Etapa 3</a> e <a href="curso.html#cuidados">Cuidados</a></td><td>7, 8 e 9</td></tr>
+            <tr><td><strong>O4</strong> · Testar e pedir melhorias</td><td>18:30 · Etapas 4 e 5</td><td><a href="curso.html#testes">Etapa 4</a> e <a href="curso.html#melhorias">Etapa 5</a></td><td>10, 11 e 12</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     PLANEJAMENTO (DESIGN INSTRUCIONAL)
+========================================================= -->
+<section class="section alt" id="planejamento" aria-labelledby="planejamento-titulo">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Design instrucional</div>
+      <h2 id="planejamento-titulo">Como este minicurso foi planejado</h2>
+      <p class="lead">O minicurso foi organizado com o modelo <strong>ADDIE</strong>. Ele também segue o próprio ciclo que ensina: necessidade, requisitos, construção, testes e melhorias.</p>
+    </div>
+    <ol class="addie">
+      <li class="step-1 reveal"><span class="letter">A</span><div><h3>Análise</h3><p>Público: educadores da EaD que já usam IA no dia a dia, mas não sabem conferir o que ela produz. Pré-requisito mínimo: nenhuma programação.</p></div></li>
+      <li class="step-2 reveal"><span class="letter">D</span><div><h3>Design</h3><p>Quatro objetivos verificáveis (O1 a O4). Sequência: vídeo → material → protótipo → avaliação. Cada questão foi escrita a partir de um objetivo.</p></div></li>
+      <li class="step-3 reveal"><span class="letter">D</span><div><h3>Desenvolvimento</h3><p>Vídeo-aula com câmera e demonstração ao vivo; site em HTML, CSS e JavaScript; protótipo v1/v2 e avaliação produzidos com apoio de IA e revisados.</p></div></li>
+      <li class="step-4 reveal"><span class="letter">I</span><div><h3>Implementação</h3><p>Vídeo no YouTube com legendas revisadas; site publicado na Vercel, acessível no computador e no celular.</p></div></li>
+      <li class="step-5 reveal"><span class="letter">E</span><div><h3>Avaliação</h3><p>Questões com feedback imediato e desempenho por objetivo. Antes da publicação, foram testados os links, o vídeo, a avaliação, o teclado e o celular.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- =========================================================
+     REFERÊNCIAS
+========================================================= -->
+<section class="section" id="referencias" aria-labelledby="referencias-titulo">
+  <div class="container narrow">
+    <div class="section-head">
+      <div class="kicker">Referências</div>
+      <h2 id="referencias-titulo">Para estudar mais</h2>
+    </div>
+    <ul class="refs">
+      <li>BRANCH, Robert Maribe. <em>Instructional design: the ADDIE approach</em>. New York: Springer, 2009.</li>
+      <li>BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). <em>Diário Oficial da União</em>, Brasília, DF, 15 ago. 2018. Disponível em: <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank" rel="noopener">planalto.gov.br</a>. Acesso em: 4 out. 2026.</li>
+      <li>FILATRO, Andrea. <em>Design instrucional na prática</em>. São Paulo: Pearson Education do Brasil, 2008.</li>
+      <li>MAYER, Richard E. <em>Multimedia learning</em>. 2. ed. Cambridge: Cambridge University Press, 2009.</li>
+      <li>MOZILLA. <em>MDN Web Docs: aprendendo desenvolvimento web</em>. Disponível em: <a href="https://developer.mozilla.org/pt-BR/docs/Learn" target="_blank" rel="noopener">developer.mozilla.org</a>. Acesso em: 4 out. 2026.</li>
+      <li>SMALDINO, Sharon E.; LOWTHER, Deborah L.; RUSSELL, James D. <em>Instructional technology and media for learning</em>. 10. ed. Boston: Pearson, 2012.</li>
+      <li>UNESCO. <em>Guidance for generative AI in education and research</em>. Paris: UNESCO, 2023. Disponível em: <a href="https://unesdoc.unesco.org/ark:/48223/pf0000386693" target="_blank" rel="noopener">unesdoc.unesco.org</a>. Acesso em: 4 out. 2026.</li>
+      <li>W3C. <em>Web Content Accessibility Guidelines (WCAG) 2.2</em>. 2023. Disponível em: <a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">w3.org/TR/WCAG22</a>. Acesso em: 4 out. 2026.</li>
+      <li>WIGGINS, Grant; McTIGHE, Jay. <em>Understanding by design</em>. 2. ed. Alexandria: ASCD, 2005.</li>
+    </ul>
+    <p class="muted refs-note">O texto, o protótipo e a avaliação deste minicurso foram produzidos com apoio de ferramentas de IA generativa e revisados integralmente pelo autor.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <a class="brand" href="#inicio"><span class="brand-mark">T7</span> Do problema ao protótipo</a>
+    <p>Minicurso de <strong>Thiago Jacinto</strong> · Trilha Docência Digital na Era da IA: Ensino e Aprendizagem na EaD<br>Produzido com apoio de IA e revisado pelo autor · 2026</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

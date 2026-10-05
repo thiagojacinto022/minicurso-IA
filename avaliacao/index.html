@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação · Do problema ao protótipo</title>
+<meta name="description" content="Avaliação interativa do minicurso Do problema ao protótipo: recursos educacionais com apoio de IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script>
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  /* ---------- Estrutura da avaliação ---------- */
+  .quiz-wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  .quiz-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .9rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .back-link:hover { color: var(--ink); }
+  .back-link .i { transform: rotate(180deg); }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 32px;
+  }
+
+  .panel h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.5rem);
+    letter-spacing: -.02em;
+    margin-bottom: 10px;
+  }
+
+  .obj-legend { list-style: none; margin: 20px 0 24px; padding: 0; display: grid; gap: 8px; }
+  .obj-legend li { display: flex; gap: 12px; align-items: baseline; font-size: .95rem; color: var(--ink-2); }
+
+  .obj-pill {
+    font-family: var(--font);
+    font-size: .76rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: var(--oc);
+    background: var(--oc-soft);
+    white-space: nowrap;
+  }
+
+  .o-O1 { --oc: var(--s1); --oc-soft: var(--s1-soft); }
+  .o-O2 { --oc: var(--s2); --oc-soft: var(--s2-soft); }
+  .o-O3 { --oc: var(--s3); --oc-soft: var(--s3-soft); }
+  .o-O4 { --oc: var(--s4); --oc-soft: var(--s4-soft); }
+  .o-G  { --oc: var(--s5); --oc-soft: var(--s5-soft); }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+
+  /* ---------- Progresso ---------- */
+  .q-progress { margin-bottom: 16px; }
+  .q-progress-row { display: flex; justify-content: space-between; font-size: .88rem; color: var(--muted); margin-bottom: 8px; }
+  .q-progress-row b { color: var(--ink); }
+  .dots { display: flex; gap: 6px; }
+  .dot { flex: 1; height: 6px; border-radius: 999px; background: var(--line); transition: background .3s ease; }
+  .dot.ok { background: var(--ok); }
+  .dot.bad { background: var(--bad); }
+  .dot.now { background: var(--primary); }
+
+  /* ---------- Questão ---------- */
+  .q-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .q-type { font-size: .78rem; font-weight: 700; color: var(--muted); }
+
+  .q-title { font-size: 1.25rem; line-height: 1.45; margin-bottom: 8px; outline: none; }
+  .q-hint { font-size: .9rem; color: var(--muted); margin-bottom: 18px; }
+
+  .q-context {
+    border-left: 4px solid var(--primary);
+    background: var(--bg-alt);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 0 0 18px;
+    font-size: .98rem;
+    color: var(--ink-2);
+  }
+
+  .opts { display: grid; gap: 10px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: .98rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1.5px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+
+  .opt:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-1px); }
+  .opt:disabled { cursor: default; }
+
+  .opt-key {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1.5px solid var(--line-strong);
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--muted);
+    background: var(--bg);
+  }
+
+  .opt.multi .opt-key { border-radius: 6px; }
+  .opt[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+  .opt[aria-pressed="true"] .opt-key { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .opt-key { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .opt.wrong .opt-key { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .opt.missed { border-style: dashed; border-color: var(--ok); }
+  .opt.faded { opacity: .55; }
+  .sr-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .opt { position: relative; }
+
+  /* classificar */
+  .classify { display: grid; gap: 12px; }
+  .cl-item { border: 1.5px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; }
+  .cl-item p { margin: 0 0 10px; font-weight: 600; }
+  .cl-item.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .cl-item.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .cl-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cl-choice {
+    font: inherit;
+    font-size: .86rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .cl-choice:hover:not(:disabled) { border-color: var(--primary); }
+  .cl-choice[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .cl-choice:disabled { cursor: default; }
+  .cl-note { font-size: .85rem; margin: 8px 0 0 !important; font-weight: 600 !important; color: var(--ok); }
+
+  /* ordenar */
+  .order { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .order li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 10px 10px 10px 16px;
+    background: var(--surface);
+    font-weight: 600;
+    transition: transform .2s ease;
+  }
+  .order .pos { font-family: var(--mono); font-size: .8rem; color: var(--muted); width: 18px; }
+  .order .txt { flex: 1; }
+  .order .mv { display: flex; gap: 4px; }
+  .order li.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .order li.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .order li.moved { animation: pop .3s ease; }
+  @keyframes pop { 50% { transform: scale(1.02); } }
+
+  .mv button {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .mv button:hover:not(:disabled) { border-color: var(--primary); }
+  .mv button:disabled { opacity: .35; cursor: default; }
+
+  /* feedback */
+  .fb {
+    margin-top: 20px;
+    border-radius: 14px;
+    padding: 18px 20px;
+    border: 1.5px solid;
+  }
+  .fb.ok { border-color: color-mix(in srgb, var(--ok) 50%, transparent); background: var(--ok-soft); }
+  .fb.bad { border-color: color-mix(in srgb, var(--bad) 50%, transparent); background: var(--bad-soft); }
+  .fb-title { font-weight: 800; margin: 0 0 6px; }
+  .fb.ok .fb-title { color: var(--ok); }
+  .fb.bad .fb-title { color: var(--bad); }
+  .fb p { margin: 0; color: var(--ink-2); }
+  .fb .fb-link { display: inline-block; margin-top: 10px; font-size: .9rem; font-weight: 700; }
+
+  .q-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+  /* ---------- Resultado ---------- */
+  .res-head { display: flex; flex-wrap: wrap; gap: 28px; align-items: center; margin-bottom: 28px; }
+  .ring { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 11; }
+  .ring .bg { stroke: var(--line); }
+  .ring .fg { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .ring-label { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; line-height: 1.1; }
+  .ring-label b { font-size: 1.8rem; display: block; }
+  .ring-label span { font-size: .78rem; color: var(--muted); }
+  .res-text { flex: 1; min-width: 220px; }
+  .res-text h2 { font-size: 1.7rem; margin-bottom: 6px; }
+  .res-text p { color: var(--muted); margin: 0; }
+
+  .bars { display: grid; gap: 14px; margin-bottom: 28px; }
+  .bar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; }
+  .bar-row .lbl { font-size: .92rem; font-weight: 600; display: flex; gap: 10px; align-items: baseline; }
+  .bar-row .val { font-size: .86rem; font-weight: 700; color: var(--muted); }
+  .bar-track { grid-column: 1 / -1; height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; border-radius: 999px; background: var(--oc); transition: width .9s ease; }
+
+  .tips { border-radius: 14px; background: var(--bg-alt); padding: 18px 20px; margin-bottom: 28px; }
+  .tips h3 { font-size: 1rem; margin-bottom: 8px; }
+  .tips ul { margin: 0; padding-left: 1.2em; }
+  .tips li { margin: 4px 0; color: var(--ink-2); }
+
+  .rev { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .rev details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .rev summary { display: flex; gap: 12px; align-items: center; padding: 12px 16px; cursor: pointer; font-size: .94rem; list-style: none; }
+  .rev summary::-webkit-details-marker { display: none; }
+  .rev summary .q-short { flex: 1; }
+  .rev .mark { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: .78rem; font-weight: 800; flex-shrink: 0; }
+  .rev .ok .mark { background: var(--ok); }
+  .rev .bad .mark { background: var(--bad); }
+  .rev .exp { padding: 0 16px 14px 52px; margin: 0; font-size: .92rem; color: var(--ink-2); }
+
+  @media (max-width: 640px) {
+    .quiz-wrap { padding: 20px 14px 56px; }
+    .panel { padding: 22px 18px; }
+    .q-title { font-size: 1.12rem; }
+    .q-actions .btn { flex: 1; }
+    .rev .exp { padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+</svg>
+
+<main class="quiz-wrap">
+  <div class="quiz-top">
+    <a class="back-link" href="../index.html#avaliacao"><svg class="i"><use href="#i-arrow"/></svg> Voltar ao minicurso</a>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro"><svg class="i"><use href="#i-moon"/></svg></button>
+  </div>
+
+  <!-- INÍCIO -->
+  <section class="panel" id="scr-intro" aria-labelledby="intro-h">
+    <div class="eyebrow"><span class="pill">Avaliação</span> Do problema ao protótipo</div>
+    <h1 id="intro-h">Vamos ver o que você aprendeu</h1>
+    <p class="muted">São situações do dia a dia de quem produz recursos educacionais. Cada resposta recebe uma explicação logo em seguida, então errar também ensina. As questões avaliam os objetivos do minicurso:</p>
+    <ul class="obj-legend" id="obj-legend"></ul>
+    <div class="facts">
+      <span class="chip" style="--dot: var(--s1)" id="fact-total">12 questões</span>
+      <span class="chip" style="--dot: var(--s3)">Cerca de 10 minutos</span>
+      <span class="chip" style="--dot: var(--s4)">4 formatos de questão</span>
+      <span class="chip" style="--dot: var(--s5)">Feedback imediato</span>
+    </div>
+    <button class="btn btn-primary" id="btn-start" type="button">Começar avaliação <svg class="i"><use href="#i-arrow"/></svg></button>
+  </section>
+
+  <!-- QUESTÃO -->
+  <section id="scr-quiz" hidden>
+    <div class="q-progress">
+      <div class="q-progress-row"><span id="q-count">Questão 1 de 12</span><span>Acertos: <b id="q-score">0</b></span></div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+    </div>
+
+    <article class="panel">
+      <div class="q-meta">
+        <span class="obj-pill" id="q-obj"></span>
+        <span class="q-type" id="q-type"></span>
+      </div>
+      <h2 class="q-title" id="q-title" tabindex="-1"></h2>
+      <p class="q-hint" id="q-hint"></p>
+      <blockquote class="q-context" id="q-context" hidden></blockquote>
+      <div id="q-body"></div>
+      <div id="q-feedback" role="status" aria-live="polite"></div>
+      <div class="q-actions">
+        <button class="btn btn-primary" id="btn-check" type="button" hidden>Conferir resposta</button>
+        <button class="btn btn-primary" id="btn-next" type="button" hidden>Próxima <svg class="i"><use href="#i-arrow"/></svg></button>
+      </div>
+    </article>
+  </section>
+
+  <!-- RESULTADO -->
+  <section class="panel" id="scr-result" aria-labelledby="res-h" hidden>
+    <div class="res-head">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 140 140"><circle class="bg" cx="70" cy="70" r="60"/><circle class="fg" id="ring-fg" cx="70" cy="70" r="60"/></svg>
+        <div class="ring-label"><div><b id="ring-pct">0%</b><span>de acertos</span></div></div>
+      </div>
+      <div class="res-text">
+        <h2 id="res-h" tabindex="-1">Você acertou 0 de 12</h2>
+        <p id="res-msg"></p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.05rem">Desempenho por objetivo</h3>
+    <div class="bars" id="bars"></div>
+
+    <div class="tips" id="tips" hidden>
+      <h3>Sugestões de revisão</h3>
+      <ul id="tips-list"></ul>
+    </div>
+
+    <h3 style="font-size:1.05rem">Revisão das questões</h3>
+    <p class="muted" style="font-size:.9rem">Clique em uma questão para rever a explicação.</p>
+    <ol class="rev" id="rev"></ol>
+
+    <div class="q-actions">
+      <a class="btn btn-ghost" href="../index.html#referencias">Ver referências</a>
+      <button class="btn btn-primary" id="btn-restart" type="button">Refazer avaliação</button>
+    </div>
+  </section>
+</main>
+
+<script>
+/* =============================================================
+   OBJETIVOS DE APRENDIZAGEM
+   (os mesmos da página do minicurso)
+============================================================= */
+const OBJECTIVES = {
+  O1: { label: "Descrever uma necessidade pedagógica", review: "../curso.html#necessidade", video: "Etapa 1 do vídeo" },
+  O2: { label: "Converter a necessidade em requisitos verificáveis", review: "../curso.html#requisitos", video: "Etapa 2 do vídeo" },
+  O3: { label: "Escrever um pedido estruturado para a IA", review: "../curso.html#construcao", video: "Etapa 3 do vídeo" },
+  O4: { label: "Testar o protótipo e pedir melhorias", review: "../curso.html#testes", video: "Etapas 4 e 5 do vídeo" },
+  G:  { label: "Visão geral do ciclo", review: "../curso.html#ciclo", video: "Início do vídeo" }
+};
+
+/* =============================================================
+   BANCO DE QUESTÕES
+   type: "single" (uma correta) · "multi" (várias corretas)
+         "classify" (classificar itens) · "order" (ordenar)
+============================================================= */
+const QUESTIONS = [
+  {
+    obj: "G", type: "order",
+    title: "Coloque as etapas do ciclo de produção de um recurso educacional na ordem correta.",
+    items: ["Necessidade pedagógica", "Requisitos", "Construção com IA", "Testes", "Melhorias"],
+    explanation: "Tudo começa pelo problema de ensino (necessidade), que vira uma lista verificável (requisitos). Só então a IA entra na construção. Depois vêm os testes e as melhorias, que se repetem em ciclo até o recurso ficar pronto."
+  },
+  {
+    obj: "O1", type: "single",
+    title: "Qual destas descrições de necessidade pedagógica orienta melhor a criação de um recurso?",
+    options: [
+      "Estudantes do 6º ano acertam contas com frações de mesmo denominador, mas erram quando os denominadores são diferentes. Quero um treino curto que mostre o passo a passo de cada erro.",
+      "Quero algo interativo e moderno para a turma de Matemática.",
+      "Preciso de um jogo, porque os alunos gostam muito de jogos.",
+      "A coordenação pediu um recurso digital novo até sexta-feira."
+    ],
+    correct: 0,
+    explanation: "A primeira descrição diz quem aprende (6º ano), qual é a dificuldade concreta (denominadores diferentes) e já aponta o formato (treino com passo a passo). As outras falam da tecnologia ou do prazo, não do problema de aprendizagem."
+  },
+  {
+    obj: "O1", type: "single",
+    title: "O que ainda falta nesta descrição de necessidade?",
+    context: "\"Meus estudantes do 1º ano do ensino médio confundem a ordem das fases da mitose. Quero um recurso para eles praticarem.\"",
+    options: [
+      "Como a professora vai saber se o recurso ajudou (a evidência de aprendizagem).",
+      "A cor e a fonte que o recurso deve usar.",
+      "O nome da ferramenta de IA que será usada.",
+      "Nada: a descrição já está completa."
+    ],
+    correct: 0,
+    explanation: "Uma necessidade bem descrita responde a três perguntas: quem aprende, qual é a dificuldade e como saber se o recurso ajudou. A descrição responde às duas primeiras, mas não define a evidência, por exemplo, a taxa de acertos em uma atividade de ordenação."
+  },
+  {
+    obj: "O2", type: "single",
+    title: "Qual dos itens abaixo é um requisito verificável?",
+    options: [
+      "O recurso deve ser bonito e intuitivo.",
+      "Os estudantes devem gostar da atividade.",
+      "Ao final, o recurso mostra a pontuação e um botão para recomeçar.",
+      "O recurso deve ser o melhor possível."
+    ],
+    correct: 2,
+    explanation: "Só dá para conferir objetivamente o terceiro item: basta concluir a atividade e ver se a pontuação e o botão aparecem. \"Bonito\", \"intuitivo\" e \"melhor possível\" dependem de opinião. Se não dá para testar, ainda não é um requisito."
+  },
+  {
+    obj: "O2", type: "classify",
+    title: "Classifique cada requisito de acordo com o seu tipo.",
+    categories: ["Pedagógico", "Funcional", "Técnico"],
+    items: [
+      { text: "Explicar por que cada resposta está certa ou errada", answer: "Pedagógico" },
+      { text: "Mostrar uma barra de progresso durante a atividade", answer: "Funcional" },
+      { text: "Funcionar em um único arquivo, sem instalação", answer: "Técnico" },
+      { text: "Poder ser usado apenas com o teclado", answer: "Técnico" }
+    ],
+    explanation: "Requisitos pedagógicos tratam do que se aprende (como o feedback explicativo). Os funcionais tratam do que o recurso faz na tela (como a barra de progresso). Os técnicos e de uso tratam de onde e como ele roda: arquivo único, acessibilidade por teclado, celular."
+  },
+  {
+    obj: "O2", type: "single",
+    title: "Na tabela de requisitos, para que serve a coluna \"Como verificar\"?",
+    options: [
+      "Para dizer à IA qual linguagem de programação usar.",
+      "Ela se torna o roteiro de testes da etapa 4.",
+      "É opcional e serve apenas para documentação.",
+      "Para definir a nota que os estudantes vão receber."
+    ],
+    correct: 1,
+    explanation: "Escrever como cada requisito será conferido já prepara os testes. Na etapa 4, basta percorrer a tabela linha por linha e marcar o que funcionou e o que não funcionou."
+  },
+  {
+    obj: "O3", type: "multi",
+    title: "Quais elementos devem fazer parte de um bom pedido à IA?",
+    hint: "Marque todas as alternativas corretas e clique em Conferir.",
+    options: [
+      "O contexto do curso e da disciplina",
+      "O público e o que ele já sabe",
+      "Nomes e notas dos estudantes da turma",
+      "Os requisitos definidos na etapa 2",
+      "Restrições técnicas (arquivo único, celular, teclado)",
+      "\"Seja criativa e faça como achar melhor\""
+    ],
+    correct: [0, 1, 3, 4],
+    explanation: "Um bom pedido tem contexto, público, objetivo, requisitos, restrições e o formato de entrega. Dados pessoais de estudantes nunca devem ir para a IA (LGPD). E deixar tudo \"a critério da IA\" faz ela adivinhar justamente o que você deveria definir."
+  },
+  {
+    obj: "O3", type: "single",
+    title: "Por que pedir que as questões fiquem em uma lista separada do restante do código?",
+    options: [
+      "Porque a IA só consegue gerar código dessa forma.",
+      "Para esconder as respostas dos estudantes.",
+      "Para corrigir um gabarito ou criar novas questões sem mexer no resto do código.",
+      "Para deixar o arquivo mais leve."
+    ],
+    correct: 2,
+    explanation: "Separar o conteúdo da lógica dá autonomia ao professor: ele edita enunciados, alternativas e gabaritos em um só lugar, sem precisar entender o resto do código nem pedir de novo à IA. Isso não esconde as respostas, que continuam visíveis no código-fonte."
+  },
+  {
+    obj: "O3", type: "single",
+    title: "Você quer que a IA ajude a escrever feedbacks personalizados para a turma. Qual atitude está de acordo com a LGPD e com as boas práticas?",
+    options: [
+      "Colar a planilha completa da turma, já que a ferramenta é confiável.",
+      "Colar apenas nomes e notas, sem o número de matrícula.",
+      "Usar exemplos fictícios ou dados anonimizados, sem nomes, matrículas ou notas reais.",
+      "Perguntar à própria IA se ela autoriza o uso dos dados."
+    ],
+    correct: 2,
+    explanation: "Nomes associados a notas já são dados pessoais. O caminho seguro é trabalhar com exemplos fictícios ou dados anonimizados e aplicar o resultado à turma fora da ferramenta de IA."
+  },
+  {
+    obj: "O4", type: "single",
+    title: "A IA gerou um quiz e marcou como correta a resposta abaixo. Qual é a forma mais confiável de conferir?",
+    context: "Trecho: console.log(5 == \"5\")  →  gabarito da IA: false",
+    options: [
+      "Perguntar à mesma IA se ela tem certeza.",
+      "Executar o trecho no console do navegador (F12) e comparar com o gabarito.",
+      "Confiar, pois a IA não erra em código tão simples.",
+      "Esperar os estudantes responderem e ver o que a maioria marca."
+    ],
+    correct: 1,
+    explanation: "O console executa o código de verdade e mostra o resultado real. Neste caso ele mostra true, porque == converte os tipos antes de comparar. Ou seja, a IA errou o gabarito. Conferir o conteúdo é responsabilidade de quem publica o recurso."
+  },
+  {
+    obj: "O4", type: "single",
+    title: "Qual pedido de melhoria tem mais chance de dar certo?",
+    options: [
+      "\"Melhora aí, ficou meio sem graça.\"",
+      "\"Refaz tudo do zero, só que melhor.\"",
+      "\"No celular (tela de 375 px), a explicação some quando o estudante erra; ela deveria aparecer abaixo das alternativas. Mantenha o resto igual e diga o que alterou.\"",
+      "\"Coloca mais cores e animações.\""
+    ],
+    correct: 2,
+    explanation: "Um bom pedido de melhoria descreve onde o problema acontece, o que foi observado e o que era esperado, limita a mudança (\"mantenha o resto igual\") e pede a explicação do que foi alterado. Pedidos vagos geram mudanças aleatórias."
+  },
+  {
+    obj: "O4", type: "single",
+    title: "Depois de pedir que as questões sejam embaralhadas, você percebe que o contador de acertos parou de funcionar. O que essa situação mostra?",
+    options: [
+      "Que embaralhar questões é impossível em JavaScript.",
+      "Que a versão 1 era melhor e o ciclo deve parar.",
+      "Que é preciso repetir todos os testes a cada nova versão (teste de regressão).",
+      "Que o problema é do navegador, não do código."
+    ],
+    correct: 2,
+    explanation: "Uma correção pode quebrar algo que já funcionava. Por isso a checklist de testes deve ser repetida em toda nova versão, e as versões anteriores devem ser guardadas para poder voltar se necessário."
+  }
+];
+
+/* =============================================================
+   ESTADO E ELEMENTOS
+============================================================= */
+const $ = (id) => document.getElementById(id);
+const state = { i: 0, score: 0, answered: false, results: [], selection: null, order: [], optOrder: [] };
+
+const TYPE_LABEL = {
+  single: "Escolha uma alternativa",
+  multi: "Várias respostas corretas",
+  classify: "Classificar",
+  order: "Ordenar"
+};
+
+function shuffle(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function el(tag, attrs, children) {
+  const node = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => {
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else node.setAttribute(k, v);
+  });
+  (children || []).forEach((c) => node.append(c));
+  return node;
+}
+
+function show(screen) {
+  ["scr-intro", "scr-quiz", "scr-result"].forEach((id) => { $(id).hidden = id !== screen; });
+  window.scrollTo({ top: 0 });
+}
+
+/* =============================================================
+   TELA INICIAL
+============================================================= */
+function renderIntro() {
+  const legend = $("obj-legend");
+  legend.innerHTML = "";
+  ["O1", "O2", "O3", "O4"].forEach((k) => {
+    legend.append(el("li", {}, [el("span", { class: "obj-pill o-" + k, text: k }), OBJECTIVES[k].label]));
+  });
+  $("fact-total").textContent = QUESTIONS.length + " questões";
+  show("scr-intro");
+}
+
+/* =============================================================
+   QUESTÕES
+============================================================= */
+function start() {
+  state.i = 0;
+  state.score = 0;
+  state.results = [];
+  const dots = $("dots");
+  dots.innerHTML = "";
+  QUESTIONS.forEach(() => dots.append(el("span", { class: "dot" })));
+  show("scr-quiz");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.i];
+  state.answered = false;
+  state.selection = q.type === "multi" ? new Set() : q.type === "classify" ? {} : null;
+
+  $("q-count").textContent = "Questão " + (state.i + 1) + " de " + QUESTIONS.length;
+  $("q-score").textContent = state.score;
+  Array.from($("dots").children).forEach((d, i) => d.classList.toggle("now", i === state.i));
+
+  const pill = $("q-obj");
+  pill.className = "obj-pill o-" + q.obj;
+  pill.textContent = q.obj === "G" ? "Visão geral" : q.obj;
+  pill.title = OBJECTIVES[q.obj].label;
+  $("q-type").textContent = TYPE_LABEL[q.type];
+  $("q-title").textContent = q.title;
+
+  const hints = {
+    single: "Clique na alternativa que você considera correta.",
+    multi: q.hint,
+    classify: "Escolha um tipo para cada item e clique em Conferir.",
+    order: "Use as setas para mover cada etapa e clique em Conferir."
+  };
+  $("q-hint").textContent = hints[q.type];
+
+  const ctx = $("q-context");
+  ctx.hidden = !q.context;
+  ctx.textContent = q.context || "";
+
+  $("q-feedback").innerHTML = "";
+  $("btn-next").hidden = true;
+  $("btn-check").hidden = q.type === "single";
+  $("btn-check").disabled = q.type !== "order";
+
+  const body = $("q-body");
+  body.innerHTML = "";
+  if (q.type === "single" || q.type === "multi") renderOptions(q, body);
+  if (q.type === "classify") renderClassify(q, body);
+  if (q.type === "order") renderOrder(q, body);
+}
+
+function renderOptions(q, body) {
+  state.optOrder = shuffle(q.options.map((_, i) => i));
+  const wrap = el("div", { class: "opts", role: q.type === "multi" ? "group" : "list" });
+  state.optOrder.forEach((orig, pos) => {
+    const btn = el("button", { class: "opt" + (q.type === "multi" ? " multi" : ""), type: "button", "data-orig": orig }, [
+      el("span", { class: "opt-key", text: q.type === "multi" ? "" : String.fromCharCode(65 + pos) }),
+      el("span", { text: q.options[orig] })
+    ]);
+    if (q.type === "multi") {
+      btn.setAttribute("aria-pressed", "false");
+      btn.addEventListener("click", () => {
+        if (state.answered) return;
+        const on = !state.selection.has(orig);
+        on ? state.selection.add(orig) : state.selection.delete(orig);
+        btn.setAttribute("aria-pressed", on);
+        btn.querySelector(".opt-key").textContent = on ? "✓" : "";
+        $("btn-check").disabled = state.selection.size === 0;
+      });
+    } else {
+      btn.addEventListener("click", () => answerSingle(orig));
+    }
+    wrap.append(btn);
+  });
+  body.append(wrap);
+}
+
+function renderClassify(q, body) {
+  const wrap = el("div", { class: "classify" });
+  q.items.forEach((item, idx) => {
+    const choices = el("div", { class: "cl-choices", role: "group", "aria-label": "Tipo do requisito" });
+    q.categories.forEach((cat) => {
+      const b = el("button", { class: "cl-choice", type: "button", "aria-pressed": "false", text: cat });
+      b.addEventListener("click", () => {
+        if (state.answered) return;
+        state.selection[idx] = cat;
+        choices.querySelectorAll(".cl-choice").forEach((c) => c.setAttribute("aria-pressed", c === b));
+        $("btn-check").disabled = Object.keys(state.selection).length < q.items.length;
+      });
+      choices.append(b);
+    });
+    wrap.append(el("div", { class: "cl-item", "data-idx": idx }, [el("p", { text: item.text }), choices]));
+  });
+  body.append(wrap);
+}
+
+function renderOrder(q, body) {
+  // embaralha garantindo que não comece já na ordem correta
+  let order;
+  do { order = shuffle(q.items.map((_, i) => i)); } while (order.every((v, i) => v === i));
+  state.order = order;
+  body.append(el("ol", { class: "order", id: "order-list" }));
+  drawOrder(q);
+}
+
+function drawOrder(q, movedIdx) {
+  const list = $("order-list");
+  list.innerHTML = "";
+  state.order.forEach((itemIdx, pos) => {
+    const up = el("button", { type: "button", "aria-label": "Mover \"" + q.items[itemIdx] + "\" para cima", text: "↑" });
+    const down = el("button", { type: "button", "aria-label": "Mover \"" + q.items[itemIdx] + "\" para baixo", text: "↓" });
+    up.disabled = pos === 0 || state.answered;
+    down.disabled = pos === state.order.length - 1 || state.answered;
+    up.addEventListener("click", () => move(q, pos, -1));
+    down.addEventListener("click", () => move(q, pos, 1));
+    const li = el("li", { "data-item": itemIdx }, [
+      el("span", { class: "pos", text: pos + 1 + "." }),
+      el("span", { class: "txt", text: q.items[itemIdx] }),
+      el("span", { class: "mv" }, [up, down])
+    ]);
+    if (pos === movedIdx) li.classList.add("moved");
+    list.append(li);
+  });
+}
+
+function move(q, pos, dir) {
+  const target = pos + dir;
+  [state.order[pos], state.order[target]] = [state.order[target], state.order[pos]];
+  drawOrder(q, target);
+  // mantém o foco no mesmo botão do item que foi movido
+  const btns = $("order-list").children[target].querySelectorAll(".mv button");
+  const focusBtn = btns[dir < 0 ? 0 : 1];
+  (focusBtn.disabled ? btns[dir < 0 ? 1 : 0] : focusBtn).focus();
+}
+
+/* =============================================================
+   CORREÇÃO
+============================================================= */
+function answerSingle(chosen) {
+  if (state.answered) return;
+  const q = QUESTIONS[state.i];
+  const ok = chosen === q.correct;
+  document.querySelectorAll(".opt").forEach((b) => {
+    const orig = Number(b.dataset.orig);
+    b.disabled = true;
+    if (orig === q.correct) { b.classList.add("correct"); b.querySelector(".opt-key").textContent = "✓"; }
+    else if (orig === chosen) { b.classList.add("wrong"); b.querySelector(".opt-key").textContent = "✗"; }
+    else b.classList.add("faded");
+  });
+  finish(ok);
+}
+
+function check() {
+  if (state.answered) return;
+  const q = QUESTIONS[state.i];
+  let ok = false;
+
+  if (q.type === "multi") {
+    const right = new Set(q.correct);
+    ok = right.size === state.selection.size && q.correct.every((c) => state.selection.has(c));
+    document.querySelectorAll(".opt").forEach((b) => {
+      const orig = Number(b.dataset.orig);
+      const picked = state.selection.has(orig);
+      b.disabled = true;
+      b.removeAttribute("aria-pressed");
+      const key = b.querySelector(".opt-key");
+      if (right.has(orig) && picked) { b.classList.add("correct"); key.textContent = "✓"; }
+      else if (right.has(orig)) { b.classList.add("missed"); key.textContent = ""; b.append(el("span", { class: "sr-note", text: " (correta, não marcada)" })); }
+      else if (picked) { b.classList.add("wrong"); key.textContent = "✗"; }
+      else b.classList.add("faded");
+    });
+  }
+
+  if (q.type === "classify") {
+    ok = q.items.every((item, idx) => state.selection[idx] === item.answer);
+    document.querySelectorAll(".cl-item").forEach((box) => {
+      const idx = Number(box.dataset.idx);
+      const item = q.items[idx];
+      const right = state.selection[idx] === item.answer;
+      box.classList.add(right ? "correct" : "wrong");
+      box.querySelectorAll(".cl-choice").forEach((c) => { c.disabled = true; });
+      if (!right) box.append(el("p", { class: "cl-note", text: "Resposta correta: " + item.answer }));
+    });
+  }
+
+  if (q.type === "order") {
+    ok = state.order.every((v, i) => v === i);
+    drawOrderResult(q);
+  }
+
+  finish(ok);
+}
+
+function drawOrderResult(q) {
+  state.answered = true;
+  drawOrder(q);
+  Array.from($("order-list").children).forEach((li, pos) => {
+    const itemIdx = Number(li.dataset.item);
+    const right = itemIdx === pos;
+    li.classList.add(right ? "correct" : "wrong");
+    if (!right) li.querySelector(".txt").append(el("small", { class: "muted", text: "  → posição correta: " + (itemIdx + 1) }));
+  });
+}
+
+function finish(ok) {
+  const q = QUESTIONS[state.i];
+  state.answered = true;
+  if (ok) state.score++;
+  state.results.push({ obj: q.obj, ok });
+
+  $("dots").children[state.i].classList.remove("now");
+  $("dots").children[state.i].classList.add(ok ? "ok" : "bad");
+  $("q-score").textContent = state.score;
+
+  const obj = OBJECTIVES[q.obj];
+  const fb = el("div", { class: "fb " + (ok ? "ok" : "bad") }, [
+    el("p", { class: "fb-title", text: ok ? "✓ Isso mesmo!" : "✗ Não foi dessa vez" }),
+    el("p", { text: q.explanation })
+  ]);
+  if (!ok) {
+    const link = el("a", { class: "fb-link", href: obj.review, target: "_blank", rel: "noopener", text: "Revisar este tema no material ↗" });
+    fb.append(link);
+  }
+  $("q-feedback").append(fb);
+
+  $("btn-check").hidden = true;
+  const last = state.i === QUESTIONS.length - 1;
+  $("btn-next").innerHTML = "";
+  $("btn-next").append(last ? "Ver meu resultado " : "Próxima ");
+  $("btn-next").insertAdjacentHTML("beforeend", '<svg class="i"><use href="#i-arrow"/></svg>');
+  $("btn-next").hidden = false;
+  $("btn-next").focus({ preventScroll: true });
+  fb.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function next() {
+  state.i++;
+  if (state.i >= QUESTIONS.length) return showResult();
+  renderQuestion();
+  window.scrollTo({ top: 0 });
+  $("q-title").focus({ preventScroll: true });
+}
+
+/* =============================================================
+   RESULTADO
+============================================================= */
+function showResult() {
+  const total = QUESTIONS.length;
+  const ratio = state.score / total;
+  show("scr-result");
+
+  const c = 2 * Math.PI * 60;
+  const fg = $("ring-fg");
+  fg.style.strokeDasharray = c;
+  fg.style.strokeDashoffset = c;
+  requestAnimationFrame(() => requestAnimationFrame(() => { fg.style.strokeDashoffset = c * (1 - ratio); }));
+  $("ring-pct").textContent = Math.round(ratio * 100) + "%";
+
+  $("res-h").textContent = "Você acertou " + state.score + " de " + total;
+  $("res-msg").textContent =
+    ratio === 1 ? "Excelente! Você domina o ciclo completo: da necessidade pedagógica à versão melhorada do recurso." :
+    ratio >= .75 ? "Muito bom! Você já tem uma base sólida. Revise os pontos abaixo para fechar as lacunas." :
+    ratio >= .5 ? "Bom caminho! Veja os objetivos com menor desempenho e volte aos trechos indicados do material e do vídeo." :
+    "Vale a pena rever o vídeo e o material com calma. Use as sugestões abaixo como roteiro e tente de novo.";
+
+  // desempenho por objetivo
+  const bars = $("bars");
+  bars.innerHTML = "";
+  const weak = [];
+  Object.keys(OBJECTIVES).forEach((k) => {
+    const rs = state.results.filter((r) => r.obj === k);
+    if (!rs.length) return;
+    const hits = rs.filter((r) => r.ok).length;
+    const fill = el("div", { class: "bar-fill" });
+    bars.append(el("div", { class: "bar-row o-" + k }, [
+      el("span", { class: "lbl" }, [el("span", { class: "obj-pill o-" + k, text: k === "G" ? "Geral" : k }), OBJECTIVES[k].label]),
+      el("span", { class: "val", text: hits + "/" + rs.length }),
+      el("div", { class: "bar-track", role: "img", "aria-label": OBJECTIVES[k].label + ": " + hits + " de " + rs.length }, [fill])
+    ]));
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = (hits / rs.length) * 100 + "%"; }));
+    if (hits < rs.length) weak.push(k);
+  });
+
+  const tips = $("tips-list");
+  tips.innerHTML = "";
+  weak.forEach((k) => {
+    const o = OBJECTIVES[k];
+    tips.append(el("li", {}, [
+      el("strong", { text: o.label + ": " }),
+      "reveja a ",
+      el("a", { href: o.review, text: "seção do material" }),
+      " e a " + o.video.toLowerCase() + "."
+    ]));
+  });
+  $("tips").hidden = weak.length === 0;
+
+  // revisão
+  const rev = $("rev");
+  rev.innerHTML = "";
+  QUESTIONS.forEach((q, i) => {
+    const r = state.results[i];
+    const summary = el("summary", {}, [
+      el("span", { class: "mark", text: r.ok ? "✓" : "✗", "aria-label": r.ok ? "Acertou" : "Errou" }),
+      el("span", { class: "q-short", text: (i + 1) + ". " + q.title }),
+      el("span", { class: "obj-pill o-" + q.obj, text: q.obj === "G" ? "Geral" : q.obj })
+    ]);
+    rev.append(el("li", { class: r.ok ? "ok" : "bad" }, [
+      el("details", {}, [summary, el("p", { class: "exp", text: q.explanation })])
+    ]));
+  });
+
+  $("res-h").focus({ preventScroll: true });
+}
+
+/* =============================================================
+   EVENTOS
+============================================================= */
+$("btn-start").addEventListener("click", start);
+$("btn-check").addEventListener("click", check);
+$("btn-next").addEventListener("click", next);
+$("btn-restart").addEventListener("click", start);
+
+/* tema claro/escuro (o mesmo da página do minicurso) */
+(function () {
+  const root = document.documentElement;
+  const btn = $("theme-toggle");
+  const sys = window.matchMedia("(prefers-color-scheme: dark)");
+  const cur = () => root.dataset.theme || (sys.matches ? "dark" : "light");
+  const paint = () => {
+    btn.querySelector("use").setAttribute("href", cur() === "dark" ? "#i-sun" : "#i-moon");
+    btn.setAttribute("aria-label", cur() === "dark" ? "Usar tema claro" : "Usar tema escuro");
+  };
+  btn.addEventListener("click", () => {
+    root.dataset.theme = cur() === "dark" ? "light" : "dark";
+    try { localStorage.setItem("tema", root.dataset.theme); } catch (e) {}
+    paint();
+  });
+  sys.addEventListener("change", paint);
+  paint();
+})();
+
+renderIntro();
+</script>
+</body>
+</html>

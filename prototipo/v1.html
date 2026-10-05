@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino de Leitura de Código · v1</title>
+<style>
+  /* ---------------------------------------------------------
+     VARIÁVEIS DE COR (paleta "dev/terminal")
+  --------------------------------------------------------- */
+  :root {
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --text: #1f2430;
+    --text-muted: #5b6472;
+    --border: #dde2e8;
+    --accent: #3b5bfd;
+    --accent-dark: #2a41c9;
+
+    --code-bg: #1e222c;
+    --code-text: #e5e9f0;
+    --code-line-hover: #2b3040;
+    --code-line-number: #6b7385;
+
+    --success-bg: #e6f6ec;
+    --success-border: #2e9e5b;
+    --success-text: #1c6e3f;
+
+    --error-bg: #fdeceb;
+    --error-border: #d94f45;
+    --error-text: #a3372e;
+
+    --badge-easy: #2e9e5b;
+    --badge-medium: #c78a1f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+  }
+
+  header.app-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  header.app-header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 6px;
+  }
+
+  header.app-header p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  /* ---------------------------------------------------------
+     BARRA DE PROGRESSO
+  --------------------------------------------------------- */
+  .progress-wrap {
+    margin: 20px 0 28px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .progress-track {
+    background: var(--border);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    background: var(--accent);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* ---------------------------------------------------------
+     CARD DA PERGUNTA
+  --------------------------------------------------------- */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .badge.type { background: var(--accent); }
+  .badge.difficulty.facil { background: var(--badge-easy); }
+  .badge.difficulty.medio { background: var(--badge-medium); }
+  .badge.topic { background: #6b7385; }
+
+  .question-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  /* ---------------------------------------------------------
+     BLOCO DE CÓDIGO
+  --------------------------------------------------------- */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    font-family: "Consolas", "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+    font-size: 0.88rem;
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+  }
+
+  .code-line {
+    display: flex;
+    padding: 3px 12px;
+    white-space: pre;
+  }
+
+  .code-line .ln {
+    color: var(--code-line-number);
+    min-width: 26px;
+    text-align: right;
+    margin-right: 14px;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .code-line .code-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* linhas clicáveis (perguntas do tipo "ache o erro") */
+  .code-line.clickable {
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+
+  .code-line.clickable:hover {
+    background: var(--code-line-hover);
+  }
+
+  .code-line.clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .code-line.selected-correct {
+    background: rgba(46, 158, 91, 0.25);
+    border-left-color: var(--badge-easy);
+  }
+
+  .code-line.selected-wrong {
+    background: rgba(217, 79, 69, 0.25);
+    border-left-color: var(--error-border);
+  }
+
+  .code-line .line-icon {
+    margin-left: 8px;
+    font-weight: 700;
+  }
+
+  .code-line .line-icon.ok { color: #6fe3a0; }
+  .code-line .line-icon.bad { color: #ff9b92; }
+
+  .instruction-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: -6px 0 14px;
+  }
+
+  /* ---------------------------------------------------------
+     OPÇÕES DE MÚLTIPLA ESCOLHA
+  --------------------------------------------------------- */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    font-family: "Consolas", "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+
+  .option-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  .option-btn .opt-icon {
+    font-weight: 700;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  .option-btn.correct {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--success-text);
+  }
+
+  .option-btn.correct .opt-icon { color: var(--success-border); }
+
+  .option-btn.wrong {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+    color: var(--error-text);
+  }
+
+  .option-btn.wrong .opt-icon { color: var(--error-border); }
+
+  /* ---------------------------------------------------------
+     FEEDBACK
+  --------------------------------------------------------- */
+  .feedback {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    display: none;
+  }
+
+  .feedback.show { display: block; }
+
+  .feedback.correct {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+  }
+
+  .feedback.wrong {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+  }
+
+  .feedback-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+
+  .feedback.correct .feedback-title { color: var(--success-text); }
+  .feedback.wrong .feedback-title { color: var(--error-text); }
+
+  .feedback-explanation {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .next-btn-wrap {
+    margin-top: 14px;
+    text-align: right;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover { background: var(--accent-dark); }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--accent-dark);
+    outline-offset: 2px;
+  }
+
+  /* ---------------------------------------------------------
+     TELA FINAL
+  --------------------------------------------------------- */
+  .result-card {
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  .result-score {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 10px 0;
+  }
+
+  .result-message {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ---------------------------------------------------------
+     RESPONSIVO
+  --------------------------------------------------------- */
+  @media (max-width: 480px) {
+    .wrap { padding: 16px 10px 48px; }
+    .card { padding: 16px; }
+    header.app-header h1 { font-size: 1.35rem; }
+    .code-block { font-size: 0.8rem; }
+    .result-score { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app-header">
+    <h1>🧠 Treino de Leitura de Código</h1>
+    <p>Leia o código, pense antes de rodar mentalmente, e teste sua previsão.</p>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">Questão 1 de 10</span>
+      <span id="score-text">Acertos: 0</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- CARD DA PERGUNTA -->
+  <main class="card" id="quiz-card">
+    <div class="card-meta">
+      <span class="badge type" id="badge-type">Tipo</span>
+      <span class="badge difficulty" id="badge-difficulty">Dificuldade</span>
+      <span class="badge topic" id="badge-topic">Tópico</span>
+    </div>
+
+    <h2 class="question-title" id="question-title"></h2>
+    <p class="instruction-hint" id="instruction-hint"></p>
+
+    <div class="code-block">
+      <pre id="code-container"></pre>
+    </div>
+
+    <div class="options" id="options-container"></div>
+
+    <div class="feedback" id="feedback" role="alert" aria-live="polite">
+      <div class="feedback-title" id="feedback-title"></div>
+      <p class="feedback-explanation" id="feedback-explanation"></p>
+    </div>
+
+    <div class="next-btn-wrap">
+      <button class="btn-primary hidden" id="next-btn">Próxima pergunta →</button>
+    </div>
+  </main>
+
+  <!-- TELA FINAL -->
+  <main class="card result-card hidden" id="result-card">
+    <div style="font-size: 2.5rem;">🏁</div>
+    <h2 style="margin-bottom: 0;">Quiz concluído!</h2>
+    <div class="result-score" id="result-score">0/10</div>
+    <p class="result-message" id="result-message"></p>
+    <button class="btn-primary" id="restart-btn">Reiniciar quiz</button>
+  </main>
+</div>
+
+<script>
+/* =============================================================
+   BANCO DE QUESTÕES
+   Cada questão tem:
+   - type: "output" (qual é a saída) ou "bug" (ache o erro)
+   - difficulty: "Fácil" ou "Médio"
+   - topic: rótulo exibido no card
+   - title: enunciado da pergunta
+   - code: string com o trecho de código (uma linha por \n)
+   - Para type "output": options (array de strings) e correctIndex
+   - Para type "bug": buggyLine (número da linha, começando em 1)
+   - explanation: texto exibido no feedback
+============================================================= */
+const questions = [
+  {
+    type: "output",
+    difficulty: "Fácil",
+    topic: "Variáveis e escopo",
+    title: "Qual é a saída no console?",
+    code:
+`let x = 5;
+if (true) {
+  let x = 10;
+}
+console.log(x);`,
+    options: ["5", "10", "undefined", "Erro de referência"],
+    correctIndex: 0,
+    explanation: "O \"x\" declarado dentro do bloco if com let existe apenas ali (escopo de bloco). Ele não altera o \"x\" externo, que continua valendo 5 depois do bloco."
+  },
+  {
+    type: "bug",
+    difficulty: "Médio",
+    topic: "Laços de repetição",
+    title: "Este código deveria imprimir todos os itens do array. Qual linha contém o erro?",
+    code:
+`let arr = [1, 2, 3, 4, 5];
+for (let i = 0; i <= arr.length; i++) {
+  console.log(arr[i]);
+}`,
+    buggyLine: 2,
+    explanation: "A condição usa \"<=\" em vez de \"<\". Como o array tem 5 elementos (índices de 0 a 4), quando i chega a 5 (arr.length), arr[5] não existe e o console mostra \"undefined\" — um clássico erro de off-by-one."
+  },
+  {
+    type: "output",
+    difficulty: "Fácil",
+    topic: "Condicionais",
+    title: "Qual é a saída no console?",
+    code:
+`let idade = 16;
+if (idade >= 18) {
+  console.log("Maior de idade");
+} else {
+  console.log("Menor de idade");
+}`,
+    options: ["Maior de idade", "Menor de idade", "true", "undefined"],
+    correctIndex: 1,
+    explanation: "idade vale 16, e 16 >= 18 é falso. Por isso o bloco else é executado, imprimindo \"Menor de idade\"."
+  },
+  {
+    type: "bug",
+    difficulty: "Médio",
+    topic: "Comparação (== vs =)",
+    title: "Este código deveria comparar a senha, mas sempre libera o acesso. Qual linha contém o erro?",
+    code:
+`let senha = "1234";
+let tentativa = "0000";
+if (tentativa = senha) {
+  console.log("Acesso liberado");
+} else {
+  console.log("Acesso negado");
+}`,
+    buggyLine: 3,
+    explanation: "O código usa \"=\" (atribuição) em vez de \"===\" ou \"==\" (comparação). Isso faz \"tentativa\" receber o valor de \"senha\", e como o resultado dessa atribuição (\"1234\") é um valor \"verdadeiro\", o if sempre é executado."
+  },
+  {
+    type: "output",
+    difficulty: "Fácil",
+    topic: "Laços de repetição",
+    title: "Qual é a saída no console?",
+    code:
+`let soma = 0;
+for (let i = 1; i <= 3; i++) {
+  soma += i;
+}
+console.log(soma);`,
+    options: ["6", "3", "5", "7"],
+    correctIndex: 0,
+    explanation: "O laço soma 1 + 2 + 3, resultando em 6. A condição \"i <= 3\" garante que o último valor somado seja o 3."
+  },
+  {
+    type: "bug",
+    difficulty: "Médio",
+    topic: "Funções e variáveis não inicializadas",
+    title: "Esta função deveria contar as vogais, mas retorna NaN. Qual linha contém o erro?",
+    code:
+`function contarVogais(palavra) {
+  let total;
+  for (let letra of palavra) {
+    if ("aeiou".includes(letra)) {
+      total++;
+    }
+  }
+  return total;
+}
+console.log(contarVogais("banana"));`,
+    buggyLine: 2,
+    explanation: "A variável \"total\" foi declarada sem valor inicial, ou seja, começa como undefined. Fazer \"undefined++\" resulta em NaN. O correto seria \"let total = 0;\"."
+  },
+  {
+    type: "output",
+    difficulty: "Fácil",
+    topic: "Funções e retorno",
+    title: "Qual é a saída no console?",
+    code:
+`function dobro(n) {
+  return n * 2;
+}
+console.log(dobro(4) + 1);`,
+    options: ["9", "8", "10", "undefined"],
+    correctIndex: 0,
+    explanation: "dobro(4) retorna 8 (4 * 2). Depois somamos 1, resultando em 9."
+  },
+  {
+    type: "output",
+    difficulty: "Médio",
+    topic: "Arrays (filter)",
+    title: "Qual é a saída no console?",
+    code:
+`let numeros = [1, 2, 3, 4, 5];
+let pares = numeros.filter(function(n) {
+  return n % 2 === 0;
+});
+console.log(pares);`,
+    options: ["[2, 4]", "[1, 3, 5]", "[2, 4, 6]", "[1, 2, 3, 4, 5]"],
+    correctIndex: 0,
+    explanation: "filter() mantém apenas os elementos para os quais a função retorna true. Apenas 2 e 4 são pares dentro do array original, então o resultado é [2, 4]."
+  },
+  {
+    type: "output",
+    difficulty: "Médio",
+    topic: "Comparação (== vs ===)",
+    title: "Qual é a saída no console?",
+    code:
+`let a = 5 === "5";
+let b = 5 == "5";
+console.log(a, b);`,
+    options: ["false true", "true false", "true true", "false false"],
+    correctIndex: 0,
+    explanation: "\"===\" compara valor E tipo, então 5 === \"5\" é false (número vs texto). Já \"==\" converte os tipos antes de comparar, então 5 == \"5\" é true."
+  },
+  {
+    type: "bug",
+    difficulty: "Médio",
+    topic: "Arrays (índice fora do limite)",
+    title: "Este código deveria imprimir todas as frutas. Qual linha contém o erro?",
+    code:
+`let frutas = ["maçã", "banana", "uva"];
+for (let i = 1; i <= frutas.length; i++) {
+  console.log(frutas[i]);
+}`,
+    buggyLine: 2,
+    explanation: "O laço começa em i = 1, pulando o índice 0 (\"maçã\"), e vai até i <= frutas.length (3), tentando acessar frutas[3], que não existe. O correto seria começar em 0 e usar \"i < frutas.length\"."
+  }
+];
+
+/* =============================================================
+   ESTADO DO QUIZ
+============================================================= */
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+/* Elementos do DOM usados com frequência */
+const els = {
+  progressText: document.getElementById("progress-text"),
+  scoreText: document.getElementById("score-text"),
+  progressFill: document.getElementById("progress-fill"),
+  quizCard: document.getElementById("quiz-card"),
+  resultCard: document.getElementById("result-card"),
+  badgeType: document.getElementById("badge-type"),
+  badgeDifficulty: document.getElementById("badge-difficulty"),
+  badgeTopic: document.getElementById("badge-topic"),
+  questionTitle: document.getElementById("question-title"),
+  instructionHint: document.getElementById("instruction-hint"),
+  codeContainer: document.getElementById("code-container"),
+  optionsContainer: document.getElementById("options-container"),
+  feedback: document.getElementById("feedback"),
+  feedbackTitle: document.getElementById("feedback-title"),
+  feedbackExplanation: document.getElementById("feedback-explanation"),
+  nextBtn: document.getElementById("next-btn"),
+  resultScore: document.getElementById("result-score"),
+  resultMessage: document.getElementById("result-message"),
+  restartBtn: document.getElementById("restart-btn")
+};
+
+/* =============================================================
+   RENDERIZAÇÃO
+============================================================= */
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentIndex];
+
+  updateProgress();
+
+  // Badges
+  els.badgeType.textContent = q.type === "output" ? "Qual é a saída?" : "Ache o erro";
+  els.badgeDifficulty.textContent = q.difficulty;
+  els.badgeDifficulty.className = "badge difficulty " + (q.difficulty === "Fácil" ? "facil" : "medio");
+  els.badgeTopic.textContent = q.topic;
+
+  els.questionTitle.textContent = q.title;
+  els.instructionHint.textContent = q.type === "bug"
+    ? "Clique na linha do código que contém o erro."
+    : "Escolha a alternativa correta abaixo.";
+
+  renderCode(q);
+
+  els.optionsContainer.innerHTML = "";
+  if (q.type === "output") {
+    renderOptions(q);
+  }
+
+  // Reset feedback
+  els.feedback.className = "feedback";
+  els.feedback.classList.remove("show");
+  els.feedbackTitle.textContent = "";
+  els.feedbackExplanation.textContent = "";
+  els.nextBtn.classList.add("hidden");
+}
+
+function renderCode(q) {
+  els.codeContainer.innerHTML = "";
+  const lines = q.code.split("\n");
+
+  lines.forEach((lineText, idx) => {
+    const lineNumber = idx + 1;
+    const lineEl = document.createElement("div");
+    lineEl.className = "code-line";
+    lineEl.dataset.line = lineNumber;
+
+    const lnSpan = document.createElement("span");
+    lnSpan.className = "ln";
+    lnSpan.textContent = lineNumber;
+
+    const codeSpan = document.createElement("span");
+    codeSpan.className = "code-content";
+    codeSpan.textContent = lineText;
+
+    lineEl.appendChild(lnSpan);
+    lineEl.appendChild(codeSpan);
+
+    if (q.type === "bug") {
+      lineEl.classList.add("clickable");
+      lineEl.tabIndex = 0;
+      lineEl.setAttribute("role", "button");
+      lineEl.setAttribute("aria-label", "Linha " + lineNumber + ": " + lineText);
+      lineEl.addEventListener("click", () => handleBugAnswer(lineNumber, lineEl));
+      lineEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleBugAnswer(lineNumber, lineEl);
+        }
+      });
+    }
+
+    els.codeContainer.appendChild(lineEl);
+  });
+}
+
+function renderOptions(q) {
+  q.options.forEach((optionText, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.type = "button";
+
+    const icon = document.createElement("span");
+    icon.className = "opt-icon";
+    icon.textContent = "";
+
+    const label = document.createElement("span");
+    label.textContent = optionText;
+
+    btn.appendChild(icon);
+    btn.appendChild(label);
+
+    btn.addEventListener("click", () => handleOutputAnswer(idx, btn));
+    els.optionsContainer.appendChild(btn);
+  });
+}
+
+/* =============================================================
+   LÓGICA DE RESPOSTA
+============================================================= */
+function handleOutputAnswer(selectedIndex, btnEl) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentIndex];
+  const isCorrect = selectedIndex === q.correctIndex;
+  if (isCorrect) score++;
+
+  const optionButtons = els.optionsContainer.querySelectorAll(".option-btn");
+  optionButtons.forEach((btn, idx) => {
+    btn.disabled = true;
+    const icon = btn.querySelector(".opt-icon");
+    if (idx === q.correctIndex) {
+      btn.classList.add("correct");
+      icon.textContent = "✓";
+    } else if (idx === selectedIndex) {
+      btn.classList.add("wrong");
+      icon.textContent = "✗";
+    }
+  });
+
+  showFeedback(isCorrect, q.explanation);
+}
+
+function handleBugAnswer(selectedLine, lineEl) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentIndex];
+  const isCorrect = selectedLine === q.buggyLine;
+  if (isCorrect) score++;
+
+  const allLines = els.codeContainer.querySelectorAll(".code-line");
+  allLines.forEach((el) => {
+    const lineNum = Number(el.dataset.line);
+    el.classList.remove("clickable");
+    el.tabIndex = -1;
+
+    if (lineNum === q.buggyLine) {
+      el.classList.add("selected-correct");
+      const iconEl = document.createElement("span");
+      iconEl.className = "line-icon ok";
+      iconEl.textContent = "✓";
+      el.appendChild(iconEl);
+    } else if (lineNum === selectedLine) {
+      el.classList.add("selected-wrong");
+      const iconEl = document.createElement("span");
+      iconEl.className = "line-icon bad";
+      iconEl.textContent = "✗";
+      el.appendChild(iconEl);
+    }
+  });
+
+  showFeedback(isCorrect, q.explanation);
+}
+
+function showFeedback(isCorrect, explanationText) {
+  els.feedback.classList.add("show");
+  els.feedback.classList.add(isCorrect ? "correct" : "wrong");
+  els.feedbackTitle.textContent = isCorrect ? "✓ Correto!" : "✗ Não foi dessa vez";
+  els.feedbackExplanation.textContent = explanationText;
+  els.nextBtn.classList.remove("hidden");
+  els.nextBtn.focus();
+  updateScoreText();
+}
+
+/* =============================================================
+   PROGRESSO E NAVEGAÇÃO
+============================================================= */
+function updateProgress() {
+  const total = questions.length;
+  els.progressText.textContent = "Questão " + (currentIndex + 1) + " de " + total;
+  els.progressFill.style.width = (((currentIndex) / total) * 100) + "%";
+  updateScoreText();
+}
+
+function updateScoreText() {
+  els.scoreText.textContent = "Acertos: " + score;
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  els.progressFill.style.width = "100%";
+  els.progressText.textContent = "Quiz concluído";
+
+  els.quizCard.classList.add("hidden");
+  els.resultCard.classList.remove("hidden");
+
+  const total = questions.length;
+  els.resultScore.textContent = score + "/" + total;
+
+  let message;
+  if (score === total) {
+    message = "Perfeito! Você leu cada trecho de código com atenção total. 🎉";
+  } else if (score >= total * 0.7) {
+    message = "Muito bom! Você já consegue prever a maior parte dos comportamentos do código.";
+  } else if (score >= total * 0.4) {
+    message = "Bom começo! Releia com calma os trechos que errou — a prática de leitura vai ficando mais natural.";
+  } else {
+    message = "Continue treinando! Ler código linha por linha, prevendo o que cada uma faz, é uma habilidade que se constrói com repetição.";
+  }
+  els.resultMessage.textContent = message;
+}
+
+function restartQuiz() {
+  currentIndex = 0;
+  score = 0;
+  answered = false;
+  els.resultCard.classList.add("hidden");
+  els.quizCard.classList.remove("hidden");
+  renderQuestion();
+}
+
+/* =============================================================
+   EVENTOS GLOBAIS E INICIALIZAÇÃO
+============================================================= */
+els.nextBtn.addEventListener("click", nextQuestion);
+els.restartBtn.addEventListener("click", restartQuiz);
+
+renderQuestion();
+</script>
+
+</body>
+</html>
