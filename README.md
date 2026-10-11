@@ -17,14 +17,18 @@ ROTEIRO-PARTE2.md     Roteiro da parte 2 (para juntar à primeira gravação)
 APRESENTACAO.md       Roteiro da apresentação em sala
 ```
 
-## 1. Colocar o vídeo do YouTube
-No `curso.html`, procure por `data-youtube=""` e cole o link do vídeo (ou só o ID):
+## 1. Colocar o vídeo (YouTube ou Google Drive)
+No `curso.html`, no elemento `#video-frame`, cole o link do vídeo no atributo correspondente:
 ```html
+<!-- YouTube -->
 <div class="video-frame" id="video-frame" data-youtube="https://youtu.be/SEU_ID">
-```
-Se os tempos reais do vídeo forem diferentes do roteiro, ajuste os capítulos (`data-t` em segundos) logo abaixo e a tabela de alinhamento na seção Avaliação do `index.html`.
 
-> O player do YouTube não funciona quando o arquivo é aberto com duplo clique (`file://`). Teste pelo link da Vercel ou com `python3 -m http.server`.
+<!-- Google Drive (o arquivo precisa estar com link "Qualquer pessoa com o link") -->
+<div class="video-frame" id="video-frame" data-drive="https://drive.google.com/file/d/SEU_ID/view?usp=sharing">
+```
+Se os dois atributos estiverem preenchidos, o YouTube tem prioridade. Os capítulos (`data-t` em segundos) só pulam para o tempo certo quando o vídeo é do YouTube — no player do Google Drive eles apenas destacam o capítulo e rolam até o vídeo. Se os tempos reais do vídeo forem diferentes do roteiro, ajuste os `data-t` e a tabela de alinhamento na seção Avaliação do `index.html`.
+
+> O player não funciona quando o arquivo é aberto com duplo clique (`file://`). Teste pelo link da Vercel ou com `python3 -m http.server`.
 
 ## 2. Publicar na Vercel
 É um site estático: não precisa de build.

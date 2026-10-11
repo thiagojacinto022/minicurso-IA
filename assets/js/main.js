@@ -209,8 +209,9 @@
   }
 
   /* -----------------------------------------------------------
-     VÍDEO-AULA (YouTube) + CAPÍTULOS
-     O ID ou link do vídeo fica no atributo data-youtube do HTML.
+     VÍDEO-AULA (YouTube ou Google Drive) + CAPÍTULOS
+     O vídeo fica no atributo data-youtube (link/ID do YouTube)
+     ou data-drive (link de compartilhamento do Google Drive).
   ----------------------------------------------------------- */
   if ($("#video-frame")) {
     const videoBox = $("#video-frame");
@@ -224,7 +225,15 @@
       return m ? m[1] : "";
     }
 
+    function driveId(value) {
+      const v = (value || "").trim();
+      if (/^[\w-]{10,}$/.test(v)) return v;
+      const m = v.match(/\/d\/([\w-]+)/) || v.match(/id=([\w-]+)/);
+      return m ? m[1] : "";
+    }
+
     const videoId = youtubeId(videoBox && videoBox.dataset.youtube);
+    const driveFileId = !videoId ? driveId(videoBox && videoBox.dataset.drive) : "";
 
     function loadVideo(start, autoplay) {
       const params = new URLSearchParams({
@@ -248,17 +257,37 @@
       iframe.src = "https://www.youtube-nocookie.com/embed/" + videoId + "?" + params.toString();
     }
 
+    function loadDriveVideo() {
+      let iframe = videoBox.querySelector("iframe");
+      if (!iframe) {
+        videoBox.innerHTML = "";
+        iframe = document.createElement("iframe");
+        iframe.title = "Vídeo-aula: Do problema ao protótipo";
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = "strict-origin-when-cross-origin";
+        videoBox.appendChild(iframe);
+      }
+      iframe.src = "https://drive.google.com/file/d/" + driveFileId + "/preview";
+    }
+
     if (videoId) {
       loadVideo(0, false);
       ytLink.href = "https://www.youtube.com/watch?v=" + videoId;
+    } else if (driveFileId) {
+      loadDriveVideo();
+      ytLink.href = "https://drive.google.com/file/d/" + driveFileId + "/view";
     }
 
     chapterBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         chapterBtns.forEach((b) => b.classList.toggle("active", b === btn));
-        if (!videoId) return;
-        loadVideo(Number(btn.dataset.t), true);
         if (window.innerWidth < 1024) videoBox.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (videoId) {
+          loadVideo(Number(btn.dataset.t), true);
+        }
+        /* O player do Google Drive não aceita pular para um tempo via URL;
+           os capítulos só destacam e rolam até o vídeo nesse caso. */
       });
     });
   }
