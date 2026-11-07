@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBook · Caderno prático · Do problema ao protótipo</title>
+<meta name="description" content="eBook interativo do minicurso Do problema ao protótipo: modelos, pedidos prontos e checklists para criar recursos educacionais com apoio de IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script>
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+
+  /* =====================================================================
+     LINK DO eBOOK NO FLIPHTML5
+     Depois de publicar o PDF no FlipHTML5, cole o link entre as aspas.
+     Exemplo: "https://online.fliphtml5.com/abcde/fghi/"
+     Com o link preenchido, a página mostra o flipbook e todos os botões
+     passam a abrir o eBook no FlipHTML5.
+  ===================================================================== */
+  window.EBOOK_FLIP_URL = "";
+</script>
+<style>
+  .eb-wrap { max-width: 1120px; margin: 0 auto; padding: 24px 20px 80px; }
+  .eb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink-2); text-decoration: none; }
+  .back-link .i { transform: rotate(180deg); }
+  .back-link:hover { color: var(--primary); }
+
+  .eb-hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; padding: 18px 0 30px; }
+  .eb-hero .eyebrow .pill { background: var(--primary-soft); color: var(--primary-ink); }
+  .eb-hero h1 { font-family: var(--display); font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.4rem); line-height: 1.04; letter-spacing: -.02em; margin: 14px 0 14px; }
+  .eb-hero h1 em { color: var(--primary); }
+  .eb-hero .lead { max-width: 52ch; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 26px; }
+  .eb-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .book { position: relative; perspective: 1400px; justify-self: center; width: min(100%, 380px); }
+  .book img { display: block; width: 100%; height: auto; border-radius: 4px 12px 12px 4px; transform: rotateY(-14deg) rotateX(3deg); transform-origin: left center;
+    box-shadow: -2px 0 0 #0b0a24 inset, 24px 30px 50px -18px rgba(20,24,41,.55), 6px 6px 0 #e6e4dc, 12px 12px 0 #d7d4c9; transition: transform .5s ease; }
+  .book:hover img { transform: rotateY(-4deg) rotateX(1deg); }
+  .book .sticker { position: absolute; top: -14px; right: -6px; background: #fde68a; color: #3f2d00; font-weight: 800; font-size: .82rem; padding: 8px 12px; border-radius: 12px; transform: rotate(6deg); box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+
+  .flip-section { margin-top: 26px; }
+  .flip-frame { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 18px; overflow: hidden; background: #16133a; box-shadow: var(--shadow-lg); }
+  .flip-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .flip-note { margin-top: 10px; font-size: .9rem; color: var(--muted); }
+  .flip-fallback { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .flip-fallback a { display: block; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); transition: transform .15s ease; }
+  .flip-fallback a:hover { transform: translateY(-3px); }
+  .flip-fallback img { display: block; width: 100%; height: auto; }
+
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+  .toc-card { display: flex; gap: 14px; align-items: flex-start; padding: 18px; text-decoration: none; color: inherit; border-top: 4px solid var(--c); transition: transform .15s ease, border-color .15s ease; }
+  .toc-card:hover { transform: translateY(-2px); }
+  .toc-card .n { font-family: var(--display); font-weight: 600; font-size: 1.9rem; line-height: 1; color: var(--c); min-width: 28px; }
+  .toc-card h3 { font-size: 1rem; margin: 0 0 4px; font-family: var(--font); font-weight: 800; }
+  .toc-card p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
+  .toc-card .pg { display: inline-block; margin-top: 8px; font-size: .76rem; font-weight: 700; color: var(--c); }
+  .s0 { --c: var(--primary); } .s6 { --c: var(--ok); }
+
+  .feat { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; }
+  .feat .card { padding: 20px; }
+  .feat .icon-box { margin-bottom: 12px; }
+  .feat h3 { font-size: 1rem; margin-bottom: 4px; font-family: var(--font); font-weight: 800; }
+  .feat p { margin: 0; font-size: .92rem; color: var(--muted); }
+
+  .next-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .next-strip a { display: flex; gap: 14px; align-items: center; padding: 20px; text-decoration: none; color: inherit; }
+  .next-strip .k { font-size: .76rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+  .next-strip strong { display: block; font-size: 1.05rem; }
+
+  .block { margin-top: 56px; }
+  .block > h2 { font-family: var(--display); font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem); margin: 6px 0 8px; }
+  .block > .muted { margin-bottom: 20px; }
+  .kick { font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
+
+  @media (max-width: 860px) {
+    .eb-hero { grid-template-columns: 1fr; gap: 26px; }
+    .book { order: -1; width: min(70%, 280px); }
+    .flip-fallback { grid-template-columns: 1fr 1fr; }
+    .next-strip { grid-template-columns: 1fr; }
+    .flip-frame { aspect-ratio: 3 / 4; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+</svg>
+
+<main class="eb-wrap" id="conteudo">
+  <div class="eb-top">
+    <a class="back-link" href="../index.html#materiais"><svg class="i"><use href="#i-arrow"/></svg> Voltar ao minicurso</a>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro"><svg class="i"><use href="#i-moon"/></svg></button>
+  </div>
+
+  <section class="eb-hero" aria-labelledby="eb-title">
+    <div>
+      <div class="eyebrow"><span class="pill">eBook interativo</span> Passo 5 da trilha</div>
+      <h1 id="eb-title">Caderno prático: do problema <em>ao protótipo</em></h1>
+      <p class="lead">O vídeo mostrou o método e a HQ o levou para outra disciplina. Aqui estão as ferramentas para você aplicar o ciclo na sua turma: fichas para preencher, pedidos prontos para adaptar e checklists para conferir tudo antes de publicar.</p>
+      <div class="facts">
+        <span class="chip" style="--dot: var(--s1)">24 páginas · 7 capítulos</span>
+        <span class="chip" style="--dot: var(--s3)">6 pedidos prontos</span>
+        <span class="chip" style="--dot: var(--s4)">5 modelos para preencher</span>
+        <span class="chip" style="--dot: var(--s5)">Cerca de 20 minutos</span>
+      </div>
+      <div class="eb-actions">
+        <a class="btn btn-primary js-read" href="#leitura">Ler o eBook <svg class="i"><use href="#i-book"/></svg></a>
+        <a class="btn btn-ghost" href="do-problema-ao-prototipo-ebook.pdf" download>Baixar em PDF <svg class="i"><use href="#i-download"/></svg></a>
+      </div>
+    </div>
+    <a class="book js-read" href="#leitura" aria-label="Abrir o eBook">
+      <img src="capa.webp" width="759" height="1075" alt="Capa do eBook Do problema ao protótipo: caderno prático, de Thiago Jacinto.">
+      <span class="sticker">Para imprimir ou ler na tela</span>
+    </a>
+  </section>
+
+  <!-- LEITURA -->
+  <section class="flip-section" id="leitura" aria-labelledby="leitura-titulo">
+    <div class="kick">Leitura</div>
+    <h2 id="leitura-titulo" style="font-family:var(--display);font-size:clamp(1.6rem,1.3rem + 1.2vw,2.2rem);margin:6px 0 14px">Folheie o eBook</h2>
+    <div id="flip-on" hidden>
+      <div class="flip-frame"><iframe id="flip-iframe" title="eBook Do problema ao protótipo no FlipHTML5" allowfullscreen loading="lazy"></iframe></div>
+      <p class="flip-note">Use as setas ou arraste o canto da página para folhear. No ícone de tela cheia, a leitura fica mais confortável. <a id="flip-open" href="#" target="_blank" rel="noopener">Abrir o eBook no FlipHTML5 em nova aba <svg class="i"><use href="#i-external"/></svg></a></p>
+    </div>
+    <div id="flip-off">
+      <div class="flip-fallback">
+        <a href="do-problema-ao-prototipo-ebook.pdf#page=1" target="_blank" rel="noopener"><img src="capa.webp" alt="Capa do eBook" loading="lazy"></a>
+        <a href="do-problema-ao-prototipo-ebook.pdf#page=3" target="_blank" rel="noopener"><img src="pagina-03.webp" alt="Página 3: sumário" loading="lazy"></a>
+        <a href="do-problema-ao-prototipo-ebook.pdf#page=11" target="_blank" rel="noopener"><img src="pagina-11.webp" alt="Página 11: banco de pedidos prontos" loading="lazy"></a>
+        <a href="do-problema-ao-prototipo-ebook.pdf#page=17" target="_blank" rel="noopener"><img src="pagina-17.webp" alt="Página 17: checklist antes de publicar" loading="lazy"></a>
+      </div>
+      <p class="flip-note">Toque em uma página para abrir o eBook completo. Os links do sumário e das páginas são clicáveis.</p>
+    </div>
+  </section>
+
+  <!-- SUMÁRIO -->
+  <section class="block" aria-labelledby="sumario-titulo">
+    <div class="kick">Sumário</div>
+    <h2 id="sumario-titulo">Um capítulo para cada etapa do ciclo</h2>
+    <p class="muted">Toque em um capítulo para abrir o eBook direto na página.</p>
+    <div class="toc-grid">
+      <a class="card toc-card s0 js-page" data-p="4" href="#"><span class="n">1</span><div><h3>Antes de pedir</h3><p>Três armadilhas que o método evita e o mapa do ciclo.</p><span class="pg">Página 4</span></div></a>
+      <a class="card toc-card step-1 js-page" data-p="6" href="#"><span class="n">2</span><div><h3>Necessidade pedagógica</h3><p>De vago a claro em três disciplinas e a ficha da necessidade.</p><span class="pg">Página 6</span></div></a>
+      <a class="card toc-card step-2 js-page" data-p="8" href="#"><span class="n">3</span><div><h3>Requisitos verificáveis</h3><p>Desafio rápido e a tabela de requisitos para preencher.</p><span class="pg">Página 8</span></div></a>
+      <a class="card toc-card step-3 js-page" data-p="10" href="#"><span class="n">4</span><div><h3>Construção com IA</h3><p>Anatomia do pedido, banco de 6 pedidos e frases coringa.</p><span class="pg">Página 10</span></div></a>
+      <a class="card toc-card step-4 js-page" data-p="15" href="#"><span class="n">5</span><div><h3>Testes</h3><p>Registro de testes, conferência no console e checklist.</p><span class="pg">Página 15</span></div></a>
+      <a class="card toc-card step-5 js-page" data-p="18" href="#"><span class="n">6</span><div><h3>Melhorias e versões</h3><p>Pedir como quem relata um problema e saber quando recomeçar.</p><span class="pg">Página 18</span></div></a>
+      <a class="card toc-card s6 js-page" data-p="20" href="#"><span class="n">7</span><div><h3>Ética e acessibilidade</h3><p>O semáforo da LGPD e sete checagens de acessibilidade.</p><span class="pg">Página 20</span></div></a>
+      <a class="card toc-card s0 js-page" data-p="22" href="#"><span class="n">+</span><div><h3>Glossário, plano e referências</h3><p>Termos em linguagem simples e um plano de 5 dias.</p><span class="pg">Páginas 22 a 24</span></div></a>
+    </div>
+  </section>
+
+  <!-- O QUE O eBOOK ACRESCENTA -->
+  <section class="block" aria-labelledby="acrescenta-titulo">
+    <div class="kick">Complementa a aula</div>
+    <h2 id="acrescenta-titulo">O que o eBook acrescenta ao vídeo</h2>
+    <p class="muted">A vídeo-aula usa um caso de programação. O eBook leva o mesmo ciclo para qualquer disciplina.</p>
+    <div class="feat">
+      <div class="card step-3"><div class="icon-box"><svg class="i"><use href="#i-copy"/></svg></div><h3>Banco de 6 pedidos</h3><p>Matemática, Língua Portuguesa, História, Ciências, Geografia e Inglês, cada um com um formato de recurso diferente.</p></div>
+      <div class="card step-1"><div class="icon-box"><svg class="i"><use href="#i-pen"/></svg></div><h3>5 modelos para preencher</h3><p>Ficha da necessidade, tabela de requisitos, pedido, registro de testes e checklist.</p></div>
+      <div class="card step-4"><div class="icon-box"><svg class="i"><use href="#i-message"/></svg></div><h3>Frases coringa</h3><p>O que dizer à IA quando o pedido tem lacunas, o console mostra erro ou você não entende o código.</p></div>
+      <div class="card step-5"><div class="icon-box"><svg class="i"><use href="#i-list"/></svg></div><h3>Plano de 5 dias</h3><p>Um roteiro curto para criar e publicar o seu primeiro protótipo, com QR codes para a HQ e a avaliação.</p></div>
+    </div>
+  </section>
+
+  <!-- PRÓXIMOS -->
+  <section class="block" aria-labelledby="proximo-titulo">
+    <div class="kick">Continue a trilha</div>
+    <h2 id="proximo-titulo">Antes e depois do eBook</h2>
+    <div class="next-strip">
+      <a class="card" href="../quadrinhos/"><div><span class="k">← Passo 4</span><strong>HQ: Ana e a Faísca</strong><span class="muted">O ciclo inteiro em quadrinhos interativos.</span></div></a>
+      <a class="card" href="../avaliacao/"><div><span class="k">Passo 6 →</span><strong>Avaliação interativa</strong><span class="muted">12 questões com feedback imediato.</span></div></a>
+    </div>
+  </section>
+
+  <p class="muted" style="font-size:.85rem;margin-top:36px">eBook escrito por Thiago Jacinto com apoio de ferramentas de IA generativa e revisado integralmente pelo autor. Publicado em formato interativo no FlipHTML5; o PDF tem links clicáveis e pode ser impresso.</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var FLIP = (window.EBOOK_FLIP_URL || "").trim();
+  var PDF = "do-problema-ao-prototipo-ebook.pdf";
+  function pageUrl(p) {
+    if (FLIP) return FLIP.replace(/#.*$/, "") + "#p=" + p;
+    return PDF + "#page=" + p;
+  }
+  if (FLIP) {
+    document.getElementById("flip-on").hidden = false;
+    document.getElementById("flip-off").hidden = true;
+    document.getElementById("flip-iframe").src = FLIP;
+    document.getElementById("flip-open").href = FLIP;
+  }
+  document.querySelectorAll(".js-page").forEach(function (a) {
+    a.href = pageUrl(a.dataset.p);
+    a.target = "_blank"; a.rel = "noopener";
+  });
+
+  /* tema */
+  var root = document.documentElement, btn = document.getElementById("theme-toggle"), sys = matchMedia("(prefers-color-scheme: dark)");
+  function cur() { return root.dataset.theme || (sys.matches ? "dark" : "light"); }
+  function paint() { var d = cur() === "dark"; btn.querySelector("use").setAttribute("href", d ? "#i-sun" : "#i-moon"); btn.setAttribute("aria-label", d ? "Usar tema claro" : "Usar tema escuro"); }
+  btn.addEventListener("click", function () { var n = cur() === "dark" ? "light" : "dark"; root.dataset.theme = n; try { localStorage.setItem("tema", n); } catch (e) {} paint(); });
+  sys.addEventListener("change", paint); paint();
+})();
+</script>
+</body>
+</html>

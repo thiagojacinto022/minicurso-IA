@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Do problema ao protótipo · Caderno prático (eBook)</title>
+<meta name="author" content="Thiago Jacinto">
+<meta name="description" content="Caderno prático com modelos, pedidos prontos e checklists para criar recursos educacionais com apoio de IA.">
+<style>
+@font-face { font-family: "Fraunces"; src: url(fonts/fraunces-latin-full-normal.woff2) format("woff2"); font-weight: 100 900; font-style: normal; }
+@font-face { font-family: "Fraunces"; src: url(fonts/fraunces-latin-ext-full-normal.woff2) format("woff2"); font-weight: 100 900; font-style: normal; unicode-range: U+0100-024F, U+1E00-1EFF; }
+@font-face { font-family: "Fraunces"; src: url(fonts/fraunces-latin-full-italic.woff2) format("woff2"); font-weight: 100 900; font-style: italic; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-400-italic.woff2); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: "Jakarta"; src: url(fonts/plus-jakarta-sans-latin-800-normal.woff2); font-weight: 800; }
+@font-face { font-family: "Mono"; src: url(fonts/jetbrains-mono-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: "Mono"; src: url(fonts/jetbrains-mono-latin-700-normal.woff2); font-weight: 700; }
+
+@page { size: 148mm 210mm; margin: 0; }
+:root {
+  --paper: #fbfaf6; --paper-2: #f3f1ea;
+  --ink: #141829; --ink-2: #2b3046; --muted: #5b6179; --line: #e2e0d8; --line-2: #cfccc0;
+  --primary: #4f46e5; --primary-ink: #3730a3; --primary-soft: #eef0ff;
+  --s1: #7c3aed; --s1-soft: #f3edff;
+  --s2: #2563eb; --s2-soft: #eaf1ff;
+  --s3: #0d9488; --s3-soft: #e3f6f3;
+  --s4: #c2410c; --s4-soft: #fff1e8;
+  --s5: #be185d; --s5-soft: #fdecf4;
+  --s6: #15803d; --s6-soft: #e8f7ee;
+  --warn: #a16207; --warn-soft: #fdf6e3; --bad: #b42318; --bad-soft: #fdeeec;
+  --c: var(--primary); --c-soft: var(--primary-soft);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: "Jakarta", sans-serif; color: var(--ink); background: #888; font-size: 8.6pt; line-height: 1.45; }
+.page { width: 148mm; height: 210mm; position: relative; overflow: hidden; background: var(--paper); page-break-after: always; break-after: page; padding: 17mm 13mm 15mm; display: flex; flex-direction: column; }
+.page:last-child { page-break-after: auto; }
+@media screen { .page { margin: 10mm auto; box-shadow: 0 6px 30px rgba(0,0,0,.3); } }
+a { color: inherit; }
+.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.14em; flex: none; }
+
+/* themes per chapter */
+.t0 { --c: var(--primary); --c-soft: var(--primary-soft); }
+.t1 { --c: var(--s1); --c-soft: var(--s1-soft); }
+.t2 { --c: var(--s2); --c-soft: var(--s2-soft); }
+.t3 { --c: var(--s3); --c-soft: var(--s3-soft); }
+.t4 { --c: var(--s4); --c-soft: var(--s4-soft); }
+.t5 { --c: var(--s5); --c-soft: var(--s5-soft); }
+.t6 { --c: var(--s6); --c-soft: var(--s6-soft); }
+
+/* running head/foot */
+.rh { position: absolute; top: 7mm; left: 13mm; right: 13mm; display: flex; justify-content: space-between; align-items: center; font-size: 6.4pt; color: var(--muted); letter-spacing: .02em; }
+.rh .tag { display: inline-flex; align-items: center; gap: 1.5mm; color: var(--c); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.rh .tag::before { content: ""; width: 2mm; height: 2mm; border-radius: 50%; background: var(--c); }
+.rf { position: absolute; bottom: 6.5mm; left: 13mm; right: 13mm; display: flex; justify-content: space-between; align-items: center; font-size: 6.4pt; color: var(--muted); }
+.rf .num { font-family: "Fraunces"; font-weight: 600; font-size: 10pt; color: var(--ink); }
+.rf a { text-decoration: none; display: inline-flex; gap: 1mm; align-items: center; border: .25mm solid var(--line-2); border-radius: 10mm; padding: .6mm 2.4mm; color: var(--ink-2); font-weight: 600; }
+.edge { position: absolute; right: 0; top: 0; bottom: 0; width: 2.2mm; background: var(--c); }
+
+/* type */
+h1, h2, h3 { font-family: "Fraunces", serif; font-weight: 600; letter-spacing: -.01em; line-height: 1.12; font-variation-settings: "SOFT" 50, "WONK" 0; }
+h2 { font-size: 17pt; margin-bottom: 2.5mm; }
+h2 em, h1 em { font-style: italic; color: var(--c); }
+h3 { font-size: 10.5pt; margin-bottom: 1.4mm; }
+h4 { font-size: 7.6pt; text-transform: uppercase; letter-spacing: .08em; color: var(--c); font-weight: 800; margin-bottom: 1.2mm; }
+p + p { margin-top: 1.6mm; }
+.lead { font-size: 9.3pt; color: var(--ink-2); line-height: 1.5; margin-bottom: 4mm; }
+.kicker { font-size: 6.8pt; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--c); margin-bottom: 1.5mm; display: flex; align-items: center; gap: 2mm; }
+.muted { color: var(--muted); }
+strong { font-weight: 700; }
+code, .mono { font-family: "Mono", monospace; font-size: .92em; }
+kbd { font-family: "Mono"; font-size: .85em; background: #fff; border: .25mm solid var(--line-2); border-bottom-width: .6mm; border-radius: 1mm; padding: 0 1mm; }
+
+/* blocks */
+.card { background: #fff; border: .25mm solid var(--line); border-radius: 3mm; padding: 3mm 3.4mm; }
+.soft { background: var(--c-soft); border-color: transparent; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.6mm; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4mm; }
+.stack > * + * { margin-top: 2.6mm; }
+.spacer { flex: 1; }
+.tip { display: flex; gap: 2.4mm; align-items: flex-start; background: var(--warn-soft); border-radius: 3mm; padding: 2.6mm 3.2mm; font-size: 8pt; color: #4a3a0a; }
+.tip .i { color: var(--warn); width: 4mm; height: 4mm; margin-top: .3mm; }
+.tip.blue { background: var(--c-soft); color: var(--ink-2); }
+.tip.blue .i { color: var(--c); }
+.pill { display: inline-flex; align-items: center; gap: 1mm; font-size: 6.4pt; font-weight: 700; padding: .5mm 2mm; border-radius: 10mm; background: var(--c-soft); color: var(--c); }
+.ico { width: 7mm; height: 7mm; border-radius: 2mm; background: var(--c-soft); color: var(--c); display: grid; place-items: center; margin-bottom: 1.6mm; }
+.ico .i { width: 4mm; height: 4mm; }
+.video-link { display: inline-flex; align-items: center; gap: 1.2mm; font-size: 7pt; font-weight: 700; color: var(--c); text-decoration: none; border-bottom: .3mm solid currentColor; }
+ul.clean { list-style: none; }
+ul.clean li { position: relative; padding-left: 4mm; }
+ul.clean li + li { margin-top: 1mm; }
+ul.clean li::before { content: ""; position: absolute; left: .5mm; top: 1.6mm; width: 1.6mm; height: 1.6mm; border-radius: 50%; background: var(--c); }
+
+/* chapter opener band */
+.opener { margin: -17mm -13mm 5mm; padding: 15mm 13mm 6mm; background: var(--c); color: #fff; position: relative; overflow: hidden; }
+.opener .big { position: absolute; right: 6mm; top: 0; font-family: "Fraunces"; font-weight: 700; font-size: 92pt; line-height: 1; opacity: .16; letter-spacing: -.04em; }
+.opener .kicker { color: rgba(255,255,255,.85); }
+.opener h2 { font-size: 20pt; color: #fff; margin-bottom: 2mm; max-width: 98mm; }
+.opener h2 em { color: #fff; opacity: .85; }
+.opener p { font-size: 8.8pt; color: rgba(255,255,255,.9); max-width: 104mm; }
+.opener .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.18) .35mm, transparent .4mm); background-size: 4mm 4mm; mask-image: linear-gradient(90deg, transparent 30%, #000); }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; font-size: 7.6pt; }
+th { text-align: left; font-size: 6.4pt; text-transform: uppercase; letter-spacing: .06em; color: var(--c); font-weight: 800; padding: 1.4mm 1.6mm; border-bottom: .5mm solid var(--c); }
+td { padding: 1.5mm 1.6mm; border-bottom: .25mm solid var(--line); vertical-align: top; }
+td.blank { height: 9.5mm; }
+.ex td { color: var(--muted); font-style: italic; background: var(--paper-2); }
+
+/* write lines */
+.lines { background-image: repeating-linear-gradient(transparent 0 6.2mm, var(--line-2) 6.2mm 6.45mm); min-height: 19mm; margin-top: 1mm; }
+.field { border: .3mm dashed var(--line-2); border-radius: 3mm; padding: 2.6mm 3.2mm 1mm; background: #fff; }
+.field .q { display: flex; gap: 2mm; align-items: baseline; font-weight: 700; font-size: 8.6pt; }
+.field .q b { font-family: "Fraunces"; color: var(--c); font-size: 12pt; }
+.field small { display: block; color: var(--muted); font-size: 7pt; margin: .6mm 0 0 6.4mm; }
+
+/* prompts */
+.prompt { background: #fff; border: .25mm solid var(--line); border-radius: 3mm; overflow: hidden; display: flex; flex-direction: column; }
+.prompt header { display: flex; align-items: center; gap: 2mm; padding: 2mm 3mm; background: var(--c-soft); }
+.prompt header .disc { font-family: "Fraunces"; font-weight: 600; font-size: 10pt; color: var(--ink); }
+.prompt header .lvl { font-size: 6.6pt; color: var(--muted); }
+.prompt header .pill { margin-left: auto; background: #fff; }
+.prompt .body { padding: 2.4mm 3mm 2mm; font-size: 7.55pt; line-height: 1.46; color: var(--ink-2); position: relative; }
+.prompt .body::before { content: "“"; position: absolute; left: .8mm; top: -1mm; font-family: "Fraunces"; font-size: 18pt; color: var(--c); opacity: .5; }
+.prompt .check { border-top: .25mm dashed var(--line-2); padding: 1.6mm 3mm 2mm; font-size: 7pt; display: flex; gap: 1.6mm; color: var(--ink-2); }
+.prompt .check .i { color: var(--s6); margin-top: .2mm; }
+
+/* checkboxes */
+.cb { display: flex; gap: 2mm; align-items: flex-start; font-size: 7.9pt; }
+.cb + .cb { margin-top: 1.5mm; }
+.cb::before { content: ""; flex: none; width: 3.2mm; height: 3.2mm; border: .35mm solid var(--c); border-radius: .8mm; margin-top: .2mm; background: #fff; }
+
+/* toc */
+.toc a { display: grid; grid-template-columns: 9mm 1fr auto; align-items: center; gap: 2mm; text-decoration: none; padding: 2.1mm 0; border-bottom: .25mm solid var(--line); }
+.toc .n { font-family: "Fraunces"; font-weight: 700; font-size: 15pt; color: var(--c); line-height: 1; }
+.toc .tt { font-weight: 700; font-size: 9pt; }
+.toc .tt small { display: block; font-weight: 400; color: var(--muted); font-size: 7pt; }
+.toc .pg { font-family: "Fraunces"; font-weight: 600; font-size: 10pt; color: var(--muted); }
+
+/* console */
+.console { background: #12162a; color: #e4e8f4; border-radius: 3mm; font-family: "Mono"; font-size: 7.2pt; overflow: hidden; }
+.console .bar { display: flex; gap: 3mm; padding: 1.6mm 3mm; background: #1b2038; font-family: "Jakarta"; font-size: 6.6pt; color: #8a93b2; }
+.console .bar b { color: #fff; border-bottom: .4mm solid #7c83ff; }
+.console .l { padding: .9mm 3mm; border-bottom: .2mm solid #20253d; display: flex; gap: 2mm; }
+.console .l .pr { color: #7c83ff; }
+.console .out { color: #9fe8c6; }
+.console .k { color: #c4a7ff; } .console .s { color: #fcd38a; } .console .n { color: #7dd3fc; }
+.console .note { margin-left: auto; color: #6f7895; font-family: "Jakarta"; font-size: 6.4pt; }
+
+.steps { counter-reset: s; }
+.steps li { list-style: none; counter-increment: s; position: relative; padding-left: 7mm; min-height: 5mm; }
+.steps li + li { margin-top: 1.8mm; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -.2mm; width: 4.8mm; height: 4.8mm; border-radius: 50%; background: var(--c); color: #fff; font-weight: 800; font-size: 6.8pt; display: grid; place-items: center; }
+
+.qr { width: 22mm; height: 22mm; background: #fff; padding: 1.4mm; border-radius: 2mm; border: .25mm solid var(--line); }
+.qr svg { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 8l7 1.5L19 8M12 9.5V15M9 22l3-7 3 7"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+</svg>
+
+<!-- ============================ 1 · CAPA ============================ -->
+<section class="page" id="capa" style="padding:0;background:#16133a;color:#fff">
+  <svg viewBox="0 0 560 794" width="100%" height="100%" style="position:absolute;inset:0" aria-hidden="true">
+    <defs>
+      <radialGradient id="glow" cx="70%" cy="38%" r="60%"><stop offset="0" stop-color="#4f46e5" stop-opacity=".9"/><stop offset="1" stop-color="#16133a" stop-opacity="0"/></radialGradient>
+      <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#fff" fill-opacity=".09"/></pattern>
+    </defs>
+    <rect width="560" height="794" fill="#16133a"/>
+    <rect width="560" height="794" fill="url(#glow)"/>
+    <rect width="560" height="794" fill="url(#dots)"/>
+    <g transform="translate(380 250)" fill="none" stroke-width="27" stroke-linecap="round">
+      <circle r="120" stroke="#7c3aed" stroke-dasharray="128 626" transform="rotate(-90)"/>
+      <circle r="120" stroke="#2563eb" stroke-dasharray="128 626" transform="rotate(-18)"/>
+      <circle r="120" stroke="#0d9488" stroke-dasharray="128 626" transform="rotate(54)"/>
+      <circle r="120" stroke="#ea580c" stroke-dasharray="128 626" transform="rotate(126)"/>
+      <circle r="120" stroke="#db2777" stroke-dasharray="128 626" transform="rotate(198)"/>
+      <circle r="80" stroke="#fff" stroke-opacity=".12" stroke-width="1.5" stroke-dasharray="3 7"/>
+    </g>
+    <g font-family="Fraunces" font-weight="700" font-size="17" fill="#fff" text-anchor="middle">
+      <text x="461" y="118">01</text><text x="536" y="291">02</text><text x="395" y="415">03</text><text x="233" y="320">04</text><text x="274" y="136">05</text>
+    </g>
+    <g transform="translate(380 250)">
+      <circle r="56" fill="#fff"/>
+      <path d="M0 -30 l7.6 20.4 L28 -2 l-20.4 7.6 L0 26 l-7.6 -20.4 L-28 -2 l20.4 -7.6z" fill="#4f46e5"/>
+      <path d="M26 18v14M19 25h14" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <!-- sticky note -->
+    <g transform="translate(34 92) rotate(-6)">
+      <rect width="150" height="96" rx="6" fill="#fde68a"/>
+      <rect width="150" height="16" rx="6" fill="#facc15" fill-opacity=".55"/>
+      <text x="14" y="40" font-family="Jakarta" font-weight="700" font-size="12.5" fill="#3f2d00">"Meus estudantes</text>
+      <text x="14" y="58" font-family="Jakarta" font-weight="700" font-size="12.5" fill="#3f2d00">trocam mas e mais…"</text>
+      <text x="14" y="80" font-family="Jakarta" font-size="10" fill="#6b5200">→ necessidade real</text>
+    </g>
+    <!-- code card -->
+    <g transform="translate(24 268) rotate(3)">
+      <rect width="176" height="100" rx="10" fill="#0d1022" stroke="#fff" stroke-opacity=".15"/>
+      <circle cx="16" cy="16" r="4" fill="#f87171"/><circle cx="29" cy="16" r="4" fill="#fbbf24"/><circle cx="42" cy="16" r="4" fill="#34d399"/>
+      <text x="58" y="20" font-family="Mono" font-size="9.5" fill="#8a93b2">treino-v2.html</text>
+      <text x="16" y="48" font-family="Mono" font-size="10.5" fill="#c4a7ff">const <tspan fill="#e4e8f4">gabarito = </tspan><tspan fill="#fcd38a">"mais"</tspan></text>
+      <text x="16" y="70" font-family="Mono" font-size="11" fill="#6f7895">// conferido ✔</text>
+      <rect x="16" y="80" width="88" height="14" rx="7" fill="#15803d"/>
+      <text x="26" y="90.5" font-family="Jakarta" font-weight="700" font-size="8.5" fill="#fff">✓ TESTADO · v2</text>
+    </g>
+  </svg>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:13mm 12mm 12mm">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:6.8pt;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#c7c9ff">
+      <span>eBook · Minicurso EaD</span><span>Docência Digital na Era da IA</span>
+    </div>
+    <div class="spacer"></div>
+    <div style="display:inline-flex;align-self:flex-start;background:#fff;color:#16133a;border-radius:10mm;padding:1mm 3mm;font-size:7pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4mm">Caderno prático</div>
+    <h1 style="font-size:34pt;line-height:1.02;color:#fff;letter-spacing:-.02em;max-width:118mm">Do problema<br>ao <em style="color:#a5b4fc">protótipo</em></h1>
+    <p style="font-size:10.5pt;color:#dcdcff;max-width:104mm;margin-top:4mm;line-height:1.45">Modelos, pedidos prontos e checklists para criar recursos educacionais digitais <strong style="color:#fff">com apoio de IA</strong>, e conferir tudo antes de levar para a turma.</p>
+    <div style="display:flex;gap:2mm;flex-wrap:wrap;margin-top:5mm">
+      <span style="font-size:7pt;font-weight:600;border:.3mm solid rgba(255,255,255,.35);border-radius:10mm;padding:.8mm 2.6mm">6 pedidos prontos</span>
+      <span style="font-size:7pt;font-weight:600;border:.3mm solid rgba(255,255,255,.35);border-radius:10mm;padding:.8mm 2.6mm">5 modelos para preencher</span>
+      <span style="font-size:7pt;font-weight:600;border:.3mm solid rgba(255,255,255,.35);border-radius:10mm;padding:.8mm 2.6mm">Checklist de testes</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:3mm;margin-top:8mm;padding-top:4mm;border-top:.3mm solid rgba(255,255,255,.2)">
+      <span style="width:9mm;height:9mm;border-radius:50%;background:#4f46e5;display:grid;place-items:center;font-weight:800;font-size:8pt">TJ</span>
+      <div style="font-size:7.4pt;line-height:1.3"><span style="color:#b9bbe8">Escrito por</span><br><strong style="font-size:9pt">Thiago Jacinto</strong></div>
+      <div style="margin-left:auto;font-size:7pt;color:#b9bbe8;text-align:right">UFRPE · 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 2 · COMO USAR ============================ -->
+<section class="page t0" id="como-usar">
+  <div class="rh"><span>Do problema ao protótipo · Caderno prático</span><span class="tag">Boas-vindas</span></div>
+  <div class="kicker">Antes de começar</div>
+  <h2>Um caderno para usar <em>com a mão na massa</em></h2>
+  <p class="lead">Este eBook acompanha o minicurso <strong>Do problema ao protótipo</strong>. O vídeo mostra o método funcionando e a HQ o mostra em outra disciplina. Este caderno entrega as ferramentas para você aplicar o método na sua.</p>
+
+  <div class="card soft" style="margin-bottom:3.4mm">
+    <h4>Onde ele entra na trilha</h4>
+    <div style="display:flex;align-items:center;gap:1.2mm;font-size:7.2pt;font-weight:600;flex-wrap:wrap">
+      <span class="pill" style="background:#fff;color:var(--muted)">1 Conheça</span><svg class="i" style="color:var(--muted)"><use href="#i-arrow"/></svg>
+      <span class="pill" style="background:#fff;color:var(--muted)">2 Assista</span><svg class="i" style="color:var(--muted)"><use href="#i-arrow"/></svg>
+      <span class="pill" style="background:#fff;color:var(--muted)">3 Aprofunde</span><svg class="i" style="color:var(--muted)"><use href="#i-arrow"/></svg>
+      <span class="pill" style="background:#fff;color:var(--muted)">4 Leia a HQ</span><svg class="i" style="color:var(--muted)"><use href="#i-arrow"/></svg>
+      <span class="pill" style="background:var(--primary);color:#fff">5 Use este eBook</span><svg class="i" style="color:var(--muted)"><use href="#i-arrow"/></svg>
+      <span class="pill" style="background:#fff;color:var(--muted)">6 Avaliação</span>
+    </div>
+  </div>
+
+  <h4>Como ler</h4>
+  <div class="grid2" style="margin-bottom:3.4mm">
+    <div class="card"><div class="ico" style="--c:var(--s1);--c-soft:var(--s1-soft)"><svg class="i"><use href="#i-pen"/></svg></div><strong>Modelos para preencher</strong><p class="muted" style="font-size:7.4pt">Fichas e tabelas em branco. Imprima ou copie para o seu caderno.</p></div>
+    <div class="card"><div class="ico" style="--c:var(--s3);--c-soft:var(--s3-soft)"><svg class="i"><use href="#i-copy"/></svg></div><strong>Pedidos prontos</strong><p class="muted" style="font-size:7.4pt">Textos para copiar, adaptar e colar na sua ferramenta de IA.</p></div>
+    <div class="card"><div class="ico" style="--c:var(--s4);--c-soft:var(--s4-soft)"><svg class="i"><use href="#i-list"/></svg></div><strong>Checklists</strong><p class="muted" style="font-size:7.4pt">O que conferir antes de publicar qualquer recurso.</p></div>
+    <div class="card"><div class="ico" style="--c:var(--s2);--c-soft:var(--s2-soft)"><svg class="i"><use href="#i-play"/></svg></div><strong>Links para a aula</strong><p class="muted" style="font-size:7.4pt">Toque nos links coloridos para abrir o trecho do site.</p></div>
+  </div>
+
+  <div class="tip blue"><svg class="i"><use href="#i-bulb"/></svg><div><strong>Leia na ordem ou pule direto.</strong> Cada capítulo corresponde a uma etapa do ciclo. Se você já tem uma ideia de recurso, vá para o <a href="#cap4" style="font-weight:700">Banco de pedidos</a> e volte aos testes depois.</div></div>
+  <div class="spacer"></div>
+  <p style="font-size:6.8pt;color:var(--muted);border-top:.25mm solid var(--line);padding-top:2mm">Este eBook foi escrito com apoio de ferramentas de IA generativa e revisado integralmente pelo autor, como o próprio minicurso recomenda.</p>
+  <div class="rf"><span class="num">2</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 3 · SUMÁRIO ============================ -->
+<section class="page t0" id="sumario">
+  <div class="rh"><span>Do problema ao protótipo · Caderno prático</span><span class="tag">Sumário</span></div>
+  <div class="kicker">Sumário</div>
+  <h2>O que você vai encontrar</h2>
+  <p class="muted" style="margin-bottom:3mm;font-size:7.6pt">Toque em um capítulo para ir direto a ele.</p>
+  <nav class="toc">
+    <a href="#cap1" class="t0"><span class="n">1</span><span class="tt">Antes de pedir<small>Por que conferir o que a IA entrega · o ciclo em 5 etapas</small></span><span class="pg">4</span></a>
+    <a href="#cap2" class="t1"><span class="n">2</span><span class="tt">Necessidade pedagógica<small>De vago a claro · ficha da necessidade</small></span><span class="pg">6</span></a>
+    <a href="#cap3" class="t2"><span class="n">3</span><span class="tt">Requisitos verificáveis<small>Três tipos · desafio rápido · tabela de requisitos</small></span><span class="pg">8</span></a>
+    <a href="#cap4" class="t3"><span class="n">4</span><span class="tt">Construção com IA<small>Anatomia do pedido · banco de 6 pedidos · frases coringa</small></span><span class="pg">10</span></a>
+    <a href="#cap5" class="t4"><span class="n">5</span><span class="tt">Testes<small>Registro de testes · console · checklist</small></span><span class="pg">15</span></a>
+    <a href="#cap6" class="t5"><span class="n">6</span><span class="tt">Melhorias e versões<small>Pedir como quem relata um problema · quando recomeçar</small></span><span class="pg">18</span></a>
+    <a href="#cap7" class="t6"><span class="n">7</span><span class="tt">Ética e acessibilidade<small>Semáforo da LGPD · 7 checagens de acessibilidade</small></span><span class="pg">20</span></a>
+    <a href="#glossario" class="t0"><span class="n">A</span><span class="tt">Glossário<small>Os termos técnicos em linguagem simples</small></span><span class="pg">22</span></a>
+    <a href="#plano" class="t0"><span class="n">B</span><span class="tt">Seu primeiro protótipo em 5 dias<small>Plano de ação e próximos passos</small></span><span class="pg">23</span></a>
+    <a href="#referencias" class="t0"><span class="n">C</span><span class="tt">Referências<small>Para estudar mais</small></span><span class="pg">24</span></a>
+  </nav>
+  <div class="rf"><span class="num">3</span><span>Minicurso · minicurso-ia-ten.vercel.app</span></div>
+</section>
+
+<!-- ============================ 4 · CAP 1 ============================ -->
+<section class="page t0" id="cap1">
+  <div class="opener"><div class="dots"></div><div class="big">01</div>
+    <div class="kicker">Capítulo 1</div>
+    <h2>Antes de pedir: <em>quem garante é você</em></h2>
+    <p>A IA gera um recurso em segundos. Mas ela escreve com a mesma confiança quando acerta e quando erra.</p>
+  </div>
+  <h3>Três armadilhas que o método evita</h3>
+  <div class="stack" style="margin-bottom:3.4mm">
+    <div class="card" style="display:flex;gap:3mm"><div class="ico" style="--c:var(--bad);--c-soft:var(--bad-soft);margin:0"><svg class="i"><use href="#i-alert"/></svg></div><div><strong>O gabarito errado, dito com certeza.</strong><p class="muted" style="font-size:7.6pt">A IA pode marcar a alternativa errada como certa e ainda escrever uma explicação convincente. Se ninguém conferir, a turma aprende o erro.</p></div></div>
+    <div class="card" style="display:flex;gap:3mm"><div class="ico" style="--c:var(--warn);--c-soft:var(--warn-soft);margin:0"><svg class="i"><use href="#i-phone"/></svg></div><div><strong>O recurso que só funciona na sua tela.</strong><p class="muted" style="font-size:7.6pt">No computador fica lindo; no celular do estudante, o botão some. Sem requisito escrito, ninguém lembra de testar.</p></div></div>
+    <div class="card" style="display:flex;gap:3mm"><div class="ico" style="--c:var(--s5);--c-soft:var(--s5-soft);margin:0"><svg class="i"><use href="#i-lock"/></svg></div><div><strong>O dado pessoal colado no pedido.</strong><p class="muted" style="font-size:7.6pt">Nomes, notas e matrículas não precisam ir para a IA. A descrição da turma basta, sem identificar ninguém.</p></div></div>
+  </div>
+  <div class="card soft">
+    <h4>A ideia central do minicurso</h4>
+    <p style="font-family:Fraunces;font-size:12.5pt;line-height:1.3;font-weight:500">A IA <em style="color:var(--primary)">acelera</em> a construção. O professor <em style="color:var(--primary)">decide</em> o que construir e <em style="color:var(--primary)">confere</em> o resultado.</p>
+  </div>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://minicurso-ia-ten.vercel.app/curso.html#cuidados"><svg class="i"><use href="#i-play"/></svg>Ver no site: A IA ajuda; a autoria é sua</a>
+  <div class="rf"><span class="num">4</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 5 · CICLO ============================ -->
+<section class="page t0" id="ciclo">
+  <div class="rh"><span>Capítulo 1 · Antes de pedir</span><span class="tag">O ciclo</span></div>
+  <div class="kicker">O mapa do caderno</div>
+  <h2>Um ciclo, <em>não uma linha reta</em></h2>
+  <p class="lead">Cada etapa responde a uma pergunta. Testes e melhorias se repetem até o recurso estar pronto para a turma.</p>
+  <svg viewBox="0 0 440 250" style="width:100%;margin-bottom:3mm" aria-label="Diagrama do ciclo em cinco etapas">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" fill="#9aa0b8"/></marker></defs>
+    <g font-family="Jakarta" text-anchor="middle">
+      <path d="M118 62 C150 40 170 36 196 36" stroke="#9aa0b8" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+      <path d="M296 40 C330 44 350 58 362 78" stroke="#9aa0b8" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+      <path d="M358 168 C346 190 330 200 302 206" stroke="#9aa0b8" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+      <path d="M200 214 C176 214 150 206 138 196" stroke="#c2410c" stroke-width="2.4" fill="none" marker-end="url(#ah)" stroke-dasharray="5 4"/>
+      <path d="M138 196 C 190 160 250 160 300 196" stroke="#be185d" stroke-width="2.4" fill="none" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+      <text x="220" y="158" font-size="10" font-weight="700" fill="#be185d">volta a testar</text>
+      <g transform="translate(70 80)"><circle r="42" fill="#7c3aed"/><text y="-6" fill="#fff" font-family="Fraunces" font-weight="700" font-size="20">01</text><text y="12" fill="#fff" font-size="10.5" font-weight="700">Necessidade</text></g>
+      <g transform="translate(246 40)"><circle r="42" fill="#2563eb"/><text y="-6" fill="#fff" font-family="Fraunces" font-weight="700" font-size="20">02</text><text y="12" fill="#fff" font-size="10.5" font-weight="700">Requisitos</text></g>
+      <g transform="translate(380 124)"><circle r="42" fill="#0d9488"/><text y="-6" fill="#fff" font-family="Fraunces" font-weight="700" font-size="20">03</text><text y="12" fill="#fff" font-size="10.5" font-weight="700">Construção</text></g>
+      <g transform="translate(250 206)"><circle r="40" fill="#c2410c"/><text y="-6" fill="#fff" font-family="Fraunces" font-weight="700" font-size="20">04</text><text y="12" fill="#fff" font-size="10.5" font-weight="700">Testes</text></g>
+      <g transform="translate(96 196)"><circle r="40" fill="#be185d"/><text y="-6" fill="#fff" font-family="Fraunces" font-weight="700" font-size="20">05</text><text y="12" fill="#fff" font-size="10.5" font-weight="700">Melhorias</text></g>
+    </g>
+  </svg>
+  <table>
+    <tr><th>Etapa</th><th>Pergunta-guia</th><th>Você sai com</th></tr>
+    <tr><td><strong style="color:var(--s1)">01 Necessidade</strong></td><td>O que meus estudantes ainda não conseguem fazer?</td><td>Uma ficha da necessidade</td></tr>
+    <tr><td><strong style="color:var(--s2)">02 Requisitos</strong></td><td>O que o recurso precisa fazer, de um jeito que eu possa conferir?</td><td>Uma tabela de requisitos</td></tr>
+    <tr><td><strong style="color:var(--s3)">03 Construção</strong></td><td>Como explico tudo isso para a IA?</td><td>Um pedido e a versão 1</td></tr>
+    <tr><td><strong style="color:var(--s4)">04 Testes</strong></td><td>Funciona, está correto e serve para a turma?</td><td>Um registro de testes</td></tr>
+    <tr><td><strong style="color:var(--s5)">05 Melhorias</strong></td><td>Como peço a correção sem perder o que funciona?</td><td>A versão 2 (e as próximas)</td></tr>
+  </table>
+  <div class="rf"><span class="num">5</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 6 · CAP 2 ============================ -->
+<section class="page t1" id="cap2">
+  <div class="opener"><div class="dots"></div><div class="big">02</div>
+    <div class="kicker">Capítulo 2 · Etapa 01</div>
+    <h2>Comece pelo <em>problema</em>, não pela tecnologia</h2>
+    <p>"Quero um joguinho" não é uma necessidade. "Meus estudantes erram X" é.</p>
+  </div>
+  <div class="grid3" style="margin-bottom:3.6mm">
+    <div class="card"><div class="ico"><svg class="i"><use href="#i-users"/></svg></div><strong>Quem aprende?</strong><p class="muted" style="font-size:7.2pt">Nível, o que já sabem, como e onde estudam.</p></div>
+    <div class="card"><div class="ico"><svg class="i"><use href="#i-target"/></svg></div><strong>Qual a dificuldade?</strong><p class="muted" style="font-size:7.2pt">Um erro concreto, que você já observou.</p></div>
+    <div class="card"><div class="ico"><svg class="i"><use href="#i-chart"/></svg></div><strong>Como saberei?</strong><p class="muted" style="font-size:7.2pt">A evidência de que o recurso ajudou.</p></div>
+  </div>
+  <h3>De vago a claro, em três disciplinas</h3>
+  <table style="margin-bottom:3mm">
+    <tr><th style="width:31%">Vago</th><th>Claro</th></tr>
+    <tr><td><span class="muted">"Um jogo de frações."</span></td><td><strong>Matemática, 6º ano:</strong> sabem o que é fração, mas não reconhecem que 2/4 e 1/2 representam a mesma parte.</td></tr>
+    <tr><td><span class="muted">"Algo para ortografia."</span></td><td><strong>Língua Portuguesa, EJA EAD:</strong> adultos que estudam pelo celular trocam "mas" (oposição) por "mais" (quantidade) nos fóruns.</td></tr>
+    <tr><td><span class="muted">"Revisão de História."</span></td><td><strong>História, 9º ano:</strong> conhecem os marcos políticos do Brasil, mas erram a ordem entre 1822 e 1988.</td></tr>
+  </table>
+  <div class="tip blue"><svg class="i"><use href="#i-bulb"/></svg><div><strong>Repare:</strong> a versão clara já sugere o formato do recurso. Quem erra a ordem precisa <em>ordenar</em>; quem confunde duas palavras precisa <em>escolher entre elas</em> e receber o porquê.</div></div>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://minicurso-ia-ten.vercel.app/curso.html#necessidade"><svg class="i"><use href="#i-play"/></svg>Ver no site: Etapa 1 · Necessidade pedagógica</a>
+  <div class="rf"><span class="num">6</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 7 · FICHA ============================ -->
+<section class="page t1" id="ficha">
+  <div class="rh"><span>Capítulo 2 · Necessidade pedagógica</span><span class="tag">Modelo para preencher</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-pen"/></svg>Modelo 1</div>
+  <h2>Ficha da necessidade</h2>
+  <p class="muted" style="margin-bottom:3.4mm">Preencha antes de abrir qualquer ferramenta de IA. Leva uns 10 minutos e economiza horas.</p>
+  <div class="stack">
+    <div class="field"><div class="q"><b>1</b>Disciplina, turma e modalidade</div><small>Ex.: Língua Portuguesa · EJA · EAD com encontros quinzenais</small><div class="lines" style="min-height:7mm"></div></div>
+    <div class="field"><div class="q"><b>2</b>Quem aprende?</div><small>O que já sabem · como estudam · que aparelho usam · internet estável?</small><div class="lines" style="min-height:13mm"></div></div>
+    <div class="field"><div class="q"><b>3</b>O que ainda não conseguem fazer?</div><small>Descreva o erro que você observou, com um exemplo real (sem nomes)</small><div class="lines" style="min-height:13mm"></div></div>
+    <div class="field"><div class="q"><b>4</b>Como saberei se o recurso ajudou?</div><small>Taxa de acertos · menos dúvidas no fórum · uma questão da próxima prova</small><div class="lines" style="min-height:7mm"></div></div>
+    <div class="field"><div class="q"><b>5</b>Minha necessidade em uma frase</div><small>"Preciso de um recurso que ajude ___ a ___, porque hoje eles ___."</small><div class="lines" style="min-height:13mm"></div></div>
+  </div>
+  <div class="rf"><span class="num">7</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 8 · CAP 3 ============================ -->
+<section class="page t2" id="cap3">
+  <div class="opener"><div class="dots"></div><div class="big">03</div>
+    <div class="kicker">Capítulo 3 · Etapa 02</div>
+    <h2>Se não dá para testar, <em>ainda não é requisito</em></h2>
+    <p>Requisito é o que o recurso precisa fazer ou ter, escrito de um jeito que permita conferir depois.</p>
+  </div>
+  <div class="grid3" style="margin-bottom:3.4mm">
+    <div class="card"><h4>Pedagógicos</h4><p style="font-size:7.4pt">O que se aprende: conteúdo, tipo de atividade, feedback, dificuldade.</p></div>
+    <div class="card"><h4>Funcionais</h4><p style="font-size:7.4pt">O que o recurso faz: telas, botões, progresso, recomeçar.</p></div>
+    <div class="card"><h4>Técnicos e de uso</h4><p style="font-size:7.4pt">Onde roda: celular, teclado, arquivo único, sem instalação.</p></div>
+  </div>
+  <h3>Desafio rápido: quais dá para verificar?</h3>
+  <p class="muted" style="font-size:7.6pt;margin-bottom:2mm">Marque V (verificável) ou N (não verificável). A resposta está de cabeça para baixo, no pé da página.</p>
+  <div class="card" style="margin-bottom:3mm">
+    <div class="cb">a) "O treino deve ser bonito e moderno."</div>
+    <div class="cb">b) "Cada questão mostra a explicação logo após a resposta."</div>
+    <div class="cb">c) "Funciona em uma tela de 375 px de largura."</div>
+    <div class="cb">d) "Os estudantes vão adorar."</div>
+    <div class="cb">e) "Dá para fazer o treino inteiro usando só o teclado."</div>
+    <div class="cb">f) "Ter um nível de dificuldade adequado."</div>
+  </div>
+  <div class="tip blue"><svg class="i"><use href="#i-bulb"/></svg><div><strong>Como consertar um requisito vago:</strong> pergunte "como eu conferiria isso?". "Bonito" vira "contraste legível e letra de pelo menos 16 px". "Dificuldade adequada" vira "4 questões fáceis, 4 médias e 2 difíceis, marcadas na lista".</div></div>
+  <div class="spacer"></div>
+  <p style="transform:rotate(180deg);font-size:7pt;color:var(--muted);text-align:center;border-top:.25mm dashed var(--line-2);padding-top:1.6mm">Respostas: a) N · b) V · c) V · d) N · e) V · f) N, a menos que você diga o que é "adequado".</p>
+  <div class="rf"><span class="num">8</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 9 · TABELA REQ ============================ -->
+<section class="page t2" id="tabela-requisitos">
+  <div class="rh"><span>Capítulo 3 · Requisitos verificáveis</span><span class="tag">Modelo para preencher</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-pen"/></svg>Modelo 2</div>
+  <h2>Tabela de requisitos</h2>
+  <p class="muted" style="margin-bottom:3mm">Use P para pedagógico, F para funcional e T para técnico. A coluna da direita vira o seu roteiro de testes no capítulo 5.</p>
+  <table>
+    <tr><th style="width:9%">ID</th><th style="width:51%">Requisito</th><th>Como vou verificar</th></tr>
+    <tr class="ex"><td>P1</td><td>10 frases do cotidiano para completar com "mas" ou "mais"</td><td>Contar as frases da lista</td></tr>
+    <tr class="ex"><td>P2</td><td>Explicar o porquê logo após cada resposta</td><td>Errar de propósito e ler a explicação</td></tr>
+    <tr class="ex"><td>T1</td><td>Funcionar no celular, sem o botão sair da tela</td><td>Testar com 375 px ou em um aparelho real</td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td></tr>
+  </table>
+  <div class="spacer"></div>
+  <div class="tip"><svg class="i"><use href="#i-alert"/></svg><div><strong>Comece pelo essencial.</strong> De 6 a 10 requisitos bastam para a versão 1. O resto entra como melhoria nas próximas versões.</div></div>
+  <div class="rf"><span class="num">9</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 10 · CAP 4 ANATOMIA ============================ -->
+<section class="page t3" id="cap4">
+  <div class="opener"><div class="dots"></div><div class="big">04</div>
+    <div class="kicker">Capítulo 4 · Etapa 03</div>
+    <h2>Um bom pedido é <em>metade do protótipo</em></h2>
+    <p>Quanto mais contexto e requisitos você der, menos a IA precisa adivinhar, e menos ela erra.</p>
+  </div>
+  <h3>A anatomia em seis partes</h3>
+  <div class="grid2" style="margin-bottom:3.4mm">
+    <div class="card" style="border-left:1.2mm solid #7c3aed"><strong>1 · Contexto</strong><p class="muted" style="font-size:7.2pt">Quem é você, disciplina e modalidade.</p></div>
+    <div class="card" style="border-left:1.2mm solid #2563eb"><strong>2 · Público</strong><p class="muted" style="font-size:7.2pt">Quem são os estudantes e o que já sabem.</p></div>
+    <div class="card" style="border-left:1.2mm solid #0d9488"><strong>3 · Objetivo</strong><p class="muted" style="font-size:7.2pt">A necessidade, em uma frase.</p></div>
+    <div class="card" style="border-left:1.2mm solid #c2410c"><strong>4 · Requisitos</strong><p class="muted" style="font-size:7.2pt">A lista da sua tabela.</p></div>
+    <div class="card" style="border-left:1.2mm solid #be185d"><strong>5 · Restrições</strong><p class="muted" style="font-size:7.2pt">Tecnologia, dispositivo, acessibilidade.</p></div>
+    <div class="card" style="border-left:1.2mm solid #15803d"><strong>6 · Entrega</strong><p class="muted" style="font-size:7.2pt">Formato e organização do resultado.</p></div>
+  </div>
+  <h3>Modelo 3 · Pedido para preencher</h3>
+  <div class="card soft" style="font-size:7.9pt;line-height:1.75">
+    Sou professor(a) de <u>&emsp;&emsp;&emsp;&emsp;&emsp;</u> em <u>&emsp;&emsp;&emsp;&emsp;</u>. Meus estudantes <u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</u> e estudam <u>&emsp;&emsp;&emsp;&emsp;</u>. Quero <u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</u> para que eles consigam <u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</u>. <strong>Requisitos:</strong> <u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</u>. Use apenas HTML, CSS e JavaScript em <strong>um único arquivo</strong>, sem bibliotecas externas, que funcione no celular e só com o teclado. Deixe o conteúdo em uma lista separada, fácil de editar, e comente o código em português.
+  </div>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://minicurso-ia-ten.vercel.app/curso.html#pratica"><svg class="i"><use href="#i-play"/></svg>Prefere preencher na tela? Use o gerador de pedidos do site</a>
+  <div class="rf"><span class="num">10</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 11 · BANCO 1 ============================ -->
+<section class="page t3" id="banco">
+  <div class="rh"><span>Capítulo 4 · Construção com IA</span><span class="tag">Banco de pedidos 1/3</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-copy"/></svg>Pedidos prontos para adaptar</div>
+  <h2 style="font-size:15pt">Banco de pedidos</h2>
+  <p class="muted" style="font-size:7.6pt;margin-bottom:3mm">Seis disciplinas, seis formatos diferentes. Troque o que estiver em outro contexto e mantenha a estrutura.</p>
+  <div class="stack">
+    <div class="prompt"><header><span class="disc">Matemática</span><span class="lvl">6º ano · híbrido</span><span class="pill">Ligar pares</span></header>
+      <div class="body">Sou professor(a) de Matemática do 6º ano, em ensino híbrido. Meus estudantes sabem o que é fração, mas não reconhecem frações equivalentes (por exemplo, que 2/4 e 1/2 representam a mesma parte). Quero uma atividade de associação: o estudante liga cada fração à sua equivalente, vendo uma barra dividida em partes que representa cada fração. <strong>Requisitos:</strong> 8 pares; feedback imediato explicando a multiplicação ou divisão usada; contador de acertos; botão para recomeçar com os pares embaralhados. Um único arquivo HTML, CSS e JavaScript, sem bibliotecas, que funcione no celular e com o teclado, sem depender de arrastar. Deixe os pares numa lista fácil de editar e comente o código em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Confira depois:</strong> faça cada par no papel, multiplicando numerador e denominador pelo mesmo número.</span></div>
+    </div>
+    <div class="prompt"><header><span class="disc">Língua Portuguesa</span><span class="lvl">EJA · EAD</span><span class="pill">Completar frases</span></header>
+      <div class="body">Sou tutor(a) de Língua Portuguesa em uma turma EAD de EJA. Os estudantes são adultos, estudam pelo celular à noite e trocam "mas" (ideia de oposição) por "mais" (ideia de quantidade). Quero um treino de completar frases: o estudante escolhe "mas" ou "mais" e recebe a explicação na hora. <strong>Requisitos:</strong> 10 frases do cotidiano; explicação curta do porquê; barra de progresso; no final, revisão das frases erradas. Um único arquivo HTML, sem bibliotecas, com letra grande, bom contraste e uso só com teclado. Deixe as frases numa lista editável, com o gabarito ao lado, e comente o código em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Confira depois:</strong> troque "mas" por "porém" em cada frase. Se fizer sentido, o gabarito é "mas". É o caso da HQ do minicurso!</span></div>
+    </div>
+  </div>
+  <div class="rf"><span class="num">11</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 12 · BANCO 2 ============================ -->
+<section class="page t3">
+  <div class="rh"><span>Capítulo 4 · Construção com IA</span><span class="tag">Banco de pedidos 2/3</span></div>
+  <div class="stack">
+    <div class="prompt"><header><span class="disc">História</span><span class="lvl">9º ano</span><span class="pill">Ordenar</span></header>
+      <div class="body">Sou professor(a) de História do 9º ano. Meus estudantes erram a ordem dos marcos políticos do Brasil entre 1822 e 1988. Quero uma atividade de ordenação: o estudante coloca os acontecimentos na ordem certa e depois vê uma linha do tempo com as datas. Use apenas estes acontecimentos e datas, sem acrescentar outros: Independência (1822), Abolição da escravatura (1888), Proclamação da República (1889), Revolução de 1930 (1930), Constituição Federal atual (1988). <strong>Requisitos:</strong> mover os itens com botões ↑ e ↓, não só arrastando; botão "Conferir" que mostra quais estão fora do lugar; uma frase de explicação para cada marco, que eu vou revisar. Um único arquivo HTML, sem bibliotecas, comentado em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Repare:</strong> quem forneceu as datas foi o professor. Quando o conteúdo é factual, entregue os fatos à IA em vez de pedir que ela os invente.</span></div>
+    </div>
+    <div class="prompt"><header><span class="disc">Ciências</span><span class="lvl">8º ano · EAD</span><span class="pill">Flashcards</span></header>
+      <div class="body">Sou professor(a) de Ciências do 8º ano, em curso EAD. Os estudantes decoram os nomes dos órgãos do sistema digestório, mas não sabem a função de cada um. Quero flashcards: na frente, o nome do órgão; no verso, a função em uma frase. <strong>Requisitos:</strong> 8 cartões (boca, esôfago, estômago, fígado, vesícula biliar, pâncreas, intestino delgado, intestino grosso); botões "Já sei" e "Ainda não", e os cartões marcados como "Ainda não" voltam no final; contador de cartões dominados. Um único arquivo HTML, sem bibliotecas, em que o cartão vire com clique, toque ou Enter. Deixe os textos numa lista separada e comente o código em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Confira depois:</strong> compare cada função com o livro didático adotado pela turma, cartão por cartão.</span></div>
+    </div>
+  </div>
+  <div class="rf"><span class="num">12</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 13 · BANCO 3 ============================ -->
+<section class="page t3">
+  <div class="rh"><span>Capítulo 4 · Construção com IA</span><span class="tag">Banco de pedidos 3/3</span></div>
+  <div class="stack">
+    <div class="prompt"><header><span class="disc">Geografia</span><span class="lvl">7º ano</span><span class="pill">Classificar</span></header>
+      <div class="body">Sou professor(a) de Geografia do 7º ano. Os estudantes confundem os setores da economia. Quero uma atividade de classificação: aparecem 12 atividades (por exemplo, pesca, fábrica de sapatos e escola) e o estudante escolhe se cada uma é do setor primário, secundário ou terciário. <strong>Requisitos:</strong> feedback imediato com explicação; no final, um resumo com os acertos em cada setor; botão para recomeçar com as atividades embaralhadas. Um único arquivo HTML, sem bibliotecas, com botões grandes para o celular e uso só com teclado. Deixe as atividades e o gabarito numa lista editável e comente o código em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Confira depois:</strong> leia a lista de 12 atividades antes de jogar. Exclua os casos que geram dúvida, como agroindústria.</span></div>
+    </div>
+    <div class="prompt"><header><span class="disc">Inglês</span><span class="lvl">1º ano · ensino médio</span><span class="pill">Jogo da memória</span></header>
+      <div class="body">Sou professor(a) de Inglês do 1º ano do ensino médio. Os estudantes erram o passado dos verbos irregulares mais comuns. Quero um jogo da memória em que cada par é formado pelo verbo no infinitivo e pela forma no passado (ex.: go – went). <strong>Requisitos:</strong> 8 pares (go, have, make, take, see, come, give, write); cartas viradas com clique, toque ou teclado; contador de jogadas; ao formar um par, mostrar uma frase de exemplo com o verbo no passado. Um único arquivo HTML, sem bibliotecas, com bom contraste e instruções em português. Deixe os pares numa lista editável e comente o código em português.</div>
+      <div class="check"><svg class="i"><use href="#i-check"/></svg><span><strong>Confira depois:</strong> went, had, made, took, saw, came, gave, wrote. Leia também as 8 frases de exemplo.</span></div>
+    </div>
+  </div>
+  <div class="card soft" style="margin-top:3mm">
+    <h4>Adapte qualquer pedido em 3 passos</h4>
+    <ol class="steps" style="font-size:7.7pt">
+      <li><strong>Troque o contexto e o público</strong> pelos da sua turma, usando a sua <a href="#ficha" style="font-weight:700">ficha da necessidade</a>.</li>
+      <li><strong>Troque o conteúdo</strong> pela sua lista: frases, datas, termos. Se for factual, forneça você mesmo.</li>
+      <li><strong>Mantenha as restrições e a entrega:</strong> arquivo único, celular, teclado, lista editável e comentários em português.</li>
+    </ol>
+  </div>
+  <div class="spacer"></div>
+  <div class="tip blue"><svg class="i"><use href="#i-bulb"/></svg><div><strong>Por que todos pedem "uma lista editável"?</strong> Assim você corrige um gabarito ou troca o conteúdo sem entender o resto do código e sem precisar pedir de novo à IA.</div></div>
+  <div class="rf"><span class="num">13</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 14 · FRASES CORINGA ============================ -->
+<section class="page t3" id="coringa">
+  <div class="rh"><span>Capítulo 4 · Construção com IA</span><span class="tag">Frases coringa</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-message"/></svg>Para continuar a conversa</div>
+  <h2>Frases coringa</h2>
+  <p class="lead">Use depois do primeiro pedido. Cada uma resolve uma situação comum.</p>
+  <table style="font-size:7.8pt">
+    <tr><th style="width:30%">Quando…</th><th>Diga à IA</th></tr>
+    <tr><td><strong>o seu pedido pode ter lacunas</strong></td><td>"Antes de gerar, faça até 5 perguntas sobre o que ficou vago no meu pedido."</td></tr>
+    <tr><td><strong>quer saber o que ela inventou</strong></td><td>"Liste as decisões que você tomou e que eu não especifiquei."</td></tr>
+    <tr><td><strong>não entende o código</strong></td><td>"Explique, em linguagem simples, onde fica cada parte do arquivo e o que eu posso editar com segurança."</td></tr>
+    <tr><td><strong>quer mais conteúdo</strong></td><td>"Gere mais 10 itens no mesmo formato da lista, sobre ___. Não altere o restante do código."</td></tr>
+    <tr><td><strong>quer revisar a acessibilidade</strong></td><td>"Revise o arquivo procurando problemas de teclado, contraste e leitor de tela. Liste os problemas antes de corrigir."</td></tr>
+    <tr><td><strong>o console mostra um erro</strong></td><td>"O console mostra este erro: [cole o texto exato]. O que ele significa? Corrija sem mudar o resto."</td></tr>
+    <tr><td><strong>vai receber uma correção</strong></td><td>"Entregue o arquivo completo de novo, já com as alterações."</td></tr>
+  </table>
+  <div class="spacer"></div>
+  <div class="tip"><svg class="i"><use href="#i-alert"/></svg><div><strong>Evite colar trechos soltos.</strong> Juntar pedaços de código em lugares errados é a causa mais comum do "quebrou tudo". Peça sempre o arquivo inteiro e salve como uma nova versão.</div></div>
+  <div class="rf"><span class="num">14</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 15 · CAP 5 TESTES ============================ -->
+<section class="page t4" id="cap5">
+  <div class="opener"><div class="dots"></div><div class="big">05</div>
+    <div class="kicker">Capítulo 5 · Etapa 04</div>
+    <h2>Código que parece certo <em>não é código testado</em></h2>
+    <p>Teste como um estudante distraído: no celular, com pressa, errando de propósito.</p>
+  </div>
+  <div class="grid2" style="grid-template-columns:repeat(4,1fr);margin-bottom:3.4mm">
+    <div class="card"><h4>Requisitos</h4><p style="font-size:7pt">A tabela, linha por linha.</p></div>
+    <div class="card"><h4>Conteúdo</h4><p style="font-size:7pt">Gabaritos e explicações. Só você detecta.</p></div>
+    <div class="card"><h4>Uso real</h4><p style="font-size:7pt">Celular, teclado, erros, cliques rápidos.</p></div>
+    <div class="card"><h4>Console</h4><p style="font-size:7pt">Mensagens em vermelho escondidas.</p></div>
+  </div>
+  <h3><svg class="i" style="color:var(--c)"><use href="#i-pen"/></svg> Modelo 4 · Registro de testes</h3>
+  <table>
+    <tr><th style="width:32%">Teste realizado</th><th style="width:22%">Esperado</th><th style="width:26%">Observado</th><th>Resultado</th></tr>
+    <tr class="ex"><td>Abrir no celular (375 px)</td><td>Botão "Próxima" visível</td><td>Botão fica fora da tela</td><td>Problema</td></tr>
+    <tr class="ex"><td>Conferir os 10 gabaritos</td><td>Todos corretos</td><td>Frase 4 com gabarito trocado</td><td>Problema</td></tr>
+    <tr><td class="blank"></td><td></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td><td></td></tr>
+    <tr><td class="blank"></td><td></td><td></td><td></td></tr>
+  </table>
+  <p class="muted" style="font-size:7pt;margin-top:1.6mm">Resultado: <strong style="color:var(--s6)">OK</strong> · <strong style="color:var(--warn)">Melhoria</strong> (funciona, mas pode ficar melhor) · <strong style="color:var(--bad)">Problema</strong> (está errado ou não funciona).</p>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://minicurso-ia-ten.vercel.app/curso.html#testes"><svg class="i"><use href="#i-play"/></svg>Ver no site: o registro de testes real da versão 1</a>
+  <div class="rf"><span class="num">15</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 16 · CONSOLE ============================ -->
+<section class="page t4" id="console">
+  <div class="rh"><span>Capítulo 5 · Testes</span><span class="tag">Conferir gabaritos</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-terminal"/></svg>Passo a passo</div>
+  <h2>O console: seu <em>conferidor de gabaritos</em></h2>
+  <p class="lead">Quando a questão é de código, o próprio navegador executa o trecho e mostra a resposta certa.</p>
+  <ol class="steps" style="margin-bottom:3.4mm">
+    <li>Abra o console: <kbd>F12</kbd> ou <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> no Chrome e no Edge (<kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>J</kbd> no Mac); <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> no Firefox.</li>
+    <li>Cole o trecho da questão e pressione <kbd>Enter</kbd>. Se o navegador bloquear a colagem, digite antes <code>allow pasting</code>.</li>
+    <li>Compare o resultado com o gabarito. Se for diferente, a IA errou, e você evitou ensinar algo errado.</li>
+  </ol>
+  <div class="console" style="margin-bottom:3.4mm">
+    <div class="bar"><span>Elements</span><b>Console</b><span>Sources</span></div>
+    <div class="l"><span class="pr">&gt;</span><span><span class="k">console</span>.log(<span class="s">"5"</span> + <span class="n">3</span>)</span></div>
+    <div class="l out"><span class="pr"> </span>53<span class="note">texto + número junta, não soma</span></div>
+    <div class="l"><span class="pr">&gt;</span><span><span class="k">console</span>.log(<span class="n">7</span> % <span class="n">2</span>)</span></div>
+    <div class="l out"><span class="pr"> </span>1<span class="note">% é o resto da divisão</span></div>
+    <div class="l"><span class="pr">&gt;</span><span><span class="k">let</span> a = <span class="n">5</span> === <span class="s">"5"</span>; console.log(a)</span></div>
+    <div class="l out"><span class="pr"> </span>false<span class="note">=== compara também o tipo</span></div>
+  </div>
+  <div class="card soft">
+    <h4>E quando o conteúdo não é código?</h4>
+    <ul class="clean" style="font-size:7.6pt">
+      <li>Responda você mesmo cada questão <strong>antes</strong> de olhar o gabarito da IA.</li>
+      <li>Confira datas, nomes e números em uma fonte confiável, como o livro didático da turma.</li>
+      <li>Peça a um colega da área para fazer o recurso uma vez.</li>
+    </ul>
+  </div>
+  <div class="rf"><span class="num">16</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 17 · CHECKLIST ============================ -->
+<section class="page t4" id="checklist">
+  <div class="rh"><span>Capítulo 5 · Testes</span><span class="tag">Checklist</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-list"/></svg>Modelo 5 · Para imprimir</div>
+  <h2>Checklist antes de publicar</h2>
+  <p class="muted" style="margin-bottom:3.4mm">Marque só o que você <strong>viu</strong> funcionar, não o que "deve" funcionar.</p>
+  <div class="grid2">
+    <div class="card"><h4>Requisitos</h4>
+      <div class="cb">Cada requisito da tabela foi verificado, um a um</div>
+      <div class="cb">Todos os tipos de atividade aparecem e funcionam</div>
+      <div class="cb">Progresso e acertos avançam corretamente</div>
+      <div class="cb">A tela final mostra o resultado e permite recomeçar</div>
+    </div>
+    <div class="card"><h4>Conteúdo</h4>
+      <div class="cb">Todos os gabaritos foram conferidos</div>
+      <div class="cb">As explicações estão corretas e adequadas ao público</div>
+      <div class="cb">Não há erros de português nem termos confusos</div>
+      <div class="cb">Nenhum dado pessoal aparece no recurso</div>
+    </div>
+    <div class="card"><h4>Uso real</h4>
+      <div class="cb">Funciona no celular (aparelho real ou modo responsivo)</div>
+      <div class="cb">Dá para usar só com o teclado</div>
+      <div class="cb">Errar de propósito também foi testado</div>
+      <div class="cb">Cliques rápidos ou repetidos não quebram a contagem</div>
+    </div>
+    <div class="card"><h4>Técnico</h4>
+      <div class="cb">O console não mostra erros em vermelho</div>
+      <div class="cb">Abre com duplo clique, sem instalação</div>
+      <div class="cb">Testado em pelo menos dois navegadores</div>
+      <div class="cb">Uma pessoa do público-alvo testou e deu retorno</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="card soft" style="display:flex;gap:3mm;align-items:center">
+    <div style="font-family:Fraunces;font-weight:700;font-size:22pt;color:var(--c);line-height:1">16</div>
+    <p style="font-size:7.8pt">verificações. Encontrou algo? Anote no <a href="#cap5" style="font-weight:700">registro de testes</a>: cada linha com "Problema" ou "Melhoria" vira um item do seu pedido de melhoria.</p>
+  </div>
+  <div class="rf"><span class="num">17</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 18 · CAP 6 ============================ -->
+<section class="page t5" id="cap6">
+  <div class="opener"><div class="dots"></div><div class="big">06</div>
+    <div class="kicker">Capítulo 6 · Etapa 05</div>
+    <h2>Peça como quem <em>relata um problema</em></h2>
+    <p>A qualidade da correção depende da qualidade da descrição.</p>
+  </div>
+  <div class="card soft" style="margin-bottom:3.4mm;text-align:center;padding:3.4mm">
+    <h4>A fórmula</h4>
+    <p style="font-family:Fraunces;font-size:12pt;line-height:1.35">"Quando eu <u style="text-decoration-color:var(--c)">faço X</u>, acontece <u style="text-decoration-color:var(--c)">Y</u>,<br>mas deveria acontecer <u style="text-decoration-color:var(--c)">Z</u>."</p>
+  </div>
+  <div class="grid2" style="margin-bottom:3.4mm">
+    <div class="card"><div class="ico" style="--c:var(--bad);--c-soft:var(--bad-soft)"><svg class="i"><use href="#i-x"/></svg></div><strong>Pedido vago</strong><p style="font-size:7.6pt;margin-top:1mm" class="muted">"Melhora o treino aí, tá meio estranho no celular e tem algum erro."</p><p style="font-size:7pt;margin-top:1.4mm">A IA muda coisas aleatórias, e você perde o controle do que foi alterado.</p></div>
+    <div class="card"><div class="ico" style="--c:var(--s6);--c-soft:var(--s6-soft)"><svg class="i"><use href="#i-check"/></svg></div><strong>Pedido preciso</strong><p style="font-size:7.6pt;margin-top:1mm" class="muted">"Na frase 4, o gabarito está 'mas', mas deveria ser 'mais' (é quantidade). Corrija só isso e mantenha o resto igual."</p><p style="font-size:7pt;margin-top:1.4mm">Diz onde, o que acontece, o que se espera e o limite da mudança.</p></div>
+  </div>
+  <h3>Cinco regras de ouro</h3>
+  <ol class="steps" style="font-size:7.9pt">
+    <li><strong>Observado × esperado.</strong> Use a fórmula acima em cada item.</li>
+    <li><strong>Poucas mudanças por vez.</strong> Numere os pedidos; muitos juntos escondem o que quebrou.</li>
+    <li><strong>Preserve o que funciona.</strong> "Mantenha todo o resto igual."</li>
+    <li><strong>Peça a lista de alterações.</strong> "Liste o que você mudou em cada item."</li>
+    <li><strong>Cole a mensagem de erro exata,</strong> se o console mostrou algo em vermelho.</li>
+  </ol>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://minicurso-ia-ten.vercel.app/curso.html#melhorias"><svg class="i"><use href="#i-play"/></svg>Ver no site: o pedido real que gerou a versão 2</a>
+  <div class="rf"><span class="num">18</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 19 · VERSÕES ============================ -->
+<section class="page t5" id="versoes">
+  <div class="rh"><span>Capítulo 6 · Melhorias e versões</span><span class="tag">Versões</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-refresh"/></svg>Uma versão de cada vez</div>
+  <h2>Guarde cada versão, <em>e saiba quando parar</em></h2>
+  <svg viewBox="0 0 440 92" style="width:100%;margin:1mm 0 3.4mm" aria-label="Linha do tempo de versões">
+    <line x1="40" y1="34" x2="400" y2="34" stroke="#e2e0d8" stroke-width="4" stroke-linecap="round"/>
+    <g font-family="Jakarta" text-anchor="middle">
+      <circle cx="60" cy="34" r="17" fill="#be185d"/><text x="60" y="39" fill="#fff" font-weight="800" font-size="13">v1</text>
+      <text x="60" y="70" font-size="10.5" font-weight="700" fill="#141829">primeiro pedido</text><text x="60" y="84" font-size="9.5" fill="#5b6179">funciona, com falhas</text>
+      <circle cx="220" cy="34" r="17" fill="#be185d"/><text x="220" y="39" fill="#fff" font-weight="800" font-size="13">v2</text>
+      <text x="220" y="70" font-size="10.5" font-weight="700" fill="#141829">após os testes</text><text x="220" y="84" font-size="9.5" fill="#5b6179">corrige os problemas</text>
+      <circle cx="380" cy="34" r="17" fill="#fff" stroke="#be185d" stroke-width="3" stroke-dasharray="4 3"/><text x="380" y="39" fill="#be185d" font-weight="800" font-size="13">v3</text>
+      <text x="380" y="70" font-size="10.5" font-weight="700" fill="#141829">só se precisar</text><text x="380" y="84" font-size="9.5" fill="#5b6179">melhorias desejáveis</text>
+      <text x="140" y="24" font-size="9.5" fill="#c2410c" font-weight="700">testar</text>
+      <text x="300" y="24" font-size="9.5" fill="#c2410c" font-weight="700">testar de novo</text>
+    </g>
+  </svg>
+  <div class="grid2" style="margin-bottom:3.4mm">
+    <div class="card"><h4>Dê nomes que contam a história</h4><p style="font-family:Mono;font-size:7.4pt;line-height:1.7">treino-mas-mais-v1.html<br>treino-mas-mais-v2.html<br>treino-mas-mais-v3.html</p><p class="muted" style="font-size:7pt;margin-top:1mm">Nunca salve por cima: se a v3 quebrar, você volta para a v2.</p></div>
+    <div class="card"><h4>Sinais de que é hora de recomeçar a conversa</h4><ul class="clean" style="font-size:7.4pt"><li>A IA desfaz correções antigas.</li><li>A conversa ficou longa demais.</li><li>Cada correção quebra outra coisa.</li></ul><p class="muted" style="font-size:7pt;margin-top:1mm">Abra uma conversa nova e cole o arquivo atual e a tabela de requisitos.</p></div>
+  </div>
+  <h3>Diário de versões</h3>
+  <table>
+    <tr><th style="width:14%">Versão</th><th style="width:20%">Data</th><th>O que mudou (ligado ao registro de testes)</th></tr>
+    <tr class="ex"><td>v2</td><td>12/11</td><td>Gabarito da frase 4; botão "Próxima" visível no celular</td></tr>
+    <tr><td class="blank" style="height:8mm"></td><td></td><td></td></tr>
+    <tr><td class="blank" style="height:8mm"></td><td></td><td></td></tr>
+    <tr><td class="blank" style="height:8mm"></td><td></td><td></td></tr>
+  </table>
+  <div class="rf"><span class="num">19</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 20 · CAP 7 ÉTICA ============================ -->
+<section class="page t6" id="cap7">
+  <div class="opener"><div class="dots"></div><div class="big">07</div>
+    <div class="kicker">Capítulo 7</div>
+    <h2>A IA ajuda; <em>a autoria é sua</em></h2>
+    <p>Você responde pelo que publica: pelo conteúdo, pelos dados e por quem consegue usar o recurso.</p>
+  </div>
+  <h3>O semáforo do que colar no pedido</h3>
+  <div class="stack" style="margin-bottom:3.2mm">
+    <div class="card" style="display:flex;gap:3mm;border-left:1.6mm solid #15803d"><div style="width:6mm;height:6mm;border-radius:50%;background:#15803d;flex:none;margin-top:.4mm"></div><div><strong>Pode</strong><p style="font-size:7.5pt" class="muted">Conteúdo da disciplina, exemplos inventados, enunciados próprios e a descrição da turma sem identificar ninguém ("30 adultos que estudam pelo celular").</p></div></div>
+    <div class="card" style="display:flex;gap:3mm;border-left:1.6mm solid #ca8a04"><div style="width:6mm;height:6mm;border-radius:50%;background:#ca8a04;flex:none;margin-top:.4mm"></div><div><strong>Com cuidado</strong><p style="font-size:7.5pt" class="muted">Textos e imagens de terceiros (confira a licença), questões de provas que ainda serão aplicadas e prints do AVA (apague nomes e fotos antes).</p></div></div>
+    <div class="card" style="display:flex;gap:3mm;border-left:1.6mm solid #b42318"><div style="width:6mm;height:6mm;border-radius:50%;background:#b42318;flex:none;margin-top:.4mm"></div><div><strong>Nunca</strong><p style="font-size:7.5pt" class="muted">Nomes, notas, matrículas, e-mails, CPF, laudos ou qualquer dado pessoal de estudantes. A LGPD (Lei nº 13.709/2018) protege esses dados, e os de crianças e adolescentes exigem cuidado ainda maior.</p></div></div>
+  </div>
+  <div class="card soft">
+    <h4>Modelo de aviso de transparência</h4>
+    <p style="font-size:7.8pt;font-style:italic">"Este recurso foi produzido com apoio de inteligência artificial generativa e revisado pelo(a) professor(a) ________ em __/__/____. Encontrou algum erro? Avise no fórum da disciplina."</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="tip"><svg class="i"><use href="#i-alert"/></svg><div><strong>Protótipo não é sistema.</strong> Para guardar notas ou dados de estudantes, envolva a equipe de tecnologia da instituição e use o AVA oficial.</div></div>
+  <div class="rf"><span class="num">20</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 21 · ACESSIBILIDADE ============================ -->
+<section class="page t6" id="acessibilidade">
+  <div class="rh"><span>Capítulo 7 · Ética e acessibilidade</span><span class="tag">Acessibilidade</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-access"/></svg>É requisito, não acabamento</div>
+  <h2>Sete checagens de <em>acessibilidade</em></h2>
+  <p class="lead">Dá para fazer todas em menos de 15 minutos, sem instalar nada. Baseadas nas diretrizes WCAG 2.2.</p>
+  <div class="stack" style="font-size:7.8pt">
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">1</b><div><strong>Só com o teclado.</strong> Faça a atividade inteira com <kbd>Tab</kbd>, <kbd>Enter</kbd> e <kbd>Espaço</kbd>. Você sempre vê onde está o foco?</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">2</b><div><strong>Contraste.</strong> Texto normal precisa de contraste mínimo de 4,5:1 com o fundo. Na dúvida, texto escuro em fundo claro.</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">3</b><div><strong>Zoom de 200%.</strong> Aumente o zoom do navegador (<kbd>Ctrl</kbd> + <kbd>+</kbd>). Nada pode sumir ou ficar sobreposto.</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">4</b><div><strong>Não só pela cor.</strong> Certo e errado precisam de ícone ou texto, além do verde e do vermelho.</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">5</b><div><strong>Alvos de toque.</strong> Botões grandes e afastados o bastante para o dedo no celular.</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">6</b><div><strong>Imagens descritas.</strong> Toda imagem com informação precisa de texto alternativo.</div></div>
+    <div class="card" style="display:grid;grid-template-columns:8mm 1fr;gap:2mm"><b style="font-family:Fraunces;font-size:14pt;color:var(--c)">7</b><div><strong>Feedback anunciado.</strong> Peça à IA que a mensagem de acerto ou erro seja lida pelo leitor de tela (região <code>aria-live</code>).</div></div>
+  </div>
+  <div class="spacer"></div>
+  <a class="video-link" href="https://www.w3.org/TR/WCAG22/"><svg class="i"><use href="#i-arrow"/></svg>Diretrizes completas: W3C · WCAG 2.2</a>
+  <div class="rf"><span class="num">21</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 22 · GLOSSÁRIO ============================ -->
+<section class="page t0" id="glossario">
+  <div class="rh"><span>Apêndice A</span><span class="tag">Glossário</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-book"/></svg>Apêndice A</div>
+  <h2>Glossário</h2>
+  <p class="muted" style="margin-bottom:3mm">Os termos técnicos do minicurso, em linguagem simples.</p>
+  <div class="grid2" style="font-size:8.1pt;gap:3.6mm 5mm;line-height:1.5">
+    <div><strong style="color:var(--primary)">Alucinação</strong><br>Quando a IA afirma algo falso com aparência de verdade.</div>
+    <div><strong style="color:var(--primary)">AVA</strong><br>Ambiente Virtual de Aprendizagem, como o Moodle.</div>
+    <div><strong style="color:var(--primary)">Console</strong><br>Área do navegador (<kbd>F12</kbd>) que executa código e mostra erros.</div>
+    <div><strong style="color:var(--primary)">CSS</strong><br>A linguagem que define a aparência: cores, tamanhos, posições.</div>
+    <div><strong style="color:var(--primary)">Gabarito</strong><br>A resposta marcada como correta. No código, costuma ser um número que começa em 0.</div>
+    <div><strong style="color:var(--primary)">HTML</strong><br>A linguagem que define a estrutura da página: títulos, textos, botões.</div>
+    <div><strong style="color:var(--primary)">JavaScript</strong><br>A linguagem que dá comportamento: conferir respostas, contar acertos.</div>
+    <div><strong style="color:var(--primary)">Leitor de tela</strong><br>Programa que lê a tela em voz alta para pessoas cegas ou com baixa visão.</div>
+    <div><strong style="color:var(--primary)">LGPD</strong><br>Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).</div>
+    <div><strong style="color:var(--primary)">Pedido (prompt)</strong><br>O texto que você escreve para a IA dizer o que ela deve gerar.</div>
+    <div><strong style="color:var(--primary)">Protótipo</strong><br>Uma primeira versão funcional, feita para testar a ideia, não um sistema definitivo.</div>
+    <div><strong style="color:var(--primary)">Requisito verificável</strong><br>Algo que o recurso precisa fazer e que dá para conferir de forma objetiva.</div>
+    <div><strong style="color:var(--primary)">Responsivo</strong><br>Que se adapta ao tamanho da tela, do celular ao computador.</div>
+    <div><strong style="color:var(--primary)">Versão</strong><br>Cada arquivo salvo após uma rodada de melhorias: v1, v2, v3…</div>
+  </div>
+  <div class="rf"><span class="num">22</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 23 · PLANO ============================ -->
+<section class="page t0" id="plano">
+  <div class="rh"><span>Apêndice B</span><span class="tag">Plano de ação</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-cal"/></svg>Apêndice B</div>
+  <h2>Seu primeiro protótipo <em>em 5 dias</em></h2>
+  <p class="muted" style="margin-bottom:3mm">De 20 a 40 minutos por dia. Marque cada dia ao concluir.</p>
+  <div class="stack" style="font-size:7.7pt">
+    <div class="card cb" style="--c:var(--s1)"><span><strong style="color:var(--s1)">Dia 1 · Necessidade.</strong> Escolha uma dificuldade real e preencha a <a href="#ficha" style="font-weight:700">ficha da necessidade</a>.</span></div>
+    <div class="card cb" style="--c:var(--s2)"><span><strong style="color:var(--s2)">Dia 2 · Requisitos.</strong> Escreva de 6 a 10 linhas na <a href="#tabela-requisitos" style="font-weight:700">tabela de requisitos</a>, cada uma com "como vou verificar".</span></div>
+    <div class="card cb" style="--c:var(--s3)"><span><strong style="color:var(--s3)">Dia 3 · Construção.</strong> Adapte um pedido do <a href="#banco" style="font-weight:700">banco</a>, gere a v1 e salve como <code>-v1.html</code>.</span></div>
+    <div class="card cb" style="--c:var(--s4)"><span><strong style="color:var(--s4)">Dia 4 · Testes.</strong> Use o <a href="#checklist" style="font-weight:700">checklist</a> e peça a um colega ou estudante para testar.</span></div>
+    <div class="card cb" style="--c:var(--s5)"><span><strong style="color:var(--s5)">Dia 5 · Melhorias.</strong> Peça as correções, teste de novo e publique no AVA com o aviso de transparência.</span></div>
+  </div>
+  <div class="spacer"></div>
+  <h3>Continue no minicurso</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;text-align:center;font-size:7.2pt">
+    <a href="https://minicurso-ia-ten.vercel.app/quadrinhos/" style="text-decoration:none"><div class="qr" style="margin:0 auto 1.4mm"><!--QR:https://minicurso-ia-ten.vercel.app/quadrinhos/--></div><strong>Leia a HQ</strong><br><span class="muted">o ciclo em quadrinhos</span></a>
+    <a href="https://minicurso-ia-ten.vercel.app/curso.html#demonstracao" style="text-decoration:none"><div class="qr" style="margin:0 auto 1.4mm"><!--QR:https://minicurso-ia-ten.vercel.app/curso.html#demonstracao--></div><strong>Teste o protótipo</strong><br><span class="muted">versões v1 e v2</span></a>
+    <a href="https://minicurso-ia-ten.vercel.app/avaliacao/" style="text-decoration:none"><div class="qr" style="margin:0 auto 1.4mm"><!--QR:https://minicurso-ia-ten.vercel.app/avaliacao/--></div><strong>Faça a avaliação</strong><br><span class="muted">12 questões</span></a>
+  </div>
+  <div class="rf"><span class="num">23</span><a href="#sumario"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+<!-- ============================ 24 · REFERÊNCIAS ============================ -->
+<section class="page t0" id="referencias">
+  <div class="rh"><span>Apêndice C</span><span class="tag">Referências</span></div>
+  <div class="kicker"><svg class="i"><use href="#i-book"/></svg>Apêndice C</div>
+  <h2>Referências</h2>
+  <ul class="clean" style="font-size:7.3pt;line-height:1.5">
+    <li>BRANCH, Robert Maribe. <em>Instructional design: the ADDIE approach</em>. New York: Springer, 2009.</li>
+    <li>BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). <em>Diário Oficial da União</em>, Brasília, DF, 15 ago. 2018.</li>
+    <li>FILATRO, Andrea. <em>Design instrucional na prática</em>. São Paulo: Pearson Education do Brasil, 2008.</li>
+    <li>MAYER, Richard E. <em>Multimedia learning</em>. 2. ed. Cambridge: Cambridge University Press, 2009.</li>
+    <li>MOZILLA. <em>MDN Web Docs: aprendendo desenvolvimento web</em>. Disponível em: <a href="https://developer.mozilla.org/pt-BR/docs/Learn">developer.mozilla.org</a>. Acesso em: 7 nov. 2026.</li>
+    <li>SMALDINO, Sharon E.; LOWTHER, Deborah L.; RUSSELL, James D. <em>Instructional technology and media for learning</em>. 10. ed. Boston: Pearson, 2012.</li>
+    <li>UNESCO. <em>Guidance for generative AI in education and research</em>. Paris: UNESCO, 2023. Disponível em: <a href="https://unesdoc.unesco.org/ark:/48223/pf0000386693">unesdoc.unesco.org</a>. Acesso em: 7 nov. 2026.</li>
+    <li>W3C. <em>Web Content Accessibility Guidelines (WCAG) 2.2</em>. 2023. Disponível em: <a href="https://www.w3.org/TR/WCAG22/">w3.org/TR/WCAG22</a>. Acesso em: 7 nov. 2026.</li>
+    <li>WIGGINS, Grant; McTIGHE, Jay. <em>Understanding by design</em>. 2. ed. Alexandria: ASCD, 2005.</li>
+  </ul>
+  <div class="spacer"></div>
+  <div style="margin:0 -13mm -15mm;padding:7mm 13mm 14mm;background:#16133a;color:#fff;display:flex;gap:5mm;align-items:center">
+    <div class="qr" style="flex:none;width:24mm;height:24mm"><!--QR:https://minicurso-ia-ten.vercel.app/--></div>
+    <div>
+      <p style="font-family:Fraunces;font-size:13pt;line-height:1.2;font-weight:600">Do problema ao protótipo</p>
+      <p style="font-size:7.4pt;color:#c7c9ff;margin-top:1mm">Minicurso EaD de Thiago Jacinto · trilha Docência Digital na Era da IA · UFRPE, 2026.</p>
+      <p style="font-size:7.4pt;margin-top:1.6mm"><a href="https://minicurso-ia-ten.vercel.app/" style="color:#fff;font-weight:700">minicurso-ia-ten.vercel.app</a></p>
+    </div>
+  </div>
+  <div class="rf" style="color:#c7c9ff"><span class="num" style="color:#fff">24</span><a href="#sumario" style="color:#fff;border-color:rgba(255,255,255,.3)"><svg class="i"><use href="#i-up"/></svg>Sumário</a></div>
+</section>
+
+</body>
+</html>

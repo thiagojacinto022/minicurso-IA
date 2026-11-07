@@ -1617,3 +1617,43 @@ td .tag { margin-top: 2px; }
   .checklist-head, .check-group, .checklist-foot { padding-inline: 18px; }
   .meter-track { width: 110px; }
 }
+
+/* =============================================================
+   2ª VA · materiais complementares (HQ + eBook)
+============================================================= */
+.media-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.media-card {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+  border-top: 5px solid var(--c);
+}
+.media-visual { display: grid; place-items: center; height: 250px; padding: 22px; background: var(--c-soft); overflow: hidden; }
+.media-visual img { max-height: 206px; width: auto; max-width: 100%; display: block; transition: transform .3s ease; }
+.media-visual.book { background: radial-gradient(120% 120% at 80% 0%, #4f46e5 0%, #1e1b4b 70%); }
+.media-visual.book img { height: 206px; border-radius: 3px 8px 8px 3px; box-shadow: 0 18px 30px -12px rgba(0,0,0,.6), 5px 5px 0 #e6e4dc; transform: rotate(-3deg); }
+.media-visual.hq { background: repeating-linear-gradient(45deg, var(--c-soft) 0 14px, transparent 14px 28px), var(--surface); }
+.media-visual.hq img { border-radius: 12px; filter: drop-shadow(0 12px 18px rgba(20,24,41,.25)); }
+.media-card:hover .media-visual img { transform: scale(1.03) rotate(0deg); }
+.media-body { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 22px 24px 26px; flex: 1; }
+.media-body h3 { font-family: var(--display); font-weight: 600; font-size: 1.35rem; line-height: 1.2; margin: 0; }
+.media-body p { margin: 0; color: var(--ink-2); }
+.media-tag { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.media-tag b { background: var(--c); color: #fff; border-radius: 999px; padding: 2px 8px; margin-right: 4px; }
+.media-facts { list-style: none; padding: 0; margin: 2px 0 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.media-facts li { font-size: .82rem; font-weight: 600; color: var(--muted); background: var(--bg-alt); border-radius: 999px; padding: 4px 10px; }
+.media-body .btn { margin-top: auto; }
+.next-media { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.next-media a { display: flex; gap: 16px; align-items: center; padding: 16px 18px; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; border-left: 5px solid var(--c); transition: transform .15s ease; }
+.next-media a:hover { transform: translateY(-2px); }
+.next-media img { width: 74px; height: 74px; object-fit: cover; object-position: top; border-radius: 10px; flex: none; }
+.next-media small { display: block; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+.next-media strong { display: block; font-size: 1.02rem; }
+.next-media span.muted { font-size: .88rem; }
+#trilha .trail { grid-template-columns: repeat(auto-fit, minmax(min(100%, 136px), 1fr)); gap: 12px; }
+#trilha .trail a { padding: 18px 14px; }
+@media (max-width: 860px) {
+  .media-grid, .next-media { grid-template-columns: 1fr; }
+  .media-visual { height: 210px; }
+  .media-visual img, .media-visual.book img { max-height: 166px; height: auto; }
+  .media-visual.book img { height: 166px; }
+}

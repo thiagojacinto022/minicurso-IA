@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HQ · Ana e a Faísca · Do problema ao protótipo</title>
+<meta name="description" content="História em quadrinhos interativa do minicurso Do problema ao protótipo: o ciclo de criação de um recurso educacional com apoio de IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script>
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  .hq-wrap { max-width: 1040px; margin: 0 auto; padding: 24px 20px 80px; }
+  .hq-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink-2); text-decoration: none; }
+  .back-link .i { transform: rotate(180deg); }
+  .back-link:hover { color: var(--primary); }
+  .top-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ---------- Capa ---------- */
+  .hq-cover {
+    position: relative; overflow: hidden; border-radius: 22px; padding: 40px 36px;
+    background: radial-gradient(120% 120% at 85% 10%, #4f46e5 0%, #1e1b4b 55%, #16133a 100%);
+    color: #fff; display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; align-items: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .hq-cover::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.12) 1.2px, transparent 1.4px); background-size: 16px 16px; pointer-events: none; }
+  .hq-cover > * { position: relative; }
+  .hq-cover .pill { display: inline-block; background: #fde68a; color: #3f2d00; font-weight: 800; font-size: .8rem; padding: 4px 12px; border-radius: 999px; }
+  .hq-cover h1 { color: #fff; font-family: var(--display); font-size: clamp(2rem, 1.4rem + 2.6vw, 3.1rem); line-height: 1.05; margin: 14px 0 12px; letter-spacing: -.02em; }
+  .hq-cover h1 em { color: #a5b4fc; }
+  .hq-cover p { color: #dcdcff; font-size: 1.05rem; max-width: 46ch; }
+  .hq-cover .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 24px; }
+  .hq-cover .chip { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.25); }
+  .hq-cover .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cover-art svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
+  .cast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .cast .card { display: flex; gap: 12px; align-items: center; padding: 14px; }
+  .cast .card > span { flex: none; line-height: 0; }
+  .cast svg { width: 64px; height: 64px; flex: none; border-radius: 14px; background: var(--bg-alt); }
+  .cast h3 { font-size: 1rem; margin: 0; font-family: var(--font); font-weight: 800; }
+  .cast p { margin: 2px 0 0; font-size: .88rem; color: var(--muted); }
+
+  /* ---------- Leitor ---------- */
+  .reader { margin-top: 30px; }
+  .acts { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; scrollbar-width: thin; }
+  .act-tab {
+    flex: 1 0 auto; font: inherit; font-size: .85rem; font-weight: 700; color: var(--muted); cursor: pointer;
+    background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; text-align: left; line-height: 1.2;
+  }
+  .act-tab small { display: block; font-weight: 600; font-size: .72rem; opacity: .8; }
+  .act-tab[aria-current="true"] { color: #fff; background: var(--ac, var(--primary)); border-color: var(--ac, var(--primary)); }
+  .act-tab.seen:not([aria-current="true"]) { border-color: var(--ac); color: var(--ink-2); }
+
+  .act-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .act-head .kick { font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ac); }
+  .act-head h2 { font-family: var(--display); font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem); margin: 4px 0 0; }
+  .act-head .stage-link { font-size: .88rem; font-weight: 700; color: var(--ac); white-space: nowrap; }
+
+  .comic-page {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px; border-radius: 18px;
+    background: #fff; border: 3px solid #141829; box-shadow: 8px 8px 0 var(--ac, var(--primary));
+  }
+  .comic-page:focus { outline: 3px solid var(--primary); outline-offset: 4px; }
+  .panel { position: relative; margin: 0; container-type: inline-size; border: 3px solid #141829; border-radius: 6px; overflow: hidden; background: #eef0ff; }
+  .panel.wide { grid-column: 1 / -1; }
+  .panel svg.art { display: block; width: 100%; height: auto; }
+
+  .bubble {
+    position: absolute; z-index: 2; margin: 0; padding: .55em .8em; background: #fff; color: #141829;
+    border: 2px solid #141829; border-radius: 1.1em; font-family: "Comic Neue", "Comic Sans MS", var(--font);
+    font-weight: 700; font-size: clamp(11px, 3.45cqw, 17px); line-height: 1.25; box-shadow: 2px 2px 0 rgba(20,24,41,.18);
+  }
+  .panel.wide .bubble { font-size: clamp(11px, 1.9cqw, 17px); }
+  .bubble::after { content: ""; position: absolute; width: .9em; height: .9em; background: #fff; border: 2px solid #141829; border-top: 0; border-left: 0; }
+  .bubble.t-bl::after { left: 1.2em; bottom: -.52em; transform: rotate(45deg) skew(12deg, 12deg); }
+  .bubble.t-br::after { right: 1.2em; bottom: -.52em; transform: rotate(45deg) skew(12deg, 12deg); }
+  .bubble.t-tl::after { left: 1.2em; top: -.52em; transform: rotate(-135deg) skew(12deg, 12deg); }
+  .bubble.t-tr::after { right: 1.2em; top: -.52em; transform: rotate(-135deg) skew(12deg, 12deg); }
+  .bubble.t-l::after { left: -.52em; top: 40%; transform: rotate(135deg) skew(12deg, 12deg); }
+  .bubble.t-r::after { right: -.52em; top: 40%; transform: rotate(-45deg) skew(12deg, 12deg); }
+  .bubble.t-none::after { display: none; }
+  .bubble.think { border-style: dashed; border-radius: 2em; font-style: italic; font-weight: 400; }
+  .bubble.think::after { width: .55em; height: .55em; border: 2px solid #141829; border-radius: 50%; transform: none; bottom: -1em; }
+  .bubble.ai { background: #e3f6f3; border-color: #0b6b62; }
+  .bubble.ai::after { background: #e3f6f3; border-color: #0b6b62; }
+  .bubble.chat { border-radius: .6em; font-family: var(--font); font-weight: 500; font-size: clamp(10.5px, 2.85cqw, 15px); background: #fff; }
+  .caption {
+    position: absolute; z-index: 2; margin: 0; padding: .35em .65em; background: #fde68a; color: #3f2d00; border: 2px solid #141829;
+    font-family: var(--font); font-weight: 700; font-size: clamp(10px, 2.8cqw, 14px); line-height: 1.25;
+  }
+  .panel.wide .caption { font-size: clamp(10px, 1.6cqw, 14px); }
+  .who { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* bastidores */
+  .notes-on .pin { display: grid; }
+  .pin {
+    display: none; position: absolute; z-index: 3; top: 8px; right: 8px; width: 34px; height: 34px; place-items: center;
+    border-radius: 50%; border: 2px solid #141829; background: #facc15; color: #141829; cursor: pointer; box-shadow: 2px 2px 0 #141829;
+    font-weight: 800; font-size: 15px;
+  }
+  .pin:hover { transform: translateY(-1px); }
+  .note {
+    position: absolute; z-index: 4; inset: auto 8px 8px 8px; background: #fffbea; color: #3f2d00; border: 2px solid #141829; border-radius: 10px;
+    padding: 12px 14px; font-size: clamp(12px, 3cqw, 15px); line-height: 1.4; box-shadow: 4px 4px 0 rgba(20,24,41,.25);
+  }
+  .panel.wide .note { font-size: clamp(12px, 1.7cqw, 15px); max-width: 60%; left: auto; }
+  .note b { display: block; font-size: .78em; letter-spacing: .08em; text-transform: uppercase; color: #a16207; margin-bottom: 2px; }
+  .note a { color: #3730a3; font-weight: 700; }
+
+  /* escolha interativa */
+  .choice {
+    position: absolute; z-index: 3; right: 3%; top: 10%; width: 40%; background: #fff; color: #141829; border: 3px solid #141829; border-radius: 14px;
+    padding: 14px; box-shadow: 5px 5px 0 #c2410c; font-size: clamp(12px, 1.6cqw, 15px); line-height: 1.4;
+  }
+  .choice p { margin: 0 0 10px; font-weight: 700; }
+  .choice .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .choice button { font: inherit; font-weight: 800; padding: 8px 12px; border-radius: 10px; border: 2px solid #141829; background: #eef0ff; cursor: pointer; color: #141829; }
+  .choice button:hover { background: #dfe3ff; }
+  .choice .fb { margin: 10px 0 0; font-weight: 600; }
+  .reveal-later { display: none; }
+  .revealed .reveal-later { display: block; }
+
+  /* navegação */
+  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; }
+  .nav-row .count { color: var(--muted); font-weight: 600; font-size: .92rem; }
+  .kbd-hint { color: var(--muted); font-size: .82rem; text-align: center; margin-top: 10px; }
+  .toggle-notes[aria-pressed="true"] { background: #facc15; color: #141829; border-color: #141829; }
+
+  /* fim */
+  .the-end { margin-top: 30px; }
+  .recap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 18px 0 22px; }
+  .recap .card { padding: 14px; border-top: 5px solid var(--rc); }
+  .recap b { color: var(--rc); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+  .recap p { margin: 6px 0 0; font-size: .9rem; color: var(--ink-2); }
+  .next-links { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* transcrição */
+  .transcript { margin-top: 30px; }
+  .transcript details { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 4px 20px; }
+  .transcript summary { cursor: pointer; font-weight: 800; padding: 14px 0; }
+  .transcript h3 { font-family: var(--display); font-size: 1.15rem; margin: 18px 0 6px; color: var(--ink); }
+  .transcript .q { color: var(--muted); font-style: italic; margin: 10px 0 4px; }
+  .transcript p { margin: 2px 0; }
+
+  @media (max-width: 760px) {
+    .hq-cover { grid-template-columns: 1fr; padding: 28px 22px; }
+    .cover-art { order: -1; max-width: 340px; }
+    .cast { grid-template-columns: 1fr; }
+    .comic-page { grid-template-columns: 1fr; padding: 10px; gap: 10px; box-shadow: 5px 5px 0 var(--ac, var(--primary)); }
+    .panel.wide .bubble { font-size: clamp(11px, 3.45cqw, 17px); }
+    .panel.wide .caption { font-size: clamp(10px, 2.8cqw, 14px); }
+    .panel.wide .note { max-width: none; left: 8px; font-size: clamp(12px, 3cqw, 15px); }
+    .choice { position: static; width: auto; margin: 10px; box-shadow: 3px 3px 0 #c2410c; }
+    .recap { grid-template-columns: 1fr 1fr; }
+    .act-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .comic-page.enter .panel { animation: pop .45s cubic-bezier(.2,.8,.3,1.2) both; }
+    .comic-page.enter .panel:nth-child(2) { animation-delay: .08s; }
+    .comic-page.enter .panel:nth-child(3) { animation-delay: .16s; }
+    @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5M9 3h6l-1 6 3 3H7l3-3z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+</svg>
+
+<main class="hq-wrap" id="conteudo">
+  <div class="hq-top">
+    <a class="back-link" href="../index.html#trilha"><svg class="i"><use href="#i-arrow"/></svg> Voltar ao minicurso</a>
+    <div class="top-actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro"><svg class="i"><use href="#i-moon"/></svg></button>
+    </div>
+  </div>
+
+  <!-- CAPA -->
+  <section class="hq-cover" aria-labelledby="hq-title">
+    <div>
+      <span class="pill">HQ interativa · Mídia complementar</span>
+      <h1 id="hq-title">Ana e a Faísca em: <em>o gabarito que ninguém conferiu</em></h1>
+      <p>Uma tutora, uma IA confiante demais e um treino de "mas" e "mais". Acompanhe as cinco etapas do minicurso acontecendo numa história de verdade.</p>
+      <div class="chips">
+        <span class="chip" style="--dot:#facc15">7 capítulos · 16 quadros</span>
+        <span class="chip" style="--dot:#5eead4">Cerca de 8 minutos</span>
+        <span class="chip" style="--dot:#c4b5fd">Modo bastidores</span>
+        <span class="chip" style="--dot:#fda4af">Versão em texto</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-light" href="#leitor" id="btn-start">Começar a ler <svg class="i"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-outline-light" href="#transcricao">Ler a versão em texto</a>
+      </div>
+    </div>
+    <div class="cover-art" id="cover-art" aria-hidden="true"></div>
+  </section>
+
+  <div class="cast" aria-label="Personagens">
+    <div class="card"><span id="cast-ana" aria-hidden="true"></span><div><h3>Ana</h3><p>Tutora de Língua Portuguesa numa turma EAD de EJA. Não publica nada sem conferir.</p></div></div>
+    <div class="card"><span id="cast-faisca" aria-hidden="true"></span><div><h3>Faísca</h3><p>Uma ferramenta de IA. Rápida, prestativa e confiante, até quando erra.</p></div></div>
+    <div class="card"><span id="cast-davi" aria-hidden="true"></span><div><h3>Davi</h3><p>Estudante da turma. Estuda pelo celular, no ônibus, depois do trabalho.</p></div></div>
+  </div>
+
+  <!-- LEITOR -->
+  <section class="reader" id="leitor" aria-labelledby="act-title">
+    <nav class="acts" id="acts" aria-label="Capítulos da HQ"></nav>
+    <div class="act-head">
+      <div><div class="kick" id="act-kick"></div><h2 id="act-title"></h2></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm toggle-notes" id="toggle-notes" type="button" aria-pressed="false"><svg class="i"><use href="#i-pin"/></svg> Modo bastidores</button>
+        <a class="stage-link" id="stage-link" href="#"></a>
+      </div>
+    </div>
+    <div class="comic-page" id="page" tabindex="-1" aria-live="polite"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prev" type="button"><svg class="i" style="transform:rotate(180deg)"><use href="#i-arrow"/></svg> Anterior</button>
+      <span class="count" id="count"></span>
+      <button class="btn btn-primary" id="next" type="button">Próximo <svg class="i"><use href="#i-arrow"/></svg></button>
+    </div>
+    <p class="kbd-hint">Dica: use as setas <kbd>←</kbd> <kbd>→</kbd> do teclado ou deslize no celular. No <strong>modo bastidores</strong>, toque nos alfinetes amarelos para ver a etapa do minicurso por trás de cada quadro.</p>
+  </section>
+
+  <!-- FIM -->
+  <section class="the-end" id="fim" hidden aria-labelledby="fim-titulo">
+    <div class="card" style="padding:26px">
+      <span class="pill">Fim da HQ</span>
+      <h2 id="fim-titulo" style="font-family:var(--display);margin:10px 0 4px">O que a Ana fez, etapa por etapa</h2>
+      <p class="muted">A história seguiu o mesmo ciclo da vídeo-aula, agora em outra disciplina.</p>
+      <div class="recap">
+        <div class="card" style="--rc:var(--s1)"><b>01 Necessidade</b><p>Descreveu quem aprende, o erro real e como saberia se deu certo.</p></div>
+        <div class="card" style="--rc:var(--s2)"><b>02 Requisitos</b><p>Trocou "bonito" por "letra grande e bom contraste": algo que dá para testar.</p></div>
+        <div class="card" style="--rc:var(--s3)"><b>03 Construção</b><p>Escreveu um pedido em seis partes, sem dados de estudantes.</p></div>
+        <div class="card" style="--rc:var(--s4)"><b>04 Testes</b><p>Errou de propósito, conferiu os gabaritos e testou no celular.</p></div>
+        <div class="card" style="--rc:var(--s5)"><b>05 Melhorias</b><p>Relatou dois problemas com precisão e testou a v2 de novo.</p></div>
+      </div>
+      <div class="next-links">
+        <a class="btn btn-primary" href="../ebook/">Abrir o eBook: use o pedido da Ana <svg class="i"><use href="#i-book"/></svg></a>
+        <a class="btn btn-ghost" href="../curso.html#demonstracao">Testar o protótipo do minicurso</a>
+        <a class="btn btn-ghost" href="../avaliacao/">Fazer a avaliação</a>
+        <button class="btn btn-ghost" type="button" id="restart">Ler de novo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSCRIÇÃO -->
+  <section class="transcript" id="transcricao" aria-labelledby="transcricao-titulo">
+    <details id="transcript-details">
+      <summary id="transcricao-titulo">Versão em texto da HQ (para leitores de tela ou leitura rápida)</summary>
+      <div id="transcript-body"></div>
+    </details>
+  </section>
+
+  <p class="muted" style="font-size:.85rem;margin-top:24px">História, roteiro e desenhos em SVG produzidos com apoio de IA generativa e revisados pelo autor, Thiago Jacinto. Personagens fictícios.</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     DESENHOS (SVG)  ·  personagens e cenários
+  ========================================================= */
+  const INK = "#141829";
+  const C = { skinA: "#8d5a3b", hairA: "#24160f", shirtA: "#4f46e5", skinD: "#c68642", hairD: "#1f2937", shirtD: "#c2410c", teal: "#0d9488" };
+
+  function mouth(m, y) {
+    const map = {
+      neutral: `<path d="M-7 ${y} h14" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`,
+      happy: `<path d="M-10 ${y - 2} Q0 ${y + 9} 10 ${y - 2}" fill="#7a2e2e" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`,
+      smile: `<path d="M-8 ${y - 1} Q0 ${y + 6} 8 ${y - 1}" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`,
+      worried: `<path d="M-8 ${y + 3} Q0 ${y - 4} 8 ${y + 3}" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`,
+      oh: `<ellipse cx="0" cy="${y + 1}" rx="4.5" ry="5.5" fill="#7a2e2e" stroke="${INK}" stroke-width="2"/>`,
+      think: `<path d="M-2 ${y + 1} q5 -3 9 0" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`,
+      firm: `<path d="M-8 ${y} Q0 ${y + 3} 8 ${y - 1}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/>`
+    };
+    return map[m] || map.neutral;
+  }
+  function brows(m, y) {
+    const b = {
+      worried: [`M-20 ${y + 1} L-6 ${y - 4}`, `M6 ${y - 4} L20 ${y + 1}`],
+      firm: [`M-20 ${y - 4} L-6 ${y}`, `M6 ${y} L20 ${y - 4}`],
+      oh: [`M-20 ${y - 6} Q-13 ${y - 10} -6 ${y - 6}`, `M6 ${y - 6} Q13 ${y - 10} 20 ${y - 6}`],
+      think: [`M-20 ${y - 2} L-6 ${y - 2}`, `M6 ${y - 6} L20 ${y - 3}`]
+    }[m] || [`M-19 ${y - 2} Q-13 ${y - 6} -7 ${y - 2}`, `M7 ${y - 2} Q13 ${y - 6} 19 ${y - 2}`];
+    return b.map(d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/>`).join("");
+  }
+  function hand(x, y, skin, r) { return `<circle cx="${x}" cy="${y}" r="${r || 9}" fill="${skin}" stroke="${INK}" stroke-width="2"/>`; }
+
+  /* Ana: busto, origem no centro da base do tronco */
+  function ana(x, y, s, o) {
+    o = o || {};
+    const m = o.mood || "neutral", lx = o.look ? o.look[0] : 0, ly = o.look ? o.look[1] : 0;
+    let arm = "";
+    if (o.arm === "up") arm = `<path d="M38 -44 Q58 -66 60 -98" stroke="${C.shirtA}" stroke-width="17" stroke-linecap="round" fill="none"/>${hand(61, -106, C.skinA, 10)}`;
+    if (o.arm === "stop") arm = `<path d="M38 -44 Q64 -58 70 -86" stroke="${C.shirtA}" stroke-width="17" stroke-linecap="round" fill="none"/><rect x="60" y="-114" width="22" height="26" rx="9" fill="${C.skinA}" stroke="${INK}" stroke-width="2"/><path d="M65 -114v-6M71 -114v-8M77 -113v-6" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+    if (o.arm === "point") arm = `<path d="M40 -42 Q74 -52 100 -66" stroke="${C.shirtA}" stroke-width="16" stroke-linecap="round" fill="none"/>${hand(106, -69, C.skinA, 9)}<path d="M112 -72 l14 -6" stroke="${C.skinA}" stroke-width="6" stroke-linecap="round"/>`;
+    if (o.arm === "chin") arm = `<path d="M-30 -20 Q-6 -36 2 -60" stroke="${C.shirtA}" stroke-width="16" stroke-linecap="round" fill="none"/>${hand(4, -66, C.skinA, 9)}`;
+    if (o.arm === "phone") arm = `<path d="M36 -40 Q50 -56 40 -76" stroke="${C.shirtA}" stroke-width="16" stroke-linecap="round" fill="none"/><rect x="26" y="-114" width="28" height="46" rx="6" fill="#1f2937" stroke="${INK}" stroke-width="2"/><rect x="30" y="-109" width="20" height="34" rx="2" fill="#a5b4fc"/>${hand(40, -74, C.skinA, 9)}`;
+    if (o.arm === "card") arm = `<path d="M38 -44 Q60 -62 64 -92" stroke="${C.shirtA}" stroke-width="17" stroke-linecap="round" fill="none"/>`;
+    if (o.arm === "mug") arm = `<path d="M34 -36 Q54 -40 48 -60" stroke="${C.shirtA}" stroke-width="16" stroke-linecap="round" fill="none"/><rect x="36" y="-92" width="28" height="30" rx="5" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M64 -84 q10 2 0 14" fill="none" stroke="${INK}" stroke-width="2.4"/><path d="M44 -100 q4 -6 0 -12M54 -100 q4 -6 0 -12" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>${hand(46, -62, C.skinA, 8)}`;
+    const glow = o.glow ? `<ellipse cx="0" cy="-90" rx="70" ry="60" fill="#93c5fd" opacity=".22"/>` : "";
+    const blush = (m === "happy" || m === "smile") ? `<circle cx="-21" cy="-84" r="5" fill="#e07a5f" opacity=".35"/><circle cx="21" cy="-84" r="5" fill="#e07a5f" opacity=".35"/>` : "";
+    return `<g transform="translate(${x} ${y}) scale(${o.flip ? -s : s} ${s})">
+      ${glow}
+      <ellipse cx="0" cy="-106" rx="42" ry="40" fill="${C.hairA}"/>
+      <circle cx="0" cy="-150" r="23" fill="${C.hairA}"/><circle cx="-16" cy="-160" r="10" fill="${C.hairA}"/><circle cx="16" cy="-160" r="10" fill="${C.hairA}"/><circle cx="0" cy="-170" r="10" fill="${C.hairA}"/>
+      <path d="M-14 -138 Q0 -132 14 -138" stroke="#f59e0b" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M-58 0 C-58 -40 -40 -58 0 -58 C40 -58 58 -40 58 0 Z" fill="${C.shirtA}" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-16 -57 L0 -36 L16 -57 Z" fill="#fff" stroke="${INK}" stroke-width="2"/>
+      <rect x="-9" y="-72" width="18" height="17" fill="${C.skinA}"/>
+      <circle cx="-31" cy="-98" r="6" fill="${C.skinA}" stroke="${INK}" stroke-width="2"/><circle cx="31" cy="-98" r="6" fill="${C.skinA}" stroke="${INK}" stroke-width="2"/>
+      <circle cx="-31" cy="-88" r="3" fill="#f59e0b"/><circle cx="31" cy="-88" r="3" fill="#f59e0b"/>
+      <ellipse cx="0" cy="-100" rx="31" ry="34" fill="${C.skinA}" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-32 -104 C-30 -134 30 -138 33 -104 C24 -124 -12 -126 -32 -104 Z" fill="${C.hairA}"/>
+      ${blush}
+      <circle cx="${-12 + lx}" cy="${-99 + ly}" r="${m === "oh" ? 3.6 : 2.8}" fill="${INK}"/><circle cx="${12 + lx}" cy="${-99 + ly}" r="${m === "oh" ? 3.6 : 2.8}" fill="${INK}"/>
+      <circle cx="-12" cy="-99" r="9.5" fill="#fff" fill-opacity=".18" stroke="${INK}" stroke-width="2.4"/><circle cx="12" cy="-99" r="9.5" fill="#fff" fill-opacity=".18" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-2.5 -100 h5" stroke="${INK}" stroke-width="2.4"/>
+      ${brows(m, -112)}
+      <path d="M0 -94 q-3 6 1 7" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>
+      ${mouth(m, -80)}
+      ${arm}
+    </g>`;
+  }
+
+  /* Davi: busto */
+  function davi(x, y, s, o) {
+    o = o || {};
+    const m = o.mood || "happy";
+    return `<g transform="translate(${x} ${y}) scale(${s})">
+      <path d="M-56 0 C-56 -40 -38 -56 0 -56 C38 -56 56 -40 56 0 Z" fill="${C.shirtD}" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-12 -56 Q0 -46 12 -56" fill="none" stroke="${INK}" stroke-width="2"/>
+      <rect x="-9" y="-70" width="18" height="16" fill="${C.skinD}"/>
+      <circle cx="-30" cy="-98" r="6" fill="${C.skinD}" stroke="${INK}" stroke-width="2"/><circle cx="30" cy="-98" r="6" fill="${C.skinD}" stroke="${INK}" stroke-width="2"/>
+      <ellipse cx="0" cy="-100" rx="30" ry="33" fill="${C.skinD}" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M-31 -106 C-32 -136 32 -138 31 -106 C26 -118 18 -122 10 -122 C0 -114 -18 -120 -31 -106 Z" fill="${C.hairD}"/>
+      <path d="M-18 -78 Q0 -66 18 -78 Q14 -64 0 -62 Q-14 -64 -18 -78Z" fill="${C.hairD}" opacity=".85"/>
+      <circle cx="-11" cy="-100" r="2.8" fill="${INK}"/><circle cx="11" cy="-100" r="2.8" fill="${INK}"/>
+      ${brows(m === "happy" ? "neutral" : m, -110)}
+      ${mouth(m, -84)}
+      <path d="M-34 -6 Q-20 -14 -12 -20" stroke="${C.shirtD}" stroke-width="15" stroke-linecap="round" fill="none"/>
+      <rect x="-20" y="-64" width="30" height="46" rx="6" fill="#1f2937" stroke="${INK}" stroke-width="2" transform="rotate(-8)"/>
+      <rect x="-16" y="-59" width="22" height="34" rx="2" fill="#99f6e4" transform="rotate(-8)"/>
+      ${hand(-8, -22, C.skinD, 8)}
+    </g>`;
+  }
+
+  /* Faísca: a IA */
+  function faisca(x, y, s, o) {
+    o = o || {};
+    const m = o.mood || "happy", eye = "#5eead4";
+    const eyes = {
+      happy: `<path d="M-14 -6 q5 -7 10 0M4 -6 q5 -7 10 0" stroke="${eye}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`,
+      proud: `<path d="M-14 -4 q5 -7 10 0M4 -4 q5 -7 10 0" stroke="${eye}" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M17 -14 l2 -5 2 5 5 2 -5 2 -2 5 -2 -5 -5 -2z" fill="#facc15"/>`,
+      neutral: `<rect x="-13" y="-11" width="7" height="10" rx="3.5" fill="${eye}"/><rect x="6" y="-11" width="7" height="10" rx="3.5" fill="${eye}"/>`,
+      oops: `<path d="M-14 -11 l8 5 -8 5M14 -11 l-8 5 8 5" stroke="${eye}" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      wow: `<circle cx="-9" cy="-6" r="5" fill="none" stroke="${eye}" stroke-width="3"/><circle cx="9" cy="-6" r="5" fill="none" stroke="${eye}" stroke-width="3"/>`
+    }[m];
+    const mth = { oops: `<path d="M-6 7 q3 -3 6 0 q3 3 6 0" stroke="${eye}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`, wow: `<circle cx="0" cy="7" r="3" fill="${eye}"/>`, neutral: `<path d="M-5 6 h10" stroke="${eye}" stroke-width="2.6" stroke-linecap="round"/>` }[m] || `<path d="M-7 4 q7 7 14 0" stroke="${eye}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`;
+    const sweat = m === "oops" ? `<path d="M36 -22 q6 10 0 13 q-6 -3 0 -13z" fill="#60a5fa" stroke="${INK}" stroke-width="1.6"/>` : "";
+    const arms = (m === "proud" || m === "wow")
+      ? `<path d="M-30 6 q-14 -8 -16 -24M30 6 q14 -8 16 -24" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="-46" cy="-20" r="6" fill="#fff" stroke="${INK}" stroke-width="2.4"/><circle cx="46" cy="-20" r="6" fill="#fff" stroke="${INK}" stroke-width="2.4"/>`
+      : `<path d="M-30 8 q-12 6 -14 18M30 8 q12 6 14 18" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="-44" cy="28" r="6" fill="#fff" stroke="${INK}" stroke-width="2.4"/><circle cx="44" cy="28" r="6" fill="#fff" stroke="${INK}" stroke-width="2.4"/>`;
+    return `<g transform="translate(${x} ${y}) scale(${s})">
+      <ellipse cx="0" cy="62" rx="26" ry="5" fill="${INK}" opacity=".15"/>
+      <circle r="52" fill="${C.teal}" opacity=".12"/>
+      <path d="M0 -28 v-14" stroke="${INK}" stroke-width="3"/>
+      <path d="M0 -60 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z" fill="#facc15" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+      ${arms}
+      <rect x="-17" y="20" width="34" height="22" rx="10" fill="#fff" stroke="${INK}" stroke-width="2.6"/>
+      <path d="M-6 44 l6 10 6 -10z" fill="#fb923c" stroke="${INK}" stroke-width="1.6"/>
+      <rect x="-32" y="-30" width="64" height="54" rx="18" fill="#fff" stroke="${INK}" stroke-width="2.8"/>
+      <rect x="-24" y="-22" width="48" height="38" rx="11" fill="#12162a"/>
+      ${eyes}${mth}${sweat}
+      ${o.file ? `<g transform="translate(52 -34) rotate(8)"><rect width="46" height="56" rx="5" fill="#fff" stroke="${INK}" stroke-width="2.4"/><path d="M8 14h30M8 24h30M8 34h20" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/><rect x="-6" y="40" width="58" height="16" rx="8" fill="${o.fileColor || C.teal}" stroke="${INK}" stroke-width="2"/><text x="23" y="52" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700" fill="#fff">${o.file}</text></g>` : ""}
+    </g>`;
+  }
+
+  /* ---------- Cenários ---------- */
+  function sceneNight(W) {
+    let stars = ""; [[40, 30], [70, 60], [110, 24], [160, 50], [W - 60, 30], [W - 110, 70], [W - 160, 22]].forEach(([x, y]) => { stars += `<circle cx="${x}" cy="${y}" r="1.6" fill="#fff" opacity=".8"/>`; });
+    return `<rect width="${W}" height="250" fill="#1e1b4b"/>
+      <rect x="22" y="22" width="120" height="96" rx="6" fill="#312e81" stroke="#4338ca" stroke-width="4"/><path d="M82 22v96M22 70h120" stroke="#4338ca" stroke-width="4"/>
+      <circle cx="116" cy="44" r="12" fill="#fef3c7"/><circle cx="121" cy="40" r="11" fill="#312e81"/>${stars}
+      <rect x="${W - 120}" y="34" width="64" height="80" rx="4" fill="#3730a3" opacity=".7"/><path d="M${W - 112} 52 h48 M${W - 112} 64 h40 M${W - 112} 76 h44" stroke="#a5b4fc" stroke-width="3" opacity=".6"/>`;
+  }
+  function sceneDay(W, plant) {
+    return `<rect width="${W}" height="250" fill="#eef0ff"/>
+      <rect x="22" y="24" width="112" height="88" rx="6" fill="#dbeafe" stroke="#a5b4fc" stroke-width="4"/><path d="M78 24v88M22 68h112" stroke="#a5b4fc" stroke-width="4"/><circle cx="52" cy="48" r="10" fill="#fde68a"/>
+      ${plant === false ? "" : `<g transform="translate(${W - 50} 196)"><path d="M0 0 q-24 -30 -10 -62 M0 0 q18 -34 6 -66 M0 0 q30 -20 30 -48" stroke="#15803d" stroke-width="8" fill="none" stroke-linecap="round"/><rect x="-16" y="-6" width="32" height="28" rx="4" fill="#c2410c" stroke="${INK}" stroke-width="2"/></g>`}`;
+  }
+  function desk(W, y) { return `<rect x="0" y="${y}" width="${W}" height="${250 - y}" fill="#8b5e3c"/><rect x="0" y="${y}" width="${W}" height="8" fill="#a16f47"/><path d="M0 ${y + 8} H${W}" stroke="${INK}" stroke-width="2.4"/>`; }
+  function laptopBack(cx, y, w, h) {
+    w = w || 130; h = h || 60;
+    return `<g><rect x="${cx - w / 2}" y="${y - h}" width="${w}" height="${h + 4}" rx="7" fill="#cbd5e1" stroke="${INK}" stroke-width="2.4"/>
+      <path d="M${cx} ${y - h / 2 - 12} l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z" fill="#94a3b8"/><rect x="${cx - w / 2 - 10}" y="${y + 2}" width="${w + 20}" height="8" rx="3" fill="#94a3b8" stroke="${INK}" stroke-width="2"/></g>`;
+  }
+  function sticky(x, y, rot, color, title, lines) {
+    const t = lines.map((l, i) => `<text x="10" y="${38 + i * 13}" font-family="Comic Neue, Comic Sans MS, sans-serif" font-weight="700" font-size="11" fill="#3f2d00">${l}</text>`).join("");
+    return `<g transform="translate(${x} ${y}) rotate(${rot})"><rect width="104" height="${30 + lines.length * 13 + 8}" fill="${color}" stroke="${INK}" stroke-width="2"/><rect x="34" y="-6" width="36" height="12" fill="#fff" opacity=".7"/><text x="10" y="21" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="10" fill="#3f2d00">${title}</text>${t}</g>`;
+  }
+  function phoneBig(x, y, o) {
+    o = o || {};
+    return `<g transform="translate(${x} ${y})">
+      <rect x="0" y="0" width="170" height="300" rx="22" fill="#1f2937" stroke="${INK}" stroke-width="3"/>
+      <rect x="10" y="16" width="150" height="268" rx="10" fill="#fff"/>
+      <rect x="62" y="6" width="46" height="6" rx="3" fill="#374151"/>
+      <text x="22" y="42" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#5b6179">Frase 4 de 10</text>
+      <rect x="22" y="50" width="126" height="6" rx="3" fill="#e3e5ef"/><rect x="22" y="50" width="50" height="6" rx="3" fill="#4f46e5"/>
+      <text x="22" y="88" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="800" fill="${INK}">Quero ____ café,</text>
+      <text x="22" y="106" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="800" fill="${INK}">por favor.</text>
+      <rect x="22" y="126" width="126" height="34" rx="9" fill="${o.wrong ? "#fdeeec" : "#e8f7ee"}" stroke="${o.wrong ? "#b42318" : "#15803d"}" stroke-width="2.4"/>
+      <text x="36" y="148" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="800" fill="${INK}">mas</text>
+      <text x="138" y="148" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9.5" font-weight="800" fill="${o.wrong ? "#b42318" : "#15803d"}">${o.wrong ? "✗ ERRADO" : "✓ GABARITO"}</text>
+      <rect x="22" y="168" width="126" height="34" rx="9" fill="#fff" stroke="${o.wrong ? "#15803d" : "#cfd3e3"}" stroke-width="2.4" ${o.wrong ? "" : 'stroke-dasharray="0"'}/>
+      <text x="36" y="190" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="800" fill="${INK}">mais</text>
+      ${o.wrong ? `<text x="138" y="190" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9.5" font-weight="800" fill="#15803d">✓ CORRETO</text>` : ""}
+      <text x="22" y="226" font-family="Plus Jakarta Sans, sans-serif" font-size="9.5" fill="#5b6179">Explicação: "mas" indica</text>
+      <text x="22" y="240" font-family="Plus Jakarta Sans, sans-serif" font-size="9.5" fill="#5b6179">oposição, como "porém".</text>
+    </g>`;
+  }
+
+  /* =========================================================
+     ROTEIRO  ·  capítulos, quadros, falas e bastidores
+  ========================================================= */
+  const S = (n) => `../curso.html#${n}`;
+  const ACTS = [
+    { kick: "Prólogo", title: "Segunda-feira, 22h", color: "var(--primary)", short: "Prólogo", link: ["Ver a trilha do minicurso", "../index.html#trilha"], panels: [
+      { wide: true, W: 800, alt: "À noite, Ana está sentada diante do notebook. A luz da tela ilumina o rosto preocupado dela.",
+        art: (W) => sceneNight(W) + ana(400, 214, 1.0, { mood: "worried", glow: true }) + desk(W, 200) + laptopBack(400, 200, 140, 50),
+        bubbles: [
+          { k: "caption", x: 2, y: 4, w: 40, m: { x: 2, y: 82, w: 64 }, text: "Segunda-feira, 22h. Fórum da turma de Língua Portuguesa · EJA, EAD." },
+          { k: "think", who: "Ana pensa", x: 60, y: 8, w: 34, t: "bl", m: { x: 54, y: 4, w: 44 }, text: "De novo… “Eu queria ir, MAIS choveu.” Já é o quinto post assim." }
+        ],
+        note: ["Etapa 1 · Necessidade", "Tudo começa com algo que a professora <em>observou</em> na turma, não com uma ferramenta.", S("necessidade")] },
+      { alt: "Ana sorri e levanta a mão, animada. A Faísca, uma pequena IA em forma de robô com uma estrela na antena, aparece flutuando.",
+        art: (W) => sceneNight(W) + ana(130, 236, .92, { mood: "happy", arm: "up", glow: true }) + desk(W, 206) + faisca(300, 118, .9, { mood: "wow" }),
+        bubbles: [
+          { who: "Ana", x: 4, y: 4, w: 46, t: "bl", text: "Já sei! Vou pedir um joguinho para a IA!" },
+          { k: "ai", who: "Faísca", x: 50, y: 64, w: 47, t: "tr", text: "Oi! Faço agora! Pontos? Fogos de artifício? Um dragão?" }
+        ],
+        note: ["Armadilha", "Pedir \"um joguinho\" deixa a IA inventar o público, o conteúdo e o formato.", S("necessidade")] },
+      { alt: "Ana estende a mão aberta, como quem diz espere. A Faísca para no ar, curiosa.",
+        art: (W) => sceneNight(W) + ana(130, 236, .92, { mood: "firm", arm: "stop" }) + desk(W, 206) + faisca(306, 120, .86, { mood: "neutral" }),
+        bubbles: [
+          { who: "Ana", x: 3, y: 4, w: 54, t: "bl", text: "Espera, Faísca. Antes: qual é o problema, exatamente?" },
+          { k: "ai", who: "Faísca", x: 66, y: 74, w: 30, t: "tr", text: "…Boa pergunta." }
+        ],
+        note: ["Comece pelo problema", "O minicurso chama isso de <em>começar pelo problema, não pela tecnologia</em>.", S("necessidade")] }
+    ]},
+    { kick: "Capítulo 1 · Etapa 01", title: "Necessidade", color: "var(--s1)", short: "Necessidade", link: ["Etapa 1 no material", S("necessidade")], panels: [
+      { alt: "De dia, Ana aponta para três notas adesivas na parede: Quem aprende? Adultos, à noite, pelo celular. Qual a dificuldade? Trocam mas por mais. Como saberei? Menos trocas no fórum.",
+        art: (W) => sceneDay(W, false) + sticky(150, 22, -4, "#fde68a", "QUEM APRENDE?", ["Adultos, à noite,", "pelo celular"]) + sticky(268, 30, 3, "#c4b5fd", "DIFICULDADE?", ["Trocam “mas”", "por “mais”"]) + sticky(206, 112, -2, "#99f6e4", "COMO SABEREI?", ["Menos trocas", "no fórum"]) + ana(78, 250, .88, { mood: "think", arm: "point", look: [3, -1] }),
+        bubbles: [ { k: "caption", x: 2, y: 3, w: 32, text: "Na manhã seguinte." } ],
+        note: ["As três perguntas", "Quem aprende, qual a dificuldade e como saber se ajudou. Está no Modelo 1 do eBook.", "../ebook/"] },
+      { alt: "Ana segura um cartão com a necessidade escrita. A Faísca, ao lado, parece entusiasmada.",
+        art: (W) => sceneDay(W) + ana(120, 250, .88, { mood: "happy", arm: "card" }) + `<g transform="translate(150 40) rotate(4)"><rect width="128" height="80" rx="6" fill="#fff" stroke="${INK}" stroke-width="2.4"/><rect width="128" height="18" rx="6" fill="#7c3aed"/><text x="64" y="13" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="9.5" fill="#fff">NECESSIDADE</text><text x="10" y="36" font-family="Comic Neue, sans-serif" font-weight="700" font-size="10.5" fill="${INK}">Treino curto, no celular,</text><text x="10" y="50" font-family="Comic Neue, sans-serif" font-weight="700" font-size="10.5" fill="${INK}">que explique o porquê</text><text x="10" y="64" font-family="Comic Neue, sans-serif" font-weight="700" font-size="10.5" fill="${INK}">de cada resposta.</text></g>` + faisca(330, 170, .72, { mood: "happy" }),
+        bubbles: [ { k: "ai", who: "Faísca", x: 46, y: 72, w: 30, t: "r", text: "Agora eu sei o que construir!" } ],
+        note: ["Necessidade em uma frase", "Repare: a frase já sugere o formato (escolher entre duas palavras e ler a explicação).", S("necessidade")] }
+    ]},
+    { kick: "Capítulo 2 · Etapa 02", title: "Requisitos", color: "var(--s2)", short: "Requisitos", link: ["Etapa 2 no material", S("requisitos")], panels: [
+      { alt: "Ana aponta para um quadro branco com a lista de requisitos e, ao lado de cada um, como verificar.",
+        art: (W) => `<rect width="${W}" height="250" fill="#eaf1ff"/><rect x="14" y="18" width="300" height="196" rx="8" fill="#fff" stroke="${INK}" stroke-width="3"/><text x="34" y="44" font-family="Plus Jakarta Sans" font-weight="800" font-size="13" fill="#2563eb">REQUISITOS</text><text x="182" y="44" font-family="Plus Jakarta Sans" font-weight="800" font-size="10" fill="#5b6179">COMO CONFERIR</text><path d="M28 52 H300" stroke="#2563eb" stroke-width="2.4"/>` +
+          [["10 frases do dia a dia", "contar"], ["explica o porquê", "errar de propósito"], ["cabe no celular", "testar no meu"], ["só com teclado", "Tab e Enter"], ["letra grande", "zoom 200%"]].map((r, i) => `<text x="34" y="${76 + i * 27}" font-family="Comic Neue, sans-serif" font-weight="700" font-size="12" fill="${INK}">✓ ${r[0]}</text><text x="182" y="${76 + i * 27}" font-family="Comic Neue, sans-serif" font-weight="700" font-size="10.5" fill="#2563eb">→ ${r[1]}</text>`).join("") +
+          ana(356, 250, .74, { mood: "smile", arm: "point", flip: true, look: [-3, 0] }),
+        bubbles: [ { k: "caption", x: 2, y: 88, w: 70, text: "Cada requisito com um jeito de conferir." } ],
+        note: ["Requisitos verificáveis", "A coluna da direita vira o roteiro de testes do capítulo 4. Modelo 2 do eBook.", S("requisitos")] },
+      { alt: "A Faísca, toda orgulhosa, sugere que o treino seja bem bonito. Ana ergue uma sobrancelha.",
+        art: (W) => sceneDay(W) + desk(W, 214) + ana(110, 250, .86, { mood: "firm" }) + faisca(300, 116, .86, { mood: "proud" }),
+        bubbles: [
+          { k: "ai", who: "Faísca", x: 50, y: 3, w: 46, t: "br", text: "E que seja bem bonito!" },
+          { who: "Ana", x: 2, y: 3, w: 46, t: "bl", text: "“Bonito” não dá para testar. “Letra grande e bom contraste” dá." }
+        ],
+        note: ["Se não dá para testar…", "…ainda não é requisito. O desafio do capítulo 3 do eBook treina exatamente isso.", S("requisitos")] }
+    ]},
+    { kick: "Capítulo 3 · Etapa 03", title: "Construção com IA", color: "var(--s3)", short: "Construção", link: ["Etapa 3 no material", S("construcao")], panels: [
+      { alt: "Close na tela do notebook: o pedido da Ana está dividido em seis blocos coloridos, de contexto a entrega.",
+        art: (W) => `<rect width="${W}" height="250" fill="#0f172a"/><rect x="34" y="8" width="332" height="180" rx="12" fill="#1e293b" stroke="${INK}" stroke-width="3"/><rect x="46" y="18" width="308" height="160" rx="6" fill="#f8fafc"/>` +
+          [["1 Contexto", "#7c3aed", "Tutora de Língua Portuguesa, EJA, EAD"], ["2 Público", "#2563eb", "Adultos, estudam à noite pelo celular"], ["3 Objetivo", "#0d9488", "Parar de trocar “mas” por “mais”"], ["4 Requisitos", "#c2410c", "10 frases, explicação, progresso…"], ["5 Restrições", "#be185d", "Arquivo único, teclado, letra grande"], ["6 Entrega", "#15803d", "Frases numa lista editável"]].map((b, i) => `<rect x="56" y="${25 + i * 25}" width="288" height="21" rx="5" fill="${b[1]}" opacity=".13"/><rect x="56" y="${25 + i * 25}" width="5" height="21" rx="2" fill="${b[1]}"/><text x="68" y="${39 + i * 25}" font-family="Plus Jakarta Sans" font-weight="800" font-size="10" fill="${b[1]}">${b[0]}</text><text x="154" y="${39 + i * 25}" font-family="Plus Jakarta Sans" font-size="9.5" fill="${INK}">${b[2]}</text>`).join("") + `<rect x="18" y="188" width="364" height="10" rx="4" fill="#334155"/>`,
+        bubbles: [ { x: 18, y: 81, w: 64, t: "none", text: "Ana: “E nada de nomes de estudantes!”" } ],
+        note: ["Anatomia do pedido", "Contexto, público, objetivo, requisitos, restrições e entrega. A descrição da turma basta: sem nomes, notas ou matrículas. O pedido completo está no Banco de pedidos do eBook.", S("construcao")] },
+      { alt: "A Faísca exibe, orgulhosa, o arquivo treino-v1.html. Ana responde com calma, de braços cruzados.",
+        art: (W) => sceneDay(W) + desk(W, 214) + faisca(250, 122, .86, { mood: "proud", file: "v1.html", fileColor: "#0d9488" }) + ana(78, 250, .8, { mood: "smile", look: [3, 0] }),
+        bubbles: [
+          { k: "ai", who: "Faísca", x: 40, y: 3, w: 46, t: "bl", text: "Pronto! Está perfeito! ✨" },
+          { who: "Ana", x: 2, y: 30, w: 40, t: "bl", text: "Perfeito é o que eu vou conferir." }
+        ],
+        note: ["Guarde cada versão", "treino-v1.html, treino-v2.html… Se uma versão quebrar, dá para voltar.", S("construcao")] }
+    ]},
+    { kick: "Capítulo 4 · Etapa 04", title: "Testes", color: "var(--s4)", short: "Testes", link: ["Etapa 4 no material", S("testes")], panels: [
+      { wide: true, W: 800, alt: "Ana testa o treino no celular, concentrada. A Faísca observa satisfeita.",
+        art: (W) => sceneDay(W) + desk(W, 214) + ana(300, 250, .95, { mood: "firm", arm: "phone", look: [2, -2] }) + faisca(540, 128, .78, { mood: "happy" }),
+        bubbles: [
+          { k: "caption", x: 2, y: 4, w: 24, m: { x: 2, y: 84, w: 52 }, text: "Teste 1: errar de propósito." },
+          { who: "Ana", x: 40, y: 6, w: 26, t: "bl", m: { x: 30, y: 4, w: 66 }, text: "Escolhi a errada… e a explicação apareceu. Ponto para você!" }
+        ],
+        note: ["Teste como um estudante", "Errar de propósito, clicar rápido, usar só o teclado: é o \"uso real\".", S("testes")] },
+      { wide: true, W: 800, mcrop: 0, interactive: true, alt: "Close no celular: Frase 4 de 10. Quero ____ café, por favor. O treino marca mas como resposta certa.",
+        art: (W) => `<rect width="${W}" height="250" fill="#fff1e8"/><path d="M0 250 L800 0" stroke="#fed7aa" stroke-width="120" opacity=".5"/>` + `<g transform="translate(70 -25) scale(.9)">${phoneBig(0, 0)}</g>`,
+        artAfter: (W) => `<rect width="${W}" height="250" fill="#fff1e8"/><path d="M0 250 L800 0" stroke="#fed7aa" stroke-width="120" opacity=".5"/>` + `<g transform="translate(70 -25) scale(.9)">${phoneBig(0, 0, { wrong: true })}</g>` + ana(330, 250, .95, { mood: "oh", arm: "phone", look: [-3, 0] }),
+        bubbles: [
+          { k: "caption", x: 28, y: 4, w: 24, m: { x: 56, y: 4, w: 42 }, text: "Teste 2: conferir cada gabarito." },
+          { who: "Ana", later: true, x: 25, y: 24, w: 25, t: "br", m: { x: 48, y: 20, w: 50 }, text: "Opa! “Mais café” é quantidade. O gabarito está errado!" }
+        ],
+        choice: { q: "Você é a Ana. O gabarito \"mas\" está certo?", a: [["Está certo", false], ["Está errado", true]],
+          ok: "Isso! \"Quero mais café\" indica quantidade. A Faísca errou com toda a confiança.", no: "Repare: dá para trocar por \"porém\"? \"Quero porém café\" não faz sentido. É quantidade, então é \"mais\". A IA errou, e quase passou." },
+        note: ["O erro mais grave", "Gabarito trocado só é descoberto por quem conhece o conteúdo. Na vídeo-aula, a conferência é feita no console.", S("testes")] },
+      { wide: true, W: 800, alt: "A Faísca, sem graça, com uma gota de suor. Ana mostra no celular que o botão Próxima sumiu da tela.",
+        art: (W) => sceneDay(W) + desk(W, 214) + ana(290, 250, .95, { mood: "firm", arm: "phone" }) + faisca(530, 122, .86, { mood: "oops" }),
+        bubbles: [
+          { who: "Ana", x: 2, y: 6, w: 28, t: "br", m: { x: 2, y: 4, w: 56, t: "bl" }, text: "Por isso eu confiro. E no celular o botão “Próxima” sumiu da tela." },
+          { k: "ai", who: "Faísca", x: 70, y: 6, w: 27, t: "bl", m: { x: 52, y: 52, w: 46, t: "tr" }, text: "Ops… eu disse com tanta confiança, né?" },
+          { k: "caption", x: 70, y: 84, w: 28, m: { x: 2, y: 86, w: 50 }, text: "Registro de testes: 2 problemas." }
+        ],
+        note: ["Registro de testes", "Teste, esperado, observado e resultado. Cada \"Problema\" vira um item do pedido de melhoria. Modelo 4 do eBook.", S("testes")] }
+    ]},
+    { kick: "Capítulo 5 · Etapa 05", title: "Melhorias", color: "var(--s5)", short: "Melhorias", link: ["Etapa 5 no material", S("melhorias")], panels: [
+      { alt: "Ana digita um pedido de melhoria preciso. A mensagem aparece em destaque.",
+        art: (W) => sceneDay(W, false) + desk(W, 214) + ana(330, 222, .84, { mood: "firm", glow: true }) + laptopBack(330, 214, 110, 42) + faisca(60, 196, .5, { mood: "neutral" }),
+        bubbles: [
+          { k: "chat", who: "Mensagem de Ana para a Faísca", x: 2, y: 3, w: 62, t: "r", text: "Na frase 4, o gabarito está “mas”, mas deveria ser “mais”. No celular, o botão “Próxima” fica fora da tela. Corrija só isso, mantenha o resto igual e liste o que mudou." }
+        ],
+        note: ["Peça como quem relata um problema", "Onde, o que acontece, o que deveria acontecer e o limite da mudança.", S("melhorias")] },
+      { alt: "A Faísca mostra o arquivo treino-v2.html. Ana, sorrindo, confere no celular.",
+        art: (W) => sceneDay(W) + desk(W, 214) + faisca(108, 130, .78, { mood: "happy", file: "v2.html", fileColor: "#be185d" }) + ana(320, 250, .86, { mood: "happy", arm: "phone" }),
+        bubbles: [
+          { k: "ai", who: "Faísca", x: 2, y: 3, w: 46, t: "bl", text: "Alterei 2 coisas: o gabarito da frase 4 e o botão. O resto ficou igual." },
+          { who: "Ana", x: 52, y: 3, w: 45, t: "br", text: "Testei de novo: tudo certo. Agora vai para a turma!" }
+        ],
+        note: ["Teste de novo", "Toda correção pode quebrar outra coisa. Por isso o ciclo volta para os testes.", S("melhorias")] }
+    ]},
+    { kick: "Epílogo", title: "Duas semanas depois", color: "var(--s6, #15803d)", short: "Epílogo", link: ["Cuidados éticos no material", S("cuidados")], panels: [
+      { alt: "Davi, estudante, está no ônibus à noite, sorrindo para o celular.",
+        art: (W) => `<rect width="${W}" height="250" fill="#334155"/>` + [0, 1, 2].map(i => `<rect x="${20 + i * 128}" y="22" width="112" height="86" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="4"/><circle cx="${50 + i * 128}" cy="80" r="3" fill="#fde68a"/><circle cx="${96 + i * 128}" cy="64" r="2.4" fill="#fde68a"/><rect x="${34 + i * 128}" y="86" width="18" height="22" fill="#475569"/><rect x="${70 + i * 128}" y="74" width="26" height="34" fill="#475569"/>`).join("") + `<rect x="0" y="120" width="${W}" height="10" fill="#94a3b8"/><path d="M60 0 v120 M340 0 v120" stroke="#cbd5e1" stroke-width="6"/>` + davi(200, 250, .98, { mood: "happy" }) + `<rect x="0" y="230" width="${W}" height="20" fill="#1e293b"/>`,
+        bubbles: [
+          { k: "caption", x: 2, y: 3, w: 34, text: "Duas semanas depois." },
+          { who: "Davi", x: 52, y: 52, w: 46, t: "l", text: "MAS é “porém”. MAIS é quantidade. Agora foi!" }
+        ],
+        note: ["Para quem é o recurso", "Davi estuda pelo celular, no ônibus. Foi por isso que \"cabe no celular\" virou requisito.", S("requisitos")] },
+      { alt: "Ana, com uma caneca de café, sorri diante do fórum da turma com posts corretos. A Faísca flutua ao lado.",
+        art: (W) => sceneDay(W, false) + `<rect x="150" y="22" width="232" height="150" rx="10" fill="#fff" stroke="${INK}" stroke-width="2.6"/><rect x="150" y="22" width="232" height="24" rx="10" fill="#be185d"/><text x="164" y="39" font-family="Plus Jakarta Sans" font-weight="800" font-size="10.5" fill="#fff">Fórum da turma</text>` +
+          ["Fui ao mercado, mas esqueci a lista. ✓", "Preciso de mais tempo para ler. ✓", "Gostei, mas quero mais exercícios! ✓"].map((t, i) => `<rect x="162" y="${56 + i * 37}" width="208" height="30" rx="6" fill="#f7f7fb"/><circle cx="176" cy="${71 + i * 37}" r="7" fill="${["#7c3aed", "#0d9488", "#c2410c"][i]}"/><text x="188" y="${75 + i * 37}" font-family="Comic Neue, sans-serif" font-weight="700" font-size="9.5" fill="${INK}">${t}</text>`).join("") +
+          desk(W, 214) + ana(78, 250, .84, { mood: "happy", arm: "mug" }) + faisca(346, 196, .46, { mood: "happy" }),
+        bubbles: [
+          { who: "Ana", x: 2, y: 3, w: 34, t: "bl", text: "Menos trocas no fórum: a evidência que eu defini lá no início." },
+          { k: "ai", who: "Faísca", x: 48, y: 72, w: 30, t: "r", text: "Posso ajudar no próximo?" },
+          { who: "Ana", x: 2, y: 82, w: 36, t: "none", text: "Pode. E eu confiro de novo. 😉" }
+        ],
+        note: ["Como saberei se ajudou?", "A evidência definida na etapa 1 fecha o ciclo. A IA ajuda; a autoria é da Ana.", S("cuidados")] }
+    ]}
+  ];
+
+  /* =========================================================
+     RENDERIZAÇÃO
+  ========================================================= */
+  const $ = (s) => document.querySelector(s);
+  const pageEl = $("#page"), actsEl = $("#acts");
+  let current = 0, notesOn = false;
+  const seen = new Set();
+
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+
+  const mobileMQ = matchMedia("(max-width: 760px)");
+  function svgArt(p, after) {
+    const W = p.W || 400;
+    const vb = (p.wide && mobileMQ.matches) ? `${p.mcrop != null ? p.mcrop : (W - 400) / 2} 0 400 250` : `0 0 ${W} 250`;
+    return `<svg class="art" viewBox="${vb}" aria-hidden="true" focusable="false">${(after && p.artAfter ? p.artAfter : p.art)(W)}</svg>`;
+  }
+
+  function bubbleHTML(b, wide) {
+    if (wide && mobileMQ.matches && b.m) b = Object.assign({}, b, b.m);
+    const cls = b.k === "caption" ? "caption" : `bubble ${b.k === "think" ? "think" : ""} ${b.k === "ai" ? "ai" : ""} ${b.k === "chat" ? "chat" : ""} t-${b.t || "bl"}`;
+    const who = b.who ? `<span class="who">${esc(b.who)}: </span>` : "";
+    return `<p class="${cls}${b.later ? " reveal-later" : ""}" style="left:${b.x}%;top:${b.y}%;width:${b.w}%">${who}${esc(b.text)}</p>`;
+  }
+
+  function panelHTML(p, i) {
+    const note = p.note ? `<button class="pin" type="button" aria-expanded="false" aria-label="Bastidores deste quadro" data-note="${i}">📌</button><div class="note" id="note-${i}" hidden><b>${p.note[0]}</b>${p.note[1]} <a href="${p.note[2]}">Ver no minicurso →</a></div>` : "";
+    const choice = p.choice ? `<div class="choice" id="choice"><p>${esc(p.choice.q)}</p><div class="row">${p.choice.a.map((a, j) => `<button type="button" data-ans="${j}">${esc(a[0])}</button>`).join("")}</div><p class="fb" id="choice-fb" aria-live="polite" hidden></p></div>` : "";
+    return `<figure class="panel${p.wide ? " wide" : ""}" data-i="${i}">
+      <figcaption class="who">Quadro ${i + 1}: ${esc(p.alt)}</figcaption>
+      <div class="art-box">${svgArt(p)}</div>
+      ${p.bubbles.map(b => bubbleHTML(b, p.wide)).join("")}
+      ${choice}${note}
+    </figure>`;
+  }
+
+  function renderTabs() {
+    actsEl.innerHTML = ACTS.map((a, i) => `<button class="act-tab${seen.has(i) ? " seen" : ""}" type="button" style="--ac:${a.color}" data-act="${i}" ${i === current ? 'aria-current="true"' : ""}><small>${i === 0 ? "Início" : i === ACTS.length - 1 ? "Fim" : "Etapa 0" + i}</small>${a.short}</button>`).join("");
+  }
+
+  function render(focus) {
+    const a = ACTS[current];
+    seen.add(current);
+    document.documentElement.style.setProperty("--ac", a.color);
+    $("#act-kick").textContent = a.kick;
+    $("#act-title").textContent = a.title;
+    const sl = $("#stage-link"); sl.textContent = a.link[0] + " →"; sl.href = a.link[1];
+    pageEl.style.setProperty("--ac", a.color);
+    pageEl.innerHTML = a.panels.map(panelHTML).join("");
+    pageEl.classList.toggle("notes-on", notesOn);
+    pageEl.classList.remove("enter"); void pageEl.offsetWidth; pageEl.classList.add("enter");
+    $("#count").textContent = `Página ${current + 1} de ${ACTS.length}`;
+    $("#prev").disabled = current === 0;
+    $("#next").innerHTML = current === ACTS.length - 1 ? 'Concluir a HQ <svg class="i"><use href="#i-arrow"/></svg>' : 'Próximo <svg class="i"><use href="#i-arrow"/></svg>';
+    renderTabs();
+    wireChoice();
+    if (focus) pageEl.focus({ preventScroll: true });
+  }
+
+  function wireChoice() {
+    const box = document.getElementById("choice");
+    if (!box) return;
+    const fig = box.closest(".panel"), p = ACTS[current].panels[+fig.dataset.i];
+    box.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-ans]"); if (!btn) return;
+      const right = p.choice.a[+btn.dataset.ans][1];
+      const fb = document.getElementById("choice-fb");
+      fb.hidden = false; fb.textContent = (right ? "✓ " : "✗ ") + (right ? p.choice.ok : p.choice.no);
+      box.querySelector(".row").remove();
+      fig.querySelector(".art-box").innerHTML = svgArt(p, true);
+      fig.classList.add("revealed");
+      const cont = document.createElement("button"); cont.type = "button"; cont.textContent = "Continuar a leitura"; cont.style.marginTop = "10px";
+      cont.addEventListener("click", () => { box.remove(); fig.focus && fig.setAttribute("tabindex", "-1"); fig.focus(); }); box.appendChild(cont); cont.focus();
+    });
+  }
+
+  mobileMQ.addEventListener("change", () => render(false));
+
+  function go(i, focus) {
+    if (i < 0) return;
+    if (i >= ACTS.length) { $("#fim").hidden = false; $("#fim").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    current = i; render(focus);
+    const top = $("#leitor").getBoundingClientRect().top;
+    if (top < 0 || top > window.innerHeight * .5) $("#leitor").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("#prev").addEventListener("click", () => go(current - 1, true));
+  $("#next").addEventListener("click", () => go(current + 1, true));
+  $("#restart").addEventListener("click", () => { $("#fim").hidden = true; go(0, true); });
+  actsEl.addEventListener("click", (e) => { const b = e.target.closest("[data-act]"); if (b) go(+b.dataset.act, true); });
+  $("#toggle-notes").addEventListener("click", (e) => {
+    notesOn = !notesOn; e.currentTarget.setAttribute("aria-pressed", String(notesOn)); pageEl.classList.toggle("notes-on", notesOn);
+    if (!notesOn) pageEl.querySelectorAll(".note").forEach(n => n.hidden = true);
+  });
+  pageEl.addEventListener("click", (e) => {
+    const pin = e.target.closest(".pin"); if (!pin) return;
+    const n = document.getElementById("note-" + pin.dataset.note), open = n.hidden;
+    pageEl.querySelectorAll(".note").forEach(x => x.hidden = true);
+    pageEl.querySelectorAll(".pin").forEach(x => x.setAttribute("aria-expanded", "false"));
+    n.hidden = !open; pin.setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.target.closest("input, textarea, select")) return;
+    if (e.key === "ArrowRight") go(current + 1, true);
+    if (e.key === "ArrowLeft") go(current - 1, true);
+    if (e.key === "Escape") pageEl.querySelectorAll(".note").forEach(n => n.hidden = true);
+  });
+  let tx = null;
+  pageEl.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+  pageEl.addEventListener("touchend", (e) => {
+    if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 60) go(current + (dx < 0 ? 1 : -1), true);
+  });
+
+  /* transcrição */
+  $("#transcript-body").innerHTML = ACTS.map((a, ai) => `<h3>${a.kick}: ${a.title}</h3>` + a.panels.map((p, i) =>
+    `<p class="q">Quadro: ${esc(p.alt)}</p>` + p.bubbles.map(b => `<p>${b.k === "caption" ? "<strong>Narração:</strong> " : b.who ? `<strong>${esc(b.who)}:</strong> ` : ""}${esc(b.text)}</p>`).join("") +
+    (p.choice ? `<p><strong>Pergunta ao leitor:</strong> ${esc(p.choice.q)} Resposta: está errado. ${esc(p.choice.ok)}</p>` : "")).join("")).join("");
+
+  /* capa e elenco */
+  $("#cover-art").innerHTML = `<svg viewBox="0 0 400 300"><rect x="6" y="6" width="388" height="288" rx="16" fill="#eef0ff" stroke="${INK}" stroke-width="4"/>${sceneDay(400).replace(/^<rect[^>]*>/, "")}${desk(400, 222)}${ana(130, 258, .95, { mood: "happy", arm: "phone" })}${faisca(300, 130, .95, { mood: "oops" })}<g transform="translate(206 20)"><rect width="150" height="40" rx="12" fill="#fff" stroke="${INK}" stroke-width="3"/><text x="75" y="26" text-anchor="middle" font-family="Comic Neue, sans-serif" font-weight="700" font-size="15" fill="${INK}">Gabarito errado?!</text></g></svg>`;
+  $("#cast-ana").innerHTML = `<svg viewBox="-62 -202 124 124">${ana(0, 0, 1, { mood: "smile" })}</svg>`;
+  $("#cast-faisca").innerHTML = `<svg viewBox="-64 -68 128 128">${faisca(0, 0, 1, { mood: "happy" })}</svg>`;
+  $("#cast-davi").innerHTML = `<svg viewBox="-54 -150 108 108">${davi(0, 0, 1, { mood: "happy" })}</svg>`;
+
+  $("#btn-start").addEventListener("click", (e) => { e.preventDefault(); $("#leitor").scrollIntoView({ behavior: "smooth" }); setTimeout(() => pageEl.focus({ preventScroll: true }), 400); });
+
+  /* tema */
+  const root = document.documentElement, themeBtn = $("#theme-toggle"), sysDark = matchMedia("(prefers-color-scheme: dark)");
+  const cur = () => root.dataset.theme || (sysDark.matches ? "dark" : "light");
+  function paint() { const d = cur() === "dark"; themeBtn.querySelector("use").setAttribute("href", d ? "#i-sun" : "#i-moon"); themeBtn.setAttribute("aria-label", d ? "Usar tema claro" : "Usar tema escuro"); }
+  themeBtn.addEventListener("click", () => { const n = cur() === "dark" ? "light" : "dark"; root.dataset.theme = n; try { localStorage.setItem("tema", n); } catch (e) {} paint(); });
+  paint();
+
+  render(false);
+})();
+</script>
+</body>
+</html>

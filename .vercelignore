@@ -1,2 +1,4 @@
 # Arquivos de apoio (roteiros, apresentação) não fazem parte do site publicado
 *.md
+# Fonte do eBook (só para gerar o PDF de novo)
+ebook/fonte/

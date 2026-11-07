@@ -1,6 +1,8 @@
 # Do problema ao protótipo: recursos educacionais com apoio de IA
 
-Minicurso EaD de **Thiago Jacinto**, da trilha *Docência Digital na Era da IA: Ensino e Aprendizagem na EaD* (projeto da 1ª VA).
+Minicurso EaD de **Thiago Jacinto**, da trilha *Docência Digital na Era da IA: Ensino e Aprendizagem na EaD* (projetos da 1ª e da 2ª VA).
+
+Site: https://minicurso-ia-ten.vercel.app
 
 ## Estrutura
 ```
@@ -10,6 +12,9 @@ avaliacao/index.html  Avaliação interativa (12 questões alinhadas aos objetiv
 prototipo/v1.html     Protótipo gerado pelo primeiro pedido à IA
 prototipo/v2.html     Protótipo depois do ciclo de testes e melhorias
 prototipo/mitose.html Exemplo 2 (Biologia): atividade de ordenar as fases da mitose
+quadrinhos/index.html 2ª VA · Item 2: HQ interativa "Ana e a Faísca" (HTML + SVG, sem dependências)
+ebook/index.html      2ª VA · Item 1: página do eBook (embed do FlipHTML5 + PDF)
+ebook/*.pdf           eBook "Caderno prático" (24 páginas, A5, com links)
 assets/css/style.css  Estilos (tema claro/escuro)
 assets/js/main.js     Interações da página (vídeo, menu, cópia, checklist, gerador de pedidos)
 ROTEIRO-VIDEO.md      Roteiro de gravação da vídeo-aula
@@ -30,7 +35,13 @@ Se os dois atributos estiverem preenchidos, o YouTube tem prioridade. Os capítu
 
 > O player não funciona quando o arquivo é aberto com duplo clique (`file://`). Teste pelo link da Vercel ou com `python3 -m http.server`.
 
-## 2. Publicar na Vercel
+## 2. eBook no FlipHTML5 (obrigatório na 2ª VA)
+1. Entre em fliphtml5.com (conta gratuita) → **Create New** → envie `ebook/do-problema-ao-prototipo-ebook.pdf`.
+2. Na importação, deixe marcada a opção de **importar os links do PDF**, para o sumário e os links continuarem clicáveis.
+3. Título: *Do problema ao protótipo · Caderno prático*. Publique como **Public** e copie o link (`https://online.fliphtml5.com/.../`).
+4. Em `ebook/index.html`, cole o link em `window.EBOOK_FLIP_URL = "";`, faça o commit e o push. A página passa a mostrar o flipbook embutido.
+
+## 3. Publicar na Vercel
 É um site estático: não precisa de build.
 
 **Pelo site (mais simples):**
@@ -45,11 +56,15 @@ vercel        # primeira vez: faz login e cria o projeto
 vercel --prod # publica em produção
 ```
 
-## 3. Checklist antes de entregar
+## 4. Checklist antes de entregar
 - [ ] Link da Vercel abre no computador e no celular
 - [ ] Vídeo toca dentro do site, com legendas revisadas
 - [ ] Capítulos do vídeo pulam para o tempo certo
 - [ ] Avaliação abre, funciona até o fim e mostra o resultado
 - [ ] Abas v1/v2 do protótipo funcionam
 - [ ] Links das referências abrem
+- [ ] eBook publicado no FlipHTML5 e link colado em `ebook/index.html`
+- [ ] Flipbook abre dentro da página do eBook, e o sumário pula para as páginas
+- [ ] HQ: os 7 capítulos abrem, a pergunta do capítulo 4 funciona e o modo bastidores abre as notas
+- [ ] Trilha da página inicial leva para a HQ, o eBook e a avaliação
 - [ ] Link adicionado na planilha da turma
