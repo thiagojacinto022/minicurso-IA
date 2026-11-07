@@ -3,6 +3,7 @@
 Minicurso EaD de **Thiago Jacinto**, da trilha *Docência Digital na Era da IA: Ensino e Aprendizagem na EaD* (projetos da 1ª e da 2ª VA).
 
 Site: https://minicurso-ia-ten.vercel.app
+eBook (FlipHTML5): https://online.fliphtml5.com/stprnr/do-problema-ao-prototipo-ebook/
 
 ## Estrutura
 ```
